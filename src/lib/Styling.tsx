@@ -82,6 +82,7 @@ export class StyledClassBuilder<V extends Record<string, StyledClass> = {}> {
     });
 
     // turn {[media({minWidth: 100})]: {}} into {0: {}}
+
     startRuleSession();
     styledClass.__meta.resolvedStyling = styledClass.__meta.styling ? styledClass.__meta.styling() : {};
     styledClass.__meta.rules = finishRuleSession();

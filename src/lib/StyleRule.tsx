@@ -54,7 +54,7 @@ export const unregisterRuleCallback = (rule: StyleRule, callback: Callback) => {
 
 const createUpdateCallback = (rule: StyleRule<any>) => {
   return () => {
-    ruleCallbacks[rule.name].forEach(callback => callback());
+    ruleCallbacks[rule.name]?.forEach(callback => callback());
   };
 };
 
