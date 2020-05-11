@@ -2,5 +2,3 @@ node_modules
 .idea
 cjs
 esm
-.parcel-cache
-dist
