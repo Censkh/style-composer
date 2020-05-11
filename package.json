@@ -1,0 +1,43 @@
+{
+  "name": "style-composer",
+  "version": "0.0.0",
+  "author": "James Waterhouse <09jwater@gmail.com>",
+  "license": "MIT",
+  "main": "cjs/index.js",
+  "types": "esm/index.d.ts",
+  "module": "esm/index.js",
+  "scripts": {
+    "example:start": "parcel example_e/index.html",
+    "lint": "eslint --ext .tsx,.ts src",
+    "lint:fix": "eslint --fix --ext .tsx,.ts src",
+    "build": "npm run build:esm && npm run build:cjs",
+    "build:esm": "tsc --module es2015 --target es5 --outDir esm",
+    "build:cjs": "tsc --module commonjs --target es5 --outDir cjs",
+    "build:watch": "npm-run-all -p \"build:esm -- -w\" \"build:cjs -- -w\""
+  },
+  "devDependencies": {
+    "@types/node": "^13.13.5",
+    "@types/react-native": "^0.62.7",
+    "eslint": "^7.0.0",
+    "parcel": "^2.0.0-alpha.3.2",
+    "sass": "^1.26.5",
+    "typescript": "^3.8.3"
+  },
+  "peerDependencies": {
+    "react": "^16.0.0",
+    "react-native": "^0.4.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.15",
+    "react": "^16.13.1",
+    "react-native": "^0.62.2"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "index.js",
+    "index.d.ts",
+    "esm/",
+    "cjs/"
+  ]
+}
