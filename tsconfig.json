@@ -5,8 +5,9 @@
       "ESNext"
     ],
     "moduleResolution": "node",
-    "module": "esnext",
+    "module": "ES2015",
     "strict": true,
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "jsx": "react"

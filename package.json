@@ -1,13 +1,14 @@
 {
   "name": "style-composer",
-  "version": "0.0.1-alpha1",
+  "version": "0.0.1-alpha4",
   "author": "James Waterhouse <09jwater@gmail.com>",
   "license": "MIT",
   "main": "cjs/index.js",
-  "types": "esm/index.d.ts",
+  "types": "index.d.ts",
   "module": "esm/index.js",
   "scripts": {
-    "example:start": "cd example && npm run web",
+    "example:start": "cd example && npm run start",
+    "example:dev": "cd example && npm run dev",
     "lint": "eslint --ext .tsx,.ts src",
     "lint:fix": "eslint --fix --ext .tsx,.ts src",
     "build": "npm run build:esm && npm run build:cjs",
@@ -24,10 +25,13 @@
     "typescript": "^3.8.3"
   },
   "peerDependencies": {
-    "react": "^16.0.0",
+    "react": "^16.3.0",
     "react-native": "^0.4.0"
   },
   "dependencies": {
+    "expo": "^37.0.10",
+    "expo-asset": "^8.1.5",
+    "expo-font": "^8.1.1",
     "lodash": "^4.17.15"
   },
   "files": [

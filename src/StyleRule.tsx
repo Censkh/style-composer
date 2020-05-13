@@ -1,5 +1,3 @@
-import {Dimensions} from "react-native";
-
 const ruleSession = {
   id:        0,
   instances: {} as Record<number, StyleRuleInstance<any>>
@@ -30,6 +28,7 @@ export interface StyleRule<O = undefined> extends StyleRuleOptions<O> {
 
 export interface StyleRuleInstance<O = undefined> {
   id: number;
+  className: string;
   options: O,
   rule: StyleRule<O>
 }
@@ -62,7 +61,12 @@ export function createStyleRule<O>(name: string, options: StyleRuleOptions<O>): 
   const rule: StyleRule<O> = Object.assign((options: O) => {
     const id = ruleSession.id;
     ruleSession.id += 1;
-    ruleSession.instances[id] = {id, options, rule};
+    ruleSession.instances[id] = {
+      id:        id,
+      options:   options,
+      rule:      rule,
+      className: "_rule_" + id + rule.name
+    };
     return id;
   }, options || {});
   Object.defineProperty(rule, "name", {value: name});

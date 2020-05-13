@@ -1,4 +1,6 @@
-export * from "./lib/Styling";
-export * from "./lib/Styler";
+export * from "./Styling";
+export * from "./NativeStyler";
+export * from "./Components";
+export * from "./FontFamily";
 
-export * from "./lib/rule";
+export * from "./rule";

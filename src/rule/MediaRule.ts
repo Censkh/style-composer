@@ -1,6 +1,6 @@
 import {Dimensions}      from "react-native";
 import {createStyleRule} from "../StyleRule";
-import * as Util         from "../../Util";
+import * as Utils        from "../Utils";
 
 export interface MediaQuery {
   maxWidth?: number,
@@ -35,7 +35,7 @@ const media = createStyleRule<MediaQuery>("media", {
   },
 
   register(update) {
-    if (!Util.isNative()) {
+    if (!Utils.isNative()) {
       // @ts-ignore
       window.addEventListener("resize", update);
     }
