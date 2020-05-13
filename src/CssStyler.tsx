@@ -1,11 +1,12 @@
-import {StylerComponent, StylerProps} from "./StylerComponent";
+import {StylerComponent, StylerProps} from "./Styler";
 import React, {DOMElement, useMemo}   from "react";
 import {useRulesEffect}               from "./Hooks";
-import * as Utils                     from "./Utils";
+import * as Utils                            from "./Utils";
+import {finishRuleSession, startRuleSession} from "./StyleRule";
 
 Utils.createStyleSheet("_global", `
 div {color:inherit !important;font-size:inherit !important;font-family:inherit!important}
-body {font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;}
+body {font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;font-size:14px;}
 `);
 
 const CssStyler: StylerComponent = (props: StylerProps) => {
@@ -18,9 +19,13 @@ const CssStyler: StylerComponent = (props: StylerProps) => {
 
     let classNames = classes?.flatMap(clazz => {
       const rules = clazz.__meta.rules;
+      startRuleSession();
+      const styling = clazz.__meta.styling();
+      finishRuleSession();
+
       const classNames = [clazz.__meta.className];
       for (const ruleInstance of Object.values(rules)) {
-        if (ruleInstance.rule.check(ruleInstance.options)) {
+        if (styling[ruleInstance.id]) {
           classNames.push(ruleInstance.className);
         }
       }

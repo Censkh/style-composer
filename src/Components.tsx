@@ -3,7 +3,7 @@ import {Text, View} from "react-native";
 
 import NativeStyler        from "./NativeStyler";
 import {Style, StyleClass} from "./Styling";
-import {Styler}            from "./StylerComponent";
+import {Styler}            from "./Styler";
 
 export function styled<P>(baseComponent: React.ComponentType<P>): React.ComponentType<P & {
   style?: Style;

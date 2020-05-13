@@ -1,5 +1,5 @@
 export * from "./Styling";
-export * from "./NativeStyler";
+export * from "./Styler";
 export * from "./Components";
 export * from "./FontFamily";
 

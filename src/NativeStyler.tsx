@@ -2,7 +2,7 @@ import React, {useContext, useMemo} from "react";
 
 import {computeStyles}                                             from "./Styling";
 import {addFontLoadListener, isFontLoaded, removeFontLoadListener} from "./FontFamily";
-import type {StylerComponent, StylerProps}                         from "./StylerComponent";
+import type {StylerComponent, StylerProps}                         from "./Styler";
 import {useForceUpdate, useRulesEffect}                            from "./Hooks";
 import {StylerContext}                                             from "./StylerContext";
 

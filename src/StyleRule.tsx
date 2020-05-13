@@ -1,10 +1,12 @@
 const ruleSession = {
-  id:        0,
-  instances: {} as Record<number, StyleRuleInstance<any>>
+  id:          1,
+  registering: false,
+  instances:   {} as Record<number, StyleRuleInstance<any>>
 };
 
-export const startRuleSession = (): void => {
-  ruleSession.id = 0;
+export const startRuleSession = (registering?: boolean): void => {
+  ruleSession.id = 1;
+  ruleSession.registering = Boolean(registering);
   ruleSession.instances = {};
 };
 
@@ -61,13 +63,16 @@ export function createStyleRule<O>(name: string, options: StyleRuleOptions<O>): 
   const rule: StyleRule<O> = Object.assign((options: O) => {
     const id = ruleSession.id;
     ruleSession.id += 1;
-    ruleSession.instances[id] = {
-      id:        id,
-      options:   options,
-      rule:      rule,
-      className: "_rule_" + id + rule.name
-    };
-    return id;
+    if (ruleSession.registering) {
+      ruleSession.instances[id] = {
+        id:        id,
+        options:   options,
+        rule:      rule,
+        className: "_rule_" + id + rule.name
+      };
+      return id;
+    }
+    return rule.check(options) ? id: 0;
   }, options || {});
   Object.defineProperty(rule, "name", {value: name});
 
