@@ -1,4 +1,4 @@
-import {Style} from "./Styling";
+import {Style}       from "./Styling";
 // @ts-ignore
 import styleResolver from "react-native-web/src/exports/StyleSheet/styleResolver";
 
@@ -8,9 +8,6 @@ export const styleToCss = (style: Style, options?: { important: boolean }): stri
   const lines = Object.keys(resolveStyled).map(property => {
     let value = (resolveStyled as any)[property];
     if (typeof value === "object") return "";
-    if (!isNaN(value)) {
-      value += "px";
-    }
     return "".concat(camelToKebab(property), ": ").concat(value, (options?.important ? "!important;" : ";"));
   });
   return lines.join("\n");

@@ -73,6 +73,7 @@ const getFontCallbackList = (name: string): Set<() => void> => {
 };
 
 export const addFontLoadListener = (name: string, callback: () => void) => {
+  if (Font.isLoaded(name)) callback();
   getFontCallbackList(name).add(callback);
 };
 
@@ -114,7 +115,7 @@ export const createFontFamily = (
         Font.loadAsync({
           [fontName]: resource
         }).then(() => {
-                    getFontCallbackList(fontName).forEach(callback => callback());
+          getFontCallbackList(fontName).forEach(callback => callback());
         });
       }
       return fontName;

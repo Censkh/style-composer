@@ -1,3 +1,6 @@
+import {Style}                                  from "./Styling";
+import {finishThemeSession, startThemedSession} from "./Theming";
+
 const ruleSession = {
   id:          1,
   registering: false,
@@ -31,8 +34,8 @@ export interface StyleRule<O = undefined> extends StyleRuleOptions<O> {
 export interface StyleRuleInstance<O = undefined> {
   id: number;
   className: string;
-  options: O,
-  rule: StyleRule<O>
+  options: O;
+  rule: StyleRule<O>;
 }
 
 type Callback = () => void;
@@ -66,12 +69,14 @@ export function createStyleRule<O>(name: string, options: StyleRuleOptions<O>): 
     if (ruleSession.registering) {
       ruleSession.instances[id] = {
         id:        id,
-        options:   options,
+        options:   options || {},
         rule:      rule,
         className: "_rule_" + id + rule.name
       };
+
       return id;
     }
+
     return rule.check(options) ? id : 0;
   }, options || {});
   Object.defineProperty(rule, "name", {value: name});

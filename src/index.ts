@@ -3,6 +3,7 @@
 export * from "./Styling";
 export * from "./Styler";
 export * from "./Components";
-export * from "./FontFamily";
+export {createFontFamily} from "./FontFamily";
+export {ThemeProvider, themed} from "./Theming";
 
 export * from "./rule";

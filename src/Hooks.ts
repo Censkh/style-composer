@@ -1,10 +1,11 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {registerRuleCallback, unregisterRuleCallback}      from "./StyleRule";
-import {StyleClass}                                        from "./Styling";
+import {useCallback, useEffect, useRef, useState}     from "react";
+import {registerRuleCallback, unregisterRuleCallback} from "./StyleRule";
+import {StyleClass}                                   from "./Styling";
 
 export const useForceUpdate = (): [number, () => void] => {
   const [state, setState] = useState(0);
-  return [state, useMemo(() => () => setState(i => i + 1), [setState])];
+  const forceUpdate = useCallback(() => setState(i => i + 1), [setState]);
+  return [state, forceUpdate];
 };
 
 export const useRulesEffect = (classes: StyleClass[] | undefined) => {
@@ -49,3 +50,4 @@ export const useRulesEffect = (classes: StyleClass[] | undefined) => {
   }, [classes, forceUpdate]);
   return key;
 };
+
