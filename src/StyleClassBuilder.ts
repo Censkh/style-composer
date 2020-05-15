@@ -63,7 +63,6 @@ export default class StyleClassBuilder<V extends Record<string, StyleClass> = {}
 
     startRuleSession(true);
     const rules = styledClass.__meta.styling();
-    console.log(rules);
     styledClass.__meta.rules = finishRuleSession();
 
     if (!Utils.isNative()) {

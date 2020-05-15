@@ -1,8 +1,12 @@
 import {Style} from "./Styling";
+// @ts-ignore
+import styleResolver from "react-native-web/src/exports/StyleSheet/styleResolver";
 
 export const styleToCss = (style: Style, options?: { important: boolean }): string => {
-  const lines = Object.keys(style).map(property => {
-    let value = (style as any)[property];
+  const resolveStyled = styleResolver.resolve(style).style;
+
+  const lines = Object.keys(resolveStyled).map(property => {
+    let value = (resolveStyled as any)[property];
     if (typeof value === "object") return "";
     if (!isNaN(value)) {
       value += "px";

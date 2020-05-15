@@ -1,6 +1,6 @@
-import {StylerComponent, StylerProps}        from "./Styler";
-import React, {useMemo}                      from "react";
-import {useRulesEffect}                      from "./Hooks";
+import {StylerComponent, StylerProps}            from "./Styler";
+import React, {useLayoutEffect, useMemo, useRef} from "react";
+import {useRulesEffect}                          from "./Hooks";
 import * as Utils                            from "./Utils";
 import {finishRuleSession, startRuleSession} from "./StyleRule";
 
@@ -11,7 +11,6 @@ body {font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Rob
 
 const CssStyler: StylerComponent = (props: StylerProps) => {
   const {children, style, classes} = props;
-
   const key = useRulesEffect(classes);
 
   let {computedStyles, classNames} = useMemo(() => {
@@ -41,7 +40,6 @@ const CssStyler: StylerComponent = (props: StylerProps) => {
       classNames:     classNames,
     };
   }, [key, style, classes]);
-
 
   return children ? (typeof children === "string" ? <>children</> : React.cloneElement(children, {
     style:     computedStyles,
