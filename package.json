@@ -1,10 +1,10 @@
 {
   "name": "style-composer",
-  "version": "0.1.0-alpha2",
+  "version": "0.1.0-alpha3",
   "author": "James Waterhouse <09jwater@gmail.com>",
   "license": "MIT",
   "main": "cjs/index.js",
-  "types": "index.d.ts",
+  "types": "esm/index.d.ts",
   "module": "esm/index.js",
   "repository": "https://github.com/Censkh/style-composer",
   "scripts": {
