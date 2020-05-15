@@ -12,4 +12,4 @@ export interface StylerProps {
 
 export type StylerComponent = (props: StylerProps) => JSX.Element | null;
 
-export const Styler: StylerComponent = Utils.isNative() || true ? require("./NativeStyler").default : require("./CssStyler").default;
+export const Styler: StylerComponent = Utils.isNative() ? require("./NativeStyler").default : require("./CssStyler").default;
