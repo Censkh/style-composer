@@ -1,11 +1,11 @@
-import {StylerComponent, StylerProps} from "./Styler";
-import React, {DOMElement, useMemo}   from "react";
-import {useRulesEffect}               from "./Hooks";
+import {StylerComponent, StylerProps}        from "./Styler";
+import React, {useMemo}                      from "react";
+import {useRulesEffect}                      from "./Hooks";
 import * as Utils                            from "./Utils";
 import {finishRuleSession, startRuleSession} from "./StyleRule";
 
 Utils.createStyleSheet("_global", `
-div {color:inherit !important;font-size:inherit !important;font-family:inherit!important}
+.Styled {color:inherit !important;font-size:inherit !important;font-family:inherit!important}
 body {font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;font-size:14px;}
 `);
 
@@ -45,7 +45,7 @@ const CssStyler: StylerComponent = (props: StylerProps) => {
 
   return children ? (typeof children === "string" ? <>children</> : React.cloneElement(children, {
     style:     computedStyles,
-    className: classNames?.join(" "),
+    className: "Styled " + classNames?.join(" "),
   } as any)) : null;
 };
 Object.defineProperty(CssStyler, "name", {value: "CssStyler"});

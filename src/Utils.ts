@@ -1,7 +1,7 @@
 export const isNative = () => {
 // @ts-ignore
   return typeof (window && window.addEventListener) === "undefined";
-}
+};
 
 export const createStyleSheet = (name: string, content: string) => {
   if (!isNative()) {
@@ -12,4 +12,8 @@ export const createStyleSheet = (name: string, content: string) => {
     style.innerHTML = content;
     document.head.appendChild(style);
   }
+};
+
+export const nextFrame = (func: Function) => {
+  setTimeout(func, 1000);
 };

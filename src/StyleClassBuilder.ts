@@ -1,9 +1,9 @@
 import {finishRuleSession, startRuleSession} from "./StyleRule";
-import * as Utils                                   from "./Utils";
-import {Style, StyleClass, Styling, StylingBuilder} from "./Styling";
-import {styleToCss}                                 from "./StyleConverter";
+import * as Utils                            from "./Utils";
+import {StyleClass, Styling, StylingBuilder} from "./Styling";
+import {styleToCss}                          from "./StyleConverter";
 
-const extractStyleClassToCss = (styleClass: StyleClass, resolvedStyling : Styling) => {
+const extractStyleClassToCss = (styleClass: StyleClass, resolvedStyling: Styling) => {
   const parent = styleClass.__meta.parent;
 
   const selector = `div${parent ? "." + parent.__meta.className : ""}.${styleClass.__meta.className}`;
@@ -47,12 +47,12 @@ export default class StyleClassBuilder<V extends Record<string, StyleClass> = {}
 
     const styledClass = {
       __meta: {
-        name:            this.name,
-        parent:          parent || null,
-        className:       (parent ? parent.__meta.name + "__" : "") + this.name,
-        variants:        variants,
-        rules:           null as any,
-        styling:         this.styling,
+        name:      this.name,
+        parent:    parent || null,
+        className: (parent ? parent.__meta.name + "__" : "") + this.name,
+        variants:  variants,
+        rules:     null as any,
+        styling:   this.styling,
       }
     };
 

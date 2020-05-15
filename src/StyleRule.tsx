@@ -72,7 +72,7 @@ export function createStyleRule<O>(name: string, options: StyleRuleOptions<O>): 
       };
       return id;
     }
-    return rule.check(options) ? id: 0;
+    return rule.check(options) ? id : 0;
   }, options || {});
   Object.defineProperty(rule, "name", {value: name});
 

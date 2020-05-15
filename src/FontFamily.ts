@@ -78,15 +78,15 @@ export const addFontLoadListener = (name: string, callback: () => void) => {
 
 export const removeFontLoadListener = (name: string, callback: () => void) => {
   getFontCallbackList(name).delete(callback);
-}
+};
 
 export const isFontLoading = (name: string) => {
   return Font.isLoading(name);
-}
+};
 
 export const isFontLoaded = (name: string) => {
   return Font.isLoaded(name);
-}
+};
 
 
 export const createFontFamily = (
@@ -114,7 +114,7 @@ export const createFontFamily = (
         Font.loadAsync({
           [fontName]: resource
         }).then(() => {
-          getFontCallbackList(fontName).forEach(callback => callback());
+                    getFontCallbackList(fontName).forEach(callback => callback());
         });
       }
       return fontName;

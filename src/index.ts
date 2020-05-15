@@ -1,3 +1,5 @@
+/// <reference types="typescript" />
+
 export * from "./Styling";
 export * from "./Styler";
 export * from "./Components";
