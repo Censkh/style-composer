@@ -1,6 +1,6 @@
 {
   "name": "style-composer",
-  "version": "0.1.0-alpha12",
+  "version": "0.1.0-alpha15",
   "author": "James Waterhouse <09jwater@gmail.com>",
   "license": "MIT",
   "main": "cjs/index.js",

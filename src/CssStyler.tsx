@@ -5,7 +5,7 @@ import * as Utils                            from "./Utils";
 import {finishRuleSession, startRuleSession} from "./StyleRule";
 import {useTheming}                          from "./Theming";
 
-Utils.createStyleSheet("_global", `
+Utils.setStyleSheet("_global", `
 .Styled {color:inherit;font-size:inherit !important;font-family:inherit!important}
 body {font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;font-size:14px;}
 `);

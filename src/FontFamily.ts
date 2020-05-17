@@ -110,7 +110,7 @@ export const createFontFamily = (
           resource:   resource
         };
 
-        Utils.createStyleSheet(`font[${fontName}]`, `._font_${fontName}{font-family: ${fontName}!important;`);
+        Utils.setStyleSheet(`font[${fontName}]`, `._font_${fontName}{font-family: ${fontName}!important;`);
 
         Font.loadAsync({
           [fontName]: resource

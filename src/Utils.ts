@@ -1,16 +1,22 @@
+// @ts-ignore
+const document = (window as any).document;
+
 export const isNative = () => {
 // @ts-ignore
   return typeof (window && window.addEventListener) === "undefined";
 };
 
-export const createStyleSheet = (name: string, content: string) => {
+export const setStyleSheet = (name: string, content: string) => {
   if (!isNative()) {
-    // @ts-ignore
-    const document = (window as any).document;
-    const style = document.createElement("style");
-    style.setAttribute("data-name", name);
+    const id = `stylesheet-${name}`;
+    let style: any = document.getElementById(id);
+    if (!style) {
+      style = document.createElement("style");
+      style.id = `stylesheet-${name}`;
+      style.setAttribute("data-name", name);
+      document.head.appendChild(style);
+    }
     style.innerHTML = content;
-    document.head.appendChild(style);
   }
 };
 

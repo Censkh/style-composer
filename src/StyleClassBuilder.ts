@@ -22,7 +22,7 @@ const extractStyleClassToCss = (styleClass: StyleClass, resolvedStyling: Styling
     }
   }
 
-  Utils.createStyleSheet(styleClass.__meta.className, css);
+  Utils.setStyleSheet(styleClass.__meta.className, css);
 };
 
 export default class StyleClassBuilder<V extends Record<string, StyleClass> = {}> {

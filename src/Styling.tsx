@@ -2,8 +2,7 @@ import React                              from "react";
 import {ImageStyle, TextStyle, ViewStyle} from "react-native";
 
 import {finishRuleSession, startRuleSession, StyleRuleInstance} from "./StyleRule";
-import StyleClassBuilder from "./StyleClassBuilder";
-import {Themed}          from "./Theming";
+import StyleClassBuilder                                        from "./StyleClassBuilder";
 
 if (process.env.NODE_ENV === "development") {
   const actualError = console.error;
