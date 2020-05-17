@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useRef, useState}     from "react";
 import {registerRuleCallback, unregisterRuleCallback} from "./rule/StyleRule";
 import {StyleClass}                                   from "./class/StyleClass";
+import {Falsy}                                        from "./Utils";
 
 export const useForceUpdate = (): [number, () => void] => {
   const [state, setState] = useState(0);
@@ -8,11 +9,11 @@ export const useForceUpdate = (): [number, () => void] => {
   return [state, forceUpdate];
 };
 
-export const useRulesEffect = (classes: StyleClass[] | undefined) => {
+export const useRulesEffect = (classes: StyleClass[] | Falsy, classesId: string | null) => {
   const [key, forceUpdate] = useForceUpdate();
 
   const prevState = useRef("");
-  const currentClasses = useRef<StyleClass[] | undefined>();
+  const currentClasses = useRef<StyleClass[] | Falsy>();
   currentClasses.current = classes;
 
   const checkForUpdates = useCallback(() => {
@@ -47,7 +48,7 @@ export const useRulesEffect = (classes: StyleClass[] | undefined) => {
 
       };
     }
-  }, [classes, forceUpdate]);
+  }, [classesId, forceUpdate]);
   return key;
 };
 

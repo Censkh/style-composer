@@ -102,7 +102,7 @@ export const createFontFamily = (
   for (let type of types) {
     const fontName = `${name}__${type}`;
     fontFamily[type] = () => {
-      if (!Font.isLoading(fontName)) {
+      if (!isFontLoading(fontName) && !isFontLoaded(fontName)) {
         const resource = config[type] as string;
         fontMap[fontName] = {
           weight    : parseInt(Object.keys(weights).find(weight => weights[weight as any] === type) as string),

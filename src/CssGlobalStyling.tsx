@@ -10,7 +10,7 @@ const CssGlobalStyling = (props: CssGlobalStyling) => {
   if (Utils.isNative()) return null;
   const {name, children} = props;
   useLayoutEffect(() => {
-    Utils.setStyleSheet(`cssGlobal[${name}]`, children);
+    Utils.setStyleSheet(`css-component[${name}]`, children);
   }, [children]);
   return null;
 };

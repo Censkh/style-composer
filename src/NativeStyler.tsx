@@ -1,6 +1,6 @@
 import React, {useContext, useMemo} from "react";
 
-import {computeStyles}                                             from "./Styling";
+import {computeClasses}                  from "./Styling";
 import {addFontLoadListener, isFontLoaded, removeFontLoadListener} from "./font/FontFamily";
 import type {StylerComponent, StylerProps}                         from "./Styler";
 import {useForceUpdate, useRulesEffect}                            from "./Hooks";
@@ -15,20 +15,18 @@ const NativeStyler: StylerComponent = (props: StylerProps) => {
 
   const parentDescendingStyle = useContext(DescendingStyleContext);
   const [fontKey, forceUpdate] = useForceUpdate();
-  const classArray = classList(classes);
+  const classArray = classes && classList(classes);
   const classId = classesId(classArray);
-  const key = useRulesEffect(classArray);
+  const key = useRulesEffect(classArray, classId);
 
   const theme = useTheming();
 
   const {computedStyles, descendingStyle, classNames} = useMemo(() => {
-    const ownStyles = Object.assign({}, ...classArray?.flatMap(clazz => {
-      return [clazz.__meta.parent && computeStyles(clazz.__meta.parent), computeStyles(clazz)];
-    }) || [], style, typeof children === "string" ? {} : children?.props.style || {});
+    const classResults = computeClasses(classArray, {includeStyle: true})
+
+    const ownStyles: any = Object.assign(classResults.style || {}, style, typeof children === "string" ? undefined : children?.props.style);
 
     const computedStyles = Object.assign({}, parentDescendingStyle, ownStyles);
-
-    const classNames = classArray?.map(clazz => clazz.__meta.className);
 
     const descendingStyle = DESCENDING_STYLES.some(key => ownStyles[key] !== undefined) ? {
       fontSize  : computedStyles.fontSize,
@@ -37,9 +35,9 @@ const NativeStyler: StylerComponent = (props: StylerProps) => {
     } : null;
 
     return {
-      classNames,
-      computedStyles,
-      descendingStyle,
+      classNames: classResults.classNames,
+      computedStyles: computedStyles,
+      descendingStyle: descendingStyle,
     };
   }, [style, classId, parentDescendingStyle, key, fontKey, theme]);
 

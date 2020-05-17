@@ -22,7 +22,7 @@ export const extractStyleClassToCss = (styleClass: StyleClass, resolvedStyling: 
     }
   }
 
-  Utils.setStyleSheet(styleClass.__meta.className, css);
+  Utils.setStyleSheet(`class[${styleClass.__meta.className}]`, css);
 };
 
 export const styleToCss = (style: Style, options?: { important: boolean }): string => {
@@ -33,7 +33,7 @@ export const styleToCss = (style: Style, options?: { important: boolean }): stri
     if (typeof value === "object") return "";
     return "".concat(camelToKebab(property), ": ").concat(value, (options?.important ? "!important;" : ";"));
   });
-  return lines.join("\n");
+  return lines.join("");
 };
 
 const CAMEL_TO_KEBAB_REGEX = /[A-Z]/g;
