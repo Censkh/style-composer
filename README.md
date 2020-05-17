@@ -42,12 +42,12 @@ import {$Card} from "./Card.style";
 1. Create themable values:
 
     ```typescript jsx
-    import {themed} from "style-composer";
+    import {themePlan} from "style-composer";
 
-    export const THEME = {
-        textColor: themed("#333"),
-        backgroundColor: themed("#fff"),
-    };
+    export const THEMING = themePlan({
+        textColor: "#333",
+        backgroundColor: "#fff",
+    });
     ```
 
 2. Use them in your classes:
@@ -56,8 +56,8 @@ import {$Card} from "./Card.style";
     import {composeClass} from "style-composer";
 
     export const $AppContainer = composeClass("app-container", () => ({
-        backgroundColor: THEME.backgroundColor(),
-        color: THEME.textColor(),
+        backgroundColor: THEMING.backgroundColor(),
+        color: THEMING.textColor(),
     }));
     ```
 3. Use a ThemeProvider to change these values in your app:
@@ -67,9 +67,9 @@ import {$Card} from "./Card.style";
 
      // dark theme
     const App = () => {
-        return <ThemeProvider value={{
-            [THEME.textColor.key]: "rgba(255,255,255,0.97)",
-            [THEME.backgroundColor.key]: "#333"
+        return <ThemeProvider plan={THEMING} value={{
+            textColor: "rgba(255,255,255,0.97)",
+            backgroundColor: "#333"
         }}>
             <StyledView classes={[$AppContainer]}>
                 <StyledText>hi!</StyledText>
