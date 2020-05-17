@@ -1,10 +1,7 @@
-import {Style}                                  from "./Styling";
-import {finishThemeSession, startThemedSession} from "./Theming";
-
 const ruleSession = {
-  id:          1,
+  id         : 1,
   registering: false,
-  instances:   {} as Record<number, StyleRuleInstance<any>>
+  instances  : {} as Record<number, StyleRuleInstance<any>>,
 };
 
 export const startRuleSession = (registering?: boolean): void => {
@@ -68,10 +65,10 @@ export function createStyleRule<O>(name: string, options: StyleRuleOptions<O>): 
     ruleSession.id += 1;
     if (ruleSession.registering) {
       ruleSession.instances[id] = {
-        id:        id,
-        options:   options || {},
-        rule:      rule,
-        className: "_rule_" + id + rule.name
+        id       : id,
+        options  : options || {},
+        rule     : rule,
+        className: "_rule_" + id + rule.name,
       };
 
       return id;

@@ -1,11 +1,13 @@
-import {Style, StyleClass} from "./Styling";
-import React               from "react";
+import {Style} from "./Styling";
+import React   from "react";
 
-import * as Utils from "./Utils";
+import * as Utils   from "./Utils";
+import {Falsy}      from "./Utils";
+import {StyleClass} from "./class/StyleClass";
 
 export interface StylableProps {
   style?: Style;
-  classes?: StyleClass[],
+  classes?: Array<StyleClass | Falsy> | StyleClass | Falsy,
 }
 
 export interface StylerProps extends StylableProps {

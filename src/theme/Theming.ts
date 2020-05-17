@@ -2,7 +2,7 @@ import React, {useContext} from "react";
 
 let themedSession: ThemedSession = {
   running: false,
-  called:  false,
+  called : false,
 
 };
 

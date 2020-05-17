@@ -1,5 +1,5 @@
 import * as Font  from "expo-font";
-import * as Utils from "./Utils";
+import * as Utils from "../Utils";
 
 export interface FontFamilyConfig {
   black?: string;
@@ -34,7 +34,7 @@ const weights: Record<number, keyof FontFamilyConfig> = {
   [500]: "medium",
   [600]: "semiBold",
   [700]: "bold",
-  [800]: "extraBold"
+  [800]: "extraBold",
 };
 
 const types: Array<keyof FontFamilyConfig> = [
@@ -55,7 +55,7 @@ const types: Array<keyof FontFamilyConfig> = [
   "semiBold",
   "semiBoldItalic",
   "thin",
-  "thinItalic"
+  "thinItalic",
 ];
 
 export interface FontVariant {
@@ -92,11 +92,11 @@ export const isFontLoaded = (name: string) => {
 
 export const createFontFamily = (
   name: string,
-  config: FontFamilyConfig
+  config: FontFamilyConfig,
 ): FontFamily => {
   const fontFamily: any = {
-    name:   name,
-    weight: (weight: number) => fontFamily[weights[weight]]()
+    name  : name,
+    weight: (weight: number) => fontFamily[weights[weight]](),
   };
 
   for (let type of types) {
@@ -105,15 +105,15 @@ export const createFontFamily = (
       if (!Font.isLoading(fontName)) {
         const resource = config[type] as string;
         fontMap[fontName] = {
-          weight:     parseInt(Object.keys(weights).find(weight => weights[weight as any] === type) as string),
+          weight    : parseInt(Object.keys(weights).find(weight => weights[weight as any] === type) as string),
           fontFamily: fontFamily,
-          resource:   resource
+          resource  : resource,
         };
 
         Utils.setStyleSheet(`font[${fontName}]`, `._font_${fontName}{font-family: ${fontName}!important;`);
 
         Font.loadAsync({
-          [fontName]: resource
+          [fontName]: resource,
         }).then(() => {
           getFontCallbackList(fontName).forEach(callback => callback());
         });

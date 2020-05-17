@@ -1,5 +1,5 @@
 import {Dimensions}      from "react-native";
-import {createStyleRule} from "../StyleRule";
+import {createStyleRule} from "./StyleRule";
 import * as Utils        from "../Utils";
 
 export interface MediaQuery {
@@ -39,7 +39,7 @@ const media = createStyleRule<MediaQuery>("media", {
       // @ts-ignore
       window.addEventListener("resize", update);
     }
-  }
+  },
 });
 
 export default media;

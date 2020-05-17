@@ -1,29 +1,8 @@
-import {finishRuleSession, startRuleSession}    from "./StyleRule";
-import * as Utils                                   from "./Utils";
-import {Style, StyleClass, Styling, StylingBuilder} from "./Styling";
-import {styleToCss}                                 from "./StyleConverter";
-import {finishThemeSession, startThemedSession} from "./Theming";
-
-const extractStyleClassToCss = (styleClass: StyleClass, resolvedStyling: Styling) => {
-  const parent = styleClass.__meta.parent;
-
-  const selector = `.Styled${parent ? "." + parent.__meta.className : ""}.${styleClass.__meta.className}`;
-  const body = styleToCss(resolvedStyling, {important: true});
-
-  let css = `${selector}{${body}}`;
-
-  const rules = styleClass.__meta.rules;
-  if (rules) {
-    for (const rule of Object.values(rules)) {
-      const ruleStyling = resolvedStyling[rule.id];
-      if (ruleStyling) {
-        css += `\n${selector}.${rule.className}{${styleToCss(resolvedStyling[rule.id], {important: true})}}`;
-      }
-    }
-  }
-
-  Utils.setStyleSheet(styleClass.__meta.className, css);
-};
+import {finishRuleSession, startRuleSession}    from "../rule/StyleRule";
+import {Style, Styling, StylingBuilder}         from "../Styling";
+import {finishThemeSession, startThemedSession} from "../theme/Theming";
+import {StyleClass}                             from "./StyleClass";
+import {ClassManager}                           from "./ClassManager";
 
 export default class StyleClassBuilder<V extends Record<string, StyleClass> = {}> {
 
@@ -48,15 +27,15 @@ export default class StyleClassBuilder<V extends Record<string, StyleClass> = {}
 
     const styledClass: StyleClass<any> = {
       __meta: {
-        name:        this.name,
-        parent:      parent || null,
-        className:   (parent ? parent.__meta.name + "__" : "") + this.name,
-        variants:    variants,
-        rules:       null as any,
-        hasRules:    false,
-        hasThemed:   false,
-        bakedStyle:  null,
-        styling:     this.styling,
+        name       : this.name,
+        parent     : parent || null,
+        className  : (parent ? parent.__meta.name + "__" : "") + this.name,
+        variants   : variants,
+        rules      : null as any,
+        hasRules   : false,
+        hasThemed  : false,
+        bakedStyle : null,
+        styling    : this.styling,
         themedProps: {},
       },
     };
@@ -76,7 +55,7 @@ export default class StyleClassBuilder<V extends Record<string, StyleClass> = {}
     // if we have themed values in this style, work out which properties they are
     if (hasThemed) {
       const themedProps: Record<number, string[]> = {};
-      consumeThemeProps(themedProps, 0, resolvedStyling);
+      extractThemeProps(themedProps, 0, resolvedStyling);
       classMeta.themedProps = themedProps;
     }
 
@@ -87,15 +66,16 @@ export default class StyleClassBuilder<V extends Record<string, StyleClass> = {}
       classMeta.bakedStyle = sanitizeStylingToStyle(resolvedStyling);
     }
 
-    if (!Utils.isNative()) {
-      extractStyleClassToCss(styledClass, resolvedStyling);
-    }
+    ClassManager.registerClass(styledClass, resolvedStyling);
 
     return Object.assign(styledClass, variants);
   }
 }
 
-const sanitizeStylingToStyle = (styling: Styling) : Style => {
+/**
+ * Removes any theme or query rules from the styling object, leaving only actual style rules
+ */
+const sanitizeStylingToStyle = (styling: Styling): Style => {
   return Object.keys(styling).reduce((style: any, key: any) => {
     const value = styling[key];
     if (typeof key === "string" && typeof value !== "object" && typeof value !== "function") {
@@ -103,14 +83,32 @@ const sanitizeStylingToStyle = (styling: Styling) : Style => {
     }
     return style;
   }, {} as Style);
-}
+};
 
-const consumeThemeProps = (themedProps: Record<number, string[]>, currentScope: number, styling: Styling) => {
+/**
+ * When the theme session run, theme property functions will return themselves instead of the current theme
+ * value and using this method we collect which style rules are themed.
+ *
+ * Eg.
+ * ```
+ * () => ({
+ *   color: theming.mainColor(),
+ * })
+ * ```
+ * will return an object with:
+ * ```
+ * {
+ *   color: theming.mainColor
+ * }
+ * ```
+ * whilst startThemingSession() is active
+ */
+const extractThemeProps = (themedProps: Record<number, string[]>, currentScope: number, styling: Styling) => {
   themedProps[currentScope] = [];
   for (const key of Object.keys(styling)) {
     const value = (styling as any)[key];
     if (typeof value === "object") {
-      consumeThemeProps(themedProps, parseInt(key), value);
+      extractThemeProps(themedProps, parseInt(key), value);
     } else if (typeof value === "function") {
       themedProps[currentScope].push(key);
     }

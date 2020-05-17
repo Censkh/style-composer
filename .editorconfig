@@ -9,7 +9,7 @@ indent_size = 2
 
 ij_typescript_align_imports = true
 ij_typescript_align_var_statements = 1
-ij_typescript_align_object_properties = 1
+ij_typescript_align_object_properties = 2
 ij_typescript_use_double_quotes = true
 ij_typescript_force_quote_style = true
 ij_typescript_force_semicolon_style = true
@@ -20,6 +20,6 @@ ij_typescript_enforce_trailing_comma = whenmultiline
 
 ij_javascript_align_imports = true
 ij_javascript_align_var_statements = 1
-ij_javascript_align_object_properties = 1
+ij_javascript_align_object_properties = 2
 ij_javascript_use_double_quotes = true
 ij_javascript_force_quote_style = true

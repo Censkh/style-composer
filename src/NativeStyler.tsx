@@ -1,11 +1,12 @@
 import React, {useContext, useMemo} from "react";
 
 import {computeStyles}                                             from "./Styling";
-import {addFontLoadListener, isFontLoaded, removeFontLoadListener} from "./FontFamily";
+import {addFontLoadListener, isFontLoaded, removeFontLoadListener} from "./font/FontFamily";
 import type {StylerComponent, StylerProps}                         from "./Styler";
 import {useForceUpdate, useRulesEffect}                            from "./Hooks";
 import DescendingStyleContext                                      from "./DescendingStyleContext";
-import {useTheming}                                                from "./Theming";
+import {useTheming}                                                from "./theme/Theming";
+import {classesId, classList}                                      from "./class/StyleClass";
 
 const DESCENDING_STYLES = ["fontSize", "fontFamily", "color"];
 
@@ -14,23 +15,25 @@ const NativeStyler: StylerComponent = (props: StylerProps) => {
 
   const parentDescendingStyle = useContext(DescendingStyleContext);
   const [fontKey, forceUpdate] = useForceUpdate();
-  const key = useRulesEffect(classes);
+  const classArray = classList(classes);
+  const classId = classesId(classArray);
+  const key = useRulesEffect(classArray);
 
   const theme = useTheming();
 
   const {computedStyles, descendingStyle, classNames} = useMemo(() => {
-    const ownStyles = Object.assign({}, ...classes?.flatMap(clazz => {
+    const ownStyles = Object.assign({}, ...classArray?.flatMap(clazz => {
       return [clazz.__meta.parent && computeStyles(clazz.__meta.parent), computeStyles(clazz)];
     }) || [], style, typeof children === "string" ? {} : children?.props.style || {});
 
     const computedStyles = Object.assign({}, parentDescendingStyle, ownStyles);
 
-    const classNames = classes?.map(clazz => clazz.__meta.className);
+    const classNames = classArray?.map(clazz => clazz.__meta.className);
 
     const descendingStyle = DESCENDING_STYLES.some(key => ownStyles[key] !== undefined) ? {
-      fontSize:   computedStyles.fontSize,
+      fontSize  : computedStyles.fontSize,
       fontFamily: computedStyles.fontFamily,
-      color:      computedStyles.color,
+      color     : computedStyles.color,
     } : null;
 
     return {
@@ -38,7 +41,7 @@ const NativeStyler: StylerComponent = (props: StylerProps) => {
       computedStyles,
       descendingStyle,
     };
-  }, [style, classes, parentDescendingStyle, key, fontKey, theme]);
+  }, [style, classId, parentDescendingStyle, key, fontKey, theme]);
 
   if (computedStyles.fontFamily) {
     const {fontFamily} = computedStyles;
@@ -53,7 +56,7 @@ const NativeStyler: StylerComponent = (props: StylerProps) => {
   }
 
   const content = children ? (typeof children === "string" ? children : React.cloneElement(children, {
-    style:     computedStyles,
+    style    : computedStyles,
     className: classNames?.join(" "),
   } as any)) : null;
 
@@ -64,4 +67,4 @@ const NativeStyler: StylerComponent = (props: StylerProps) => {
 };
 Object.defineProperty(NativeStyler, "name", {value: "NativeStyler"});
 
-export default NativeStyler;
+export default React.memo(NativeStyler);

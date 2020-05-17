@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useRef, useState}     from "react";
-import {registerRuleCallback, unregisterRuleCallback} from "./StyleRule";
-import {StyleClass}                                   from "./Styling";
+import {registerRuleCallback, unregisterRuleCallback} from "./rule/StyleRule";
+import {StyleClass}                                   from "./class/StyleClass";
 
 export const useForceUpdate = (): [number, () => void] => {
   const [state, setState] = useState(0);

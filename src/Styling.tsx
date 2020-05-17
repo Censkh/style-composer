@@ -1,8 +1,8 @@
 import React                              from "react";
 import {ImageStyle, TextStyle, ViewStyle} from "react-native";
 
-import {finishRuleSession, startRuleSession, StyleRuleInstance} from "./StyleRule";
-import StyleClassBuilder                                        from "./StyleClassBuilder";
+import {finishRuleSession, startRuleSession} from "./rule/StyleRule";
+import {StyleClass}                          from "./class/StyleClass";
 
 if (process.env.NODE_ENV === "development") {
   const actualError = console.error;
@@ -22,28 +22,9 @@ export type StylingBuilder = () => Styling;
 
 export type Styling = Style & Record<number, Style>;
 
-export type StyleClass<V extends Record<string, StyleClass> = {}> = V & {
-  __meta: {
-    name: string;
-    className: string;
-    hasRules: boolean;
-    hasThemed: boolean;
-    parent: StyleClass | null;
-    rules: Record<number, StyleRuleInstance>,
-    styling: StylingBuilder;
-    bakedStyle: Style | null;
-    variants: V | null;
-    themedProps: Record<number, string[]>
-  }
-}
-
-export function composeClass(name: string, styling: StylingBuilder): StyleClassBuilder {
-  return new StyleClassBuilder(name, styling);
-}
-
 export function computeStyles(styledClass: StyleClass): Style {
   const {bakedStyle, hasRules, hasThemed, rules, styling} = styledClass.__meta;
-  if (!hasRules  && !hasThemed && bakedStyle) return bakedStyle;
+  if (!hasRules && !hasThemed && bakedStyle) return bakedStyle;
 
   startRuleSession();
   let style: any = styling();
@@ -64,21 +45,3 @@ export function computeStyles(styledClass: StyleClass): Style {
   return style;
 }
 
-type DeepClassList = Array<StyleClass | undefined | false | null | DeepClassList>;
-
-const flatAndRemoveFalsy = (array: Array<any>): Array<any> => {
-  return array.reduce((flatArray, item) => {
-    if (!item) return flatArray;
-    if (Array.isArray(item)) {
-      flatArray.push(...flatAndRemoveFalsy(item));
-    } else {
-      flatArray.push(item);
-    }
-    return flatArray;
-  }, []);
-};
-
-export const classList = (...classes: DeepClassList) => {
-  if (!classes) return classes;
-  return Array.isArray(classes) ? flatAndRemoveFalsy(classes) : [classes];
-};

@@ -1,4 +1,4 @@
-import React               from "react";
+import React                   from "react";
 import {
   Button,
   Text,
@@ -7,15 +7,11 @@ import {
   TouchableNativeFeedback,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View
-}                          from "react-native";
-import {Style, StyleClass} from "./Styling";
-import {Styler}            from "./Styler";
+  View,
+}                              from "react-native";
+import {StylableProps, Styler} from "./Styler";
 
-export function styled<P>(baseComponent: React.ComponentType<P>): React.ComponentType<P & {
-  style?: Style;
-  classes?: StyleClass[],
-}> {
+export function styled<P>(baseComponent: React.ComponentType<P>): React.ComponentType<P & StylableProps> {
   return (props) => {
     const {children, style, classes, ...otherProps} = props;
     return <Styler

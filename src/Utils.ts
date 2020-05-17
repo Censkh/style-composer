@@ -1,6 +1,8 @@
 // @ts-ignore
 const document = (window as any).document;
 
+export type Falsy = false | null | undefined;
+
 export const isNative = () => {
 // @ts-ignore
   return typeof (window && window.addEventListener) === "undefined";
