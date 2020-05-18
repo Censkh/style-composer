@@ -29,7 +29,7 @@ if (metroVersionComponents[1] === "0" && parseInt(metroVersionComponents[2], 10)
 } else {
   module.exports = {
     extraNodeModules,
-    getBlacklistRE:  () => require("metro/src/blacklist")(blacklistRegexes),
+    getBlacklistRE : () => require("metro/src/blacklist")(blacklistRegexes),
     getProjectRoots: () => [path.resolve(__dirname)].concat(watchFolders)
   };
 }

@@ -82,4 +82,3 @@ export const sanitizeStyle = (node: React.ReactNode, style: Style): Style => {
   }
   return style;
 };
-

@@ -7,14 +7,14 @@ import {CheckBox, View}          from "react-native";
 import Text                      from "./src/components/Text/Text";
 import Button                    from "./src/components/Button/Button";
 import {$BigMargin}              from "./src/components/Button/Button.style";
-import {ThemeProvider, ThemeFor} from "style-composer";
+import {ThemeFor, ThemeProvider} from "style-composer";
 import {THEMING}                 from "./src/ThemeConsts";
 import {$Heading}                from "./src/components/Text/Text.style";
 
 const LIGHT_THEME: ThemeFor<typeof THEMING> = {};
 const DARK_THEME: ThemeFor<typeof THEMING> = {
-  textColor:       "rgba(255,255,255,0.98)",
-  backgroundColor: "#333"
+  textColor      : "rgba(255,255,255,0.98)",
+  backgroundColor: "#333",
 };
 
 export default function App() {
