@@ -7,6 +7,14 @@
   "types": "esm/index.d.ts",
   "module": "esm/index.js",
   "repository": "https://github.com/Censkh/style-composer",
+  "keywords": [
+    "typescript",
+    "javascript",
+    "react",
+    "react-native",
+    "styling",
+    "styling-css-in-js"
+  ],
   "scripts": {
     "example:start": "cd example && npm run start",
     "example:dev": "cd example && npm run dev",
