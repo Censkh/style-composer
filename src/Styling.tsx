@@ -76,7 +76,7 @@ function computeClassStyle(styledClass: StyleClass, themeStyle: Style | null, cl
 
 export const sanitizeStyle = (node: React.ReactNode, style: Style): Style => {
   if (process.env.NODE_ENV === "development") {
-    if (node && typeof node === "object" && "type" in node) {
+    if (node && typeof node === "object" && "type" in node && (node.type as any).propTypes) {
       (node.type as any).propTypes.style = require("prop-types").any;
     }
   }
