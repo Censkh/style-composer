@@ -39,8 +39,6 @@
   "files": [
     "LICENSE",
     "README.md",
-    "index.js",
-    "index.d.ts",
     "esm/",
     "cjs/"
   ]
