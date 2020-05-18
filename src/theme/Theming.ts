@@ -45,7 +45,7 @@ export interface ThemeProperty<T = any> {
   toString: () => string;
 }
 
-export const useTheming = () => {
+export const useTheming = (): ThemeValues => {
   const theme = useContext(ThemeContext);
   currentTheme = theme;
   return theme;

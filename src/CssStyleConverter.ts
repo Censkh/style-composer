@@ -7,7 +7,7 @@ import * as Utils       from "./Utils";
 export const extractStyleClassToCss = (styleClass: StyleClass, resolvedStyling: Styling) => {
   const parent = styleClass.__meta.parent;
 
-  const selector = `.Styled${parent ? "." + parent.__meta.className : ""}.${styleClass.__meta.className}`;
+  const selector = `.styled${parent ? "." + parent.__meta.className : ""}.${styleClass.__meta.className}`;
   const body = styleToCss(resolvedStyling, {important: true});
 
   let css = `${selector}{${body}}`;

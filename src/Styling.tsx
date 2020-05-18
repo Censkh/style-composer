@@ -5,18 +5,6 @@ import {finishRuleSession, startRuleSession} from "./rule/StyleRule";
 import {StyleClass}                          from "./class/StyleClass";
 import {Falsy}                               from "./Utils";
 
-if (process.env.NODE_ENV === "development") {
-  const actualError = console.error;
-  console.error = function(...args: any[]) {
-    if (args.length > 0 && typeof args[0] === "string") {
-      if (args[0].startsWith("Warning: Failed prop type: Invalid props.style key") || args[0].startsWith("Warning: Using the \"className\"")) {
-        return;
-      }
-    }
-    return actualError.apply(this, args as any);
-  };
-}
-
 export type Style = ViewStyle & TextStyle & ImageStyle & { boxShadow?: string };
 
 export type StylingBuilder = () => Styling;
@@ -39,17 +27,17 @@ export function computeClasses(styleClass: StyleClass[] | Falsy, options: { incl
 
   for (const clazz of styleClass) {
     if (clazz.__meta.parent) {
+      classNames.push(clazz.__meta.parent.__meta.className);
       const parentStyle = computeClassStyle(clazz.__meta.parent, themeStyle, classNames);
       if (style) {
         style = Object.assign(style, parentStyle);
       }
-      classNames.push(clazz.__meta.parent.__meta.className);
     }
+    classNames.push(clazz.__meta.className);
     const computedStyle = computeClassStyle(clazz, themeStyle, classNames);
     if (style) {
       style = Object.assign(style, computedStyle);
     }
-    classNames.push(clazz.__meta.className);
   }
   return {classNames, style, themeStyle};
 }
@@ -85,4 +73,13 @@ function computeClassStyle(styledClass: StyleClass, themeStyle: Style | null, cl
 
   return style;
 }
+
+export const sanitizeStyle = (node: React.ReactNode, style: Style): Style => {
+  if (process.env.NODE_ENV === "development") {
+    if (node && typeof node === "object" && "type" in node) {
+      (node.type as any).propTypes.style = require("prop-types").any;
+    }
+  }
+  return style;
+};
 

@@ -1,3 +1,5 @@
+import React from "react";
+
 // @ts-ignore
 const document = (window as any).document;
 
@@ -22,6 +24,21 @@ export const setStyleSheet = (name: string, content: string) => {
   }
 };
 
-export const nextFrame = (func: Function) => {
-  setTimeout(func, 1000);
+export const isElement = <E extends React.ElementType>(children: React.ReactNode, element: E): children is { type: E } => {
+  if (children && typeof children === "object" && "type" in children) {
+    return children.type === element;
+  }
+  return false;
+};
+
+export const flatAndRemoveFalsy = (array: Array<any>): Array<any> => {
+  return array.reduce((flatArray, item) => {
+    if (!item) return flatArray;
+    if (Array.isArray(item)) {
+      flatArray.push(...flatAndRemoveFalsy(item));
+    } else {
+      flatArray.push(item);
+    }
+    return flatArray;
+  }, []);
 };

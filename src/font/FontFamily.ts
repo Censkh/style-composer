@@ -110,7 +110,7 @@ export const createFontFamily = (
           resource  : resource,
         };
 
-        Utils.setStyleSheet(`font[${fontName}]`, `._font_${fontName}{font-family: ${fontName}!important;`);
+        Utils.setStyleSheet(`font[${fontName}]`, `.${getFontClassName(fontName)}{font-family: ${fontName}!important;`);
 
         Font.loadAsync({
           [fontName]: resource,
@@ -123,4 +123,8 @@ export const createFontFamily = (
   }
 
   return fontFamily;
+};
+
+export const getFontClassName = (fontName: string): string => {
+  return `-font-${fontName}`;
 };

@@ -1,6 +1,7 @@
 import {StyleRuleInstance}     from "../rule/StyleRule";
 import StyleClassBuilder       from "./StyleClassBuilder";
 import {Style, StylingBuilder} from "../Styling";
+import * as Utils              from "../Utils";
 import {Falsy}                 from "../Utils";
 
 export type StyleClass<V extends Record<string, StyleClass> = {}> = V & {
@@ -26,18 +27,6 @@ export type DeepClassList = Array<Falsy | StyleClass | DeepClassList>;
 
 export type Classes = Array<StyleClass | Falsy> | StyleClass | Falsy;
 
-const flatAndRemoveFalsy = (array: Array<any>): Array<any> => {
-  return array.reduce((flatArray, item) => {
-    if (!item) return flatArray;
-    if (Array.isArray(item)) {
-      flatArray.push(...flatAndRemoveFalsy(item));
-    } else {
-      flatArray.push(item);
-    }
-    return flatArray;
-  }, []);
-};
-
 export const classesId = (classes: Classes): string | null => {
   if (!classes) return null;
   if (Array.isArray(classes)) {
@@ -57,5 +46,5 @@ export const classesId = (classes: Classes): string | null => {
 
 export const classList = (...classes: DeepClassList): StyleClass[] => {
   if (!classes) return classes;
-  return Array.isArray(classes) ? flatAndRemoveFalsy(classes) : [classes];
+  return Array.isArray(classes) ? Utils.flatAndRemoveFalsy(classes) : [classes];
 };

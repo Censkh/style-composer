@@ -1,6 +1,6 @@
 import React, {useContext, useMemo} from "react";
 
-import {computeClasses}                  from "./Styling";
+import {computeClasses, sanitizeStyle}                             from "./Styling";
 import {addFontLoadListener, isFontLoaded, removeFontLoadListener} from "./font/FontFamily";
 import type {StylerComponent, StylerProps}                         from "./Styler";
 import {useForceUpdate, useRulesEffect}                            from "./Hooks";
@@ -22,7 +22,7 @@ const NativeStyler: StylerComponent = (props: StylerProps) => {
   const theme = useTheming();
 
   const {computedStyles, descendingStyle, classNames} = useMemo(() => {
-    const classResults = computeClasses(classArray, {includeStyle: true})
+    const classResults = computeClasses(classArray, {includeStyle: true});
 
     const ownStyles: any = Object.assign(classResults.style || {}, style, typeof children === "string" ? undefined : children?.props.style);
 
@@ -35,8 +35,8 @@ const NativeStyler: StylerComponent = (props: StylerProps) => {
     } : null;
 
     return {
-      classNames: classResults.classNames,
-      computedStyles: computedStyles,
+      classNames     : classResults.classNames,
+      computedStyles : computedStyles,
       descendingStyle: descendingStyle,
     };
   }, [style, classId, parentDescendingStyle, key, fontKey, theme]);
@@ -54,7 +54,7 @@ const NativeStyler: StylerComponent = (props: StylerProps) => {
   }
 
   const content = children ? (typeof children === "string" ? children : React.cloneElement(children, {
-    style    : computedStyles,
+    style    : sanitizeStyle(children, computedStyles),
     className: classNames?.join(" "),
   } as any)) : null;
 
