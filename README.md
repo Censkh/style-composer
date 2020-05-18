@@ -4,11 +4,14 @@ Universal cross platform styling for React Native and the web
 
 ``` npm i style-composer ```
 
+**Note:** this package is in early development, use with caution
+
 ## Features
 
 - Descending styles
 - Theming
 - Native & web support
+- Media queries
 
 ## Usage
 
@@ -36,6 +39,23 @@ import {$Card} from "./Card.style";
 ```
 
 **Note:** when composing classes the function passed to generate your styles should be pure
+
+### Media Queries
+
+```typescript jsx
+import {media} from "style-composer";
+
+export const $Card = composeClass("card", () => ({
+    padding: 10,
+    fontSize: 20,
+
+    // when screen is smaller than 500px, apply these rules
+    [media({maxWidth: 500})]: {
+        padding: 5,
+        fontSize: 14
+    }
+}));
+```
 
 ### Theming
 
