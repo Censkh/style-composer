@@ -43,6 +43,7 @@ export function computeClasses(styleClass: StyleClass[] | Falsy, options: { incl
       if (style) {
         style = Object.assign(style, parentStyle);
       }
+      classNames.push(clazz.__meta.parent.__meta.className);
     }
     const computedStyle = computeClassStyle(clazz, themeStyle, classNames);
     if (style) {
