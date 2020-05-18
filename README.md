@@ -24,7 +24,7 @@ import {composeClass} from "style-composer";
 export const $Card = composeClass("card", () => ({
     fontSize: 14,
     color: "#333",
-}));
+})).build();
 ```
 
 We can now use this style with the following snippet which automatically descend the color and font size down to the styled text:
@@ -67,7 +67,7 @@ export const $Card = composeClass("card", () => ({
         padding: 5,
         fontSize: 14
     }
-}));
+})).build();
 ```
 
 ### Theming
@@ -91,7 +91,7 @@ export const $Card = composeClass("card", () => ({
     export const $AppContainer = composeClass("app-container", () => ({
         backgroundColor: THEMING.backgroundColor(),
         color: THEMING.textColor(),
-    }));
+    })).build();
     ```
 3. Use a ThemeProvider to change these values in your app:
 
