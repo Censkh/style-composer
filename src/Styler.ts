@@ -1,19 +1,42 @@
-import {Style} from "./Styling";
-import React   from "react";
+import {sanitizeStyle, Style} from "./Styling";
+import React                  from "react";
 
-import * as Utils   from "./Utils";
 import {Falsy}      from "./Utils";
 import {StyleClass} from "./class/StyleClass";
+import InlineStyler from "./InlineStyler";
 
 export interface StylableProps {
   style?: Style;
   classes?: Array<StyleClass | Falsy> | StyleClass | Falsy,
 }
 
+export type StylerChildren =
+  React.ReactElement<{ style: Style }>
+  | string
+  | ((style: Style, classNames: string[]) => JSX.Element);
+
 export interface StylerProps extends StylableProps {
-  children?: React.ReactElement<{ style: Style }> | string,
+  children?: StylerChildren,
 }
 
-export type StylerComponent = (props: StylerProps) => JSX.Element | null;
+export const renderChildren = (children: StylerChildren | undefined, computedStyles: Style, classNames: string[] | null, id: string): JSX.Element | null => {
+  if (!children) {
+    return null;
+  } else if (typeof children === "string") {
+    return children as any;
+  } else if (typeof children === "function") {
+    return children(computedStyles, classNames || []);
+  }
 
-export const Styler: StylerComponent = Utils.isNative() ? require("./NativeStyler").default : require("./CssStyler").default;
+  return React.cloneElement(children, {
+    style       : sanitizeStyle(children, computedStyles),
+    "data-class": classNames?.join(" "),
+    "data-id"   : id,
+  } as any);
+};
+
+export interface StylerComponent {
+  (props: StylerProps): JSX.Element | null;
+}
+
+export const Styler: StylerComponent = InlineStyler;

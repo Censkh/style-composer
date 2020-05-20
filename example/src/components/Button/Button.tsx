@@ -1,14 +1,9 @@
-import React                                                                           from "react";
+import React                                            from "react";
 // eslint-disable-next-line no-restricted-imports
-import {ButtonProps as BaseButtonProps, Platform}                                      from "react-native";
-import {$Button}                                                                       from "./Button.style";
-import Text                                                                            from "../Text/Text";
-import {classList, StyledTouchableNativeFeedback, StyledTouchableOpacity, StylerProps} from "style-composer";
-
-const TouchableComponent: typeof StyledTouchableNativeFeedback = Platform.select<any>({
-  default: StyledTouchableOpacity,
-});
-
+import {ButtonProps as BaseButtonProps}                 from "react-native";
+import {$Button}                                        from "./Button.style";
+import Text                                             from "../Text/Text";
+import {classList, StyledTouchableOpacity, StylerProps} from "style-composer";
 
 export interface ButtonProps extends BaseButtonProps, StylerProps {
   loading?: boolean;
@@ -16,9 +11,9 @@ export interface ButtonProps extends BaseButtonProps, StylerProps {
 
 const Button = (props: ButtonProps) => {
   const {title, classes, ...otherProps} = props;
-  return <TouchableComponent classes={classList($Button, classes)} {...otherProps}>
+  return <StyledTouchableOpacity classes={classList($Button, classes)} {...otherProps}>
     <Text>{title}</Text>
-  </TouchableComponent>;
+  </StyledTouchableOpacity>;
 };
 
 export default Button;

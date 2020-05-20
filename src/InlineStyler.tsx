@@ -1,24 +1,25 @@
 import React, {useContext, useMemo} from "react";
 
-import {computeClasses, sanitizeStyle}                             from "./Styling";
+import {computeClasses}                                            from "./Styling";
 import {addFontLoadListener, isFontLoaded, removeFontLoadListener} from "./font/FontFamily";
 import type {StylerComponent, StylerProps}                         from "./Styler";
-import {useForceUpdate, useRulesEffect, useStylingInternals}       from "./Hooks";
+import {renderChildren}                                            from "./Styler";
+import {useForceUpdate, useStylingInternals}                       from "./Hooks";
 import DescendingStyleContext                                      from "./DescendingStyleContext";
 
 const DESCENDING_STYLES = ["fontSize", "fontFamily", "color"];
 
-const NativeStyler: StylerComponent = (props: StylerProps) => {
+const InlineStyler: StylerComponent = (props: StylerProps) => {
   const {children, style, classes} = props;
 
   const parentDescendingStyle = useContext(DescendingStyleContext);
   const [fontKey, forceUpdate] = useForceUpdate();
-  const {theme, key, classId, classArray} = useStylingInternals(classes);
+  const {id, theme, key, classId, classArray} = useStylingInternals(classes);
 
   const {computedStyles, descendingStyle, classNames} = useMemo(() => {
     const classResults = computeClasses(classArray, {includeStyle: true});
 
-    const ownStyles: any = Object.assign(classResults.style || {}, style, typeof children === "string" ? undefined : children?.props.style);
+    const ownStyles: any = Object.assign(classResults.style || {}, style, typeof children !== "object" ? undefined : children?.props.style);
 
     const computedStyles = Object.assign({}, parentDescendingStyle, ownStyles);
 
@@ -47,16 +48,12 @@ const NativeStyler: StylerComponent = (props: StylerProps) => {
     }
   }
 
-  const content = children ? (typeof children === "string" ? children : React.cloneElement(children, {
-    style    : sanitizeStyle(children, computedStyles),
-    className: classNames?.join(" "),
-  } as any)) : null;
+  const content = renderChildren(children, computedStyles, classNames, id);
 
   return descendingStyle ?
     <DescendingStyleContext.Provider value={descendingStyle}>
       {content}
     </DescendingStyleContext.Provider> : content as any;
 };
-Object.defineProperty(NativeStyler, "name", {value: "NativeStyler"});
 
-export default React.memo(NativeStyler);
+export default React.memo(Object.assign(InlineStyler, {displayName: "InlineStyler"}));

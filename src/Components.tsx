@@ -10,22 +10,29 @@ import {
   View,
 }                              from "react-native";
 import {StylableProps, Styler} from "./Styler";
+import * as Utils              from "./Utils";
 
-export function styled<P>(baseComponent: React.ComponentType<P>): React.ComponentType<P & StylableProps> {
-  return (props) => {
+export function styled<P>(baseComponent: React.ComponentType<P>, options?: { canBeCssOptimized?: boolean }): React.ComponentType<P & StylableProps> {
+  let stylerComponent = Styler;
+  if (options?.canBeCssOptimized && !Utils.isNative()) {
+    stylerComponent = require("./CssOptimizedStyler").default;
+  }
+
+  return React.memo(Object.assign((props: any) => {
     const {children, style, classes, ...otherProps} = props;
-    return <Styler
-      classes={classes} style={style}>
-      {React.createElement(baseComponent, otherProps as any, children) as any}
-    </Styler>;
-  };
+
+    return React.createElement(stylerComponent, {
+      classes,
+      style,
+    }, React.createElement(baseComponent, otherProps as any, children));
+  }, {displayName: `Styled${baseComponent.displayName ? `[${baseComponent.displayName}]` : ""}`}));
 }
 
-export const StyledView = styled(View);
-export const StyledText = styled(Text);
-export const StyledTextInput = styled(TextInput);
-export const StyledButton = styled(Button);
-export const StyledTouchableNativeFeedback = styled(TouchableNativeFeedback);
-export const StyledTouchableOpacity = styled(TouchableOpacity);
-export const StyledTouchableWithoutFeedback = styled(TouchableWithoutFeedback);
-export const StyledTouchableHighlight = styled(TouchableHighlight);
+export const StyledView = styled(View, {canBeCssOptimized: true});
+export const StyledText = styled(Text, {canBeCssOptimized: true});
+export const StyledTextInput = styled(TextInput, {canBeCssOptimized: true});
+export const StyledButton = styled(Button, {canBeCssOptimized: true});
+export const StyledTouchableNativeFeedback = styled(TouchableNativeFeedback, {canBeCssOptimized: true});
+export const StyledTouchableOpacity = styled(TouchableOpacity, {canBeCssOptimized: true});
+export const StyledTouchableWithoutFeedback = styled(TouchableWithoutFeedback, {canBeCssOptimized: true});
+export const StyledTouchableHighlight = styled(TouchableHighlight, {canBeCssOptimized: true});

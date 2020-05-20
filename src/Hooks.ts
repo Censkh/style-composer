@@ -4,18 +4,18 @@ import {Classes, classesId, classList, StyleClass}         from "./class/StyleCl
 import {Falsy}                                             from "./Utils";
 import {useTheming}                                        from "./theme";
 import {Dimensions}                                        from "react-native";
-import debounce                                            from "lodash.debounce";
 
 export const useForceUpdate = (debounceTimeout?: number): [number, () => void] => {
   const [state, setState] = useState(0);
-  const forceUpdate = useMemo(() => {
-    const update = () => setState(i => i + 1);
-    return debounceTimeout ? debounce(update, debounceTimeout) : update;
+  const forceUpdate = useCallback(() => {
+    return setState(i => i + 1);
   }, [setState, debounceTimeout]);
   return [state, forceUpdate];
 };
 
 export const useStylingInternals = (classes: Classes | undefined) => {
+  const idRef = useRef(Math.floor(Math.random() * 100000000).toString());
+
   const {classArray, classId, hasDynamicUnit} = useMemo(() => {
     const classArray: StyleClass[] | undefined = classes && classList(classes) || undefined;
     const classId = classesId(classArray);
@@ -24,7 +24,7 @@ export const useStylingInternals = (classes: Classes | undefined) => {
     return {classArray, classId, hasDynamicUnit};
   }, [classes]);
 
-  const [key, forceUpdate] = useRulesEffect(classArray, classId);
+  const [key, forceUpdate] = useRulesEffect(idRef.current, classArray, classId);
   const theme = useTheming();
 
   useEffect(() => {
@@ -36,10 +36,10 @@ export const useStylingInternals = (classes: Classes | undefined) => {
     }
   }, [hasDynamicUnit]);
 
-  return {theme, key, classId, classArray};
+  return {theme, key, classId, classArray, id: idRef.current};
 };
 
-const useRulesEffect = (classes: StyleClass[] | Falsy, classesId: string | null): [number, () => void] => {
+const useRulesEffect = (id: string, classes: StyleClass[] | Falsy, classesId: string | null): [number, () => void] => {
   const [key, forceUpdate] = useForceUpdate(20);
 
   const prevState = useRef("");
@@ -65,15 +65,17 @@ const useRulesEffect = (classes: StyleClass[] | Falsy, classesId: string | null)
   useEffect(() => {
     if (classes) {
       for (const clazz of classes) {
-        Object.values(clazz.__meta.rules).forEach((ruleInstance) => {
+        for (const id of Object.keys(clazz.__meta.rules)) {
+          const ruleInstance = clazz.__meta.rules[id as any];
           registerRuleCallback(ruleInstance.rule, checkForUpdates);
-        });
+        }
       }
       return () => {
         for (const clazz of classes) {
-          Object.values(clazz.__meta.rules).forEach((ruleInstance) => {
+          for (const id of Object.keys(clazz.__meta.rules)) {
+            const ruleInstance = clazz.__meta.rules[id as any];
             unregisterRuleCallback(ruleInstance.rule, checkForUpdates);
-          });
+          }
         }
 
       };
@@ -81,4 +83,3 @@ const useRulesEffect = (classes: StyleClass[] | Falsy, classesId: string | null)
   }, [classesId, forceUpdate]);
   return [key, forceUpdate];
 };
-
