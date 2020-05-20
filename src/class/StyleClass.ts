@@ -8,14 +8,16 @@ export type StyleClass<V extends Record<string, StyleClass> = {}> = V & {
   __meta: {
     name: string;
     className: string;
+    isSimple: boolean;
     hasRules: boolean;
     hasThemed: boolean;
+    hasDynamicUnit: boolean;
     parent: StyleClass | null;
     rules: Record<number, StyleRuleInstance>,
     styling: StylingBuilder;
     bakedStyle: Style | null;
     variants: V | null;
-    themedProps: Record<number, string[]>
+    dynamicProps: Record<number, string[]>
   }
 }
 

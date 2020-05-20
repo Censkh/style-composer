@@ -3,6 +3,11 @@ import {Style, Styling, StylingBuilder}         from "../Styling";
 import {finishThemeSession, startThemedSession} from "../theme/Theming";
 import {StyleClass}                             from "./StyleClass";
 import {ClassManager}                           from "./ClassManager";
+import {
+  DYNAMIC_UNIT_REGISTER_CHECK_VALUE,
+  finishDynamicUnitSession,
+  startDynamicUnitSession,
+}                                               from "../unit/DynamicUnit";
 
 export default class StyleClassBuilder<V extends Record<string, StyleClass> = {}> {
 
@@ -27,16 +32,18 @@ export default class StyleClassBuilder<V extends Record<string, StyleClass> = {}
 
     const styledClass: StyleClass<any> = {
       __meta: {
-        name       : this.name,
-        parent     : parent || null,
-        className  : (parent ? parent.__meta.name + "__" : "") + this.name,
-        variants   : variants,
-        rules      : null as any,
-        hasRules   : false,
-        hasThemed  : false,
-        bakedStyle : null,
-        styling    : this.styling,
-        themedProps: {},
+        name          : this.name,
+        parent        : parent || null,
+        className     : (parent ? parent.__meta.name + "__" : "") + this.name,
+        variants      : variants,
+        rules         : null as any,
+        hasRules      : false,
+        hasThemed     : false,
+        hasDynamicUnit: false,
+        isSimple      : false,
+        bakedStyle    : null,
+        styling       : this.styling,
+        dynamicProps  : {},
       },
     };
     const classMeta = styledClass.__meta;
@@ -46,23 +53,25 @@ export default class StyleClassBuilder<V extends Record<string, StyleClass> = {}
       (variants as any)[key] = variantBuilder.build(styledClass);
     });
 
+    startDynamicUnitSession();
     startThemedSession();
     startRuleSession(true);
     const resolvedStyling = classMeta.styling();
     const rules = classMeta.rules = finishRuleSession();
     const hasThemed = classMeta.hasThemed = finishThemeSession();
+    const hasDynamicUnits = classMeta.hasDynamicUnit = finishDynamicUnitSession();
+    const hasRules = classMeta.hasRules = Object.keys(rules).length > 0;
+    const isSimple = classMeta.isSimple = !hasRules && !hasThemed && !hasDynamicUnits;
 
-    // if we have themed values in this style, work out which properties they are
-    if (hasThemed) {
-      const themedProps: Record<number, string[]> = {};
-      extractThemeProps(themedProps, 0, resolvedStyling);
-      classMeta.themedProps = themedProps;
+    // if we have themed / dynamic units values in this style, work out which properties they are
+    if (hasThemed || hasDynamicUnits) {
+      const dynamicProps: Record<number, string[]> = {};
+      extractDynamicProps(dynamicProps, 0, resolvedStyling);
+      classMeta.dynamicProps = dynamicProps;
     }
 
-    classMeta.hasRules = Object.keys(rules).length > 0;
-
     // if no rules or theming, bake it!
-    if (!classMeta.hasRules && !classMeta.hasThemed) {
+    if (isSimple) {
       classMeta.bakedStyle = sanitizeStylingToStyle(resolvedStyling);
     }
 
@@ -103,14 +112,14 @@ const sanitizeStylingToStyle = (styling: Styling): Style => {
  * ```
  * whilst startThemingSession() is active
  */
-const extractThemeProps = (themedProps: Record<number, string[]>, currentScope: number, styling: Styling) => {
-  themedProps[currentScope] = [];
+const extractDynamicProps = (dynamicProps: Record<number, string[]>, currentScope: number, styling: Styling) => {
+  dynamicProps[currentScope] = [];
   for (const key of Object.keys(styling)) {
     const value = (styling as any)[key];
     if (typeof value === "object") {
-      extractThemeProps(themedProps, parseInt(key), value);
-    } else if (typeof value === "function") {
-      themedProps[currentScope].push(key);
+      extractDynamicProps(dynamicProps, parseInt(key), value);
+    } else if (typeof value === "function" || value === DYNAMIC_UNIT_REGISTER_CHECK_VALUE) {
+      dynamicProps[currentScope].push(key);
     }
   }
 };

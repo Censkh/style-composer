@@ -11,6 +11,7 @@ export const startRuleSession = (registering?: boolean): void => {
 };
 
 export const finishRuleSession = (): Record<number, StyleRuleInstance<any>> => {
+  ruleSession.registering = false;
   return ruleSession.instances;
 };
 
@@ -25,6 +26,7 @@ export interface StyleRuleOptions<O = undefined> {
 export interface StyleRule<O = undefined> extends StyleRuleOptions<O> {
   (options: O): number;
 
+  id: number;
   name: string;
 }
 
@@ -61,9 +63,9 @@ const createUpdateCallback = (rule: StyleRule<any>) => {
 
 export function createStyleRule<O>(name: string, options: StyleRuleOptions<O>): StyleRule<O> {
   const rule: StyleRule<O> = Object.assign((options: O) => {
-    const id = ruleSession.id;
-    ruleSession.id += 1;
     if (ruleSession.registering) {
+      const id = rule.id = ruleSession.id;
+      ruleSession.id += 1;
       ruleSession.instances[id] = {
         id       : id,
         options  : options || {},
@@ -74,8 +76,8 @@ export function createStyleRule<O>(name: string, options: StyleRuleOptions<O>): 
       return id;
     }
 
-    return rule.check(options) ? id : 0;
-  }, options || {});
+    return rule.check(options) ? rule.id : 0;
+  }, options || {}, {id: 0});
   Object.defineProperty(rule, "name", {value: name});
 
   if (rule.register) {

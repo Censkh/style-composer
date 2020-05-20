@@ -3,10 +3,8 @@ import React, {useContext, useMemo} from "react";
 import {computeClasses, sanitizeStyle}                             from "./Styling";
 import {addFontLoadListener, isFontLoaded, removeFontLoadListener} from "./font/FontFamily";
 import type {StylerComponent, StylerProps}                         from "./Styler";
-import {useForceUpdate, useRulesEffect}                            from "./Hooks";
+import {useForceUpdate, useRulesEffect, useStylingInternals}       from "./Hooks";
 import DescendingStyleContext                                      from "./DescendingStyleContext";
-import {useTheming}                                                from "./theme/Theming";
-import {classesId, classList}                                      from "./class/StyleClass";
 
 const DESCENDING_STYLES = ["fontSize", "fontFamily", "color"];
 
@@ -15,11 +13,7 @@ const NativeStyler: StylerComponent = (props: StylerProps) => {
 
   const parentDescendingStyle = useContext(DescendingStyleContext);
   const [fontKey, forceUpdate] = useForceUpdate();
-  const classArray = classes && classList(classes);
-  const classId = classesId(classArray);
-  const key = useRulesEffect(classArray, classId);
-
-  const theme = useTheming();
+  const {theme, key, classId, classArray} = useStylingInternals(classes);
 
   const {computedStyles, descendingStyle, classNames} = useMemo(() => {
     const classResults = computeClasses(classArray, {includeStyle: true});

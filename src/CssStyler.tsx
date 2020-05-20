@@ -1,22 +1,18 @@
 import {StylerComponent, StylerProps}                      from "./Styler";
 import React, {useLayoutEffect, useMemo, useRef, useState} from "react";
-import {useRulesEffect}                                    from "./Hooks";
-import {useTheming}                                        from "./theme/Theming";
-import {classesId, classList}                              from "./class/StyleClass";
+import {useStylingInternals}                               from "./Hooks";
 import {computeClasses, sanitizeStyle}                     from "./Styling";
 
 const CssStyler: StylerComponent = (props: StylerProps) => {
   const {children, style, classes} = props;
-  const classArray = classList(classes);
-  const classId = classesId(classArray);
-  const key = useRulesEffect(classArray, classId);
   const [id] = useState(Math.floor(Math.random() * 100000000).toString());
 
-  const theme = useTheming();
+  const {theme, key, classId, classArray} = useStylingInternals(classes);
+
   let {computedStyles, classNames} = useMemo(() => {
     const classResults = computeClasses(classArray, {includeThemeStyle: true});
 
-    const computedStyles = Object.assign(classResults.themeStyle || {}, style, typeof children === "string" ? undefined : children?.props.style);
+    const computedStyles = Object.assign(classResults.dynamicStyle || {}, style, typeof children === "string" ? undefined : children?.props.style);
 
     return {
       computedStyles: computedStyles,
