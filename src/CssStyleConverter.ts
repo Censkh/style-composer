@@ -1,6 +1,4 @@
-import {Style, Styling} from "./Styling";
-// @ts-ignore
-import styleResolver    from "react-native-web/src/exports/StyleSheet/styleResolver";
+import {processStyle, Style, Styling} from "./Styling";
 import {StyleClass}     from "./class/StyleClass";
 import * as Utils       from "./Utils";
 
@@ -26,7 +24,7 @@ export const extractStyleClassToCss = (styleClass: StyleClass, resolvedStyling: 
 };
 
 export const styleToCss = (style: Style, options?: { important: boolean }): string => {
-  const resolveStyled = styleResolver.resolve(style).style;
+  const resolveStyled = processStyle(style);
 
   const lines = Object.keys(resolveStyled).map(property => {
     let value = (resolveStyled as any)[property];

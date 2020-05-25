@@ -1,12 +1,14 @@
 import React                  from "react";
 
 import {sanitizeStyle, Style} from "../Styling";
-import {Falsy}                from "../Utils";
+import {DeepFalsyList, Falsy} from "../Utils";
 import {StyleClass}           from "../class/StyleClass";
 import InlineStyler           from "./InlineStyler";
 
+export type StyleProp = DeepFalsyList<Style> | Style | Falsy;
+
 export interface StylableProps {
-  style?: Style;
+  style?: StyleProp;
   classes?: Array<StyleClass | Falsy> | StyleClass | Falsy,
 }
 

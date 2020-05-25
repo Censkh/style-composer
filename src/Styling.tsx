@@ -1,14 +1,18 @@
-import React                              from "react";
-import {ImageStyle, TextStyle, ViewStyle} from "react-native";
+import React                                          from "react";
+import {ImageStyle, StyleSheet, TextStyle, ViewStyle} from "react-native";
+// @ts-ignore
+import styleResolver                                  from "react-native-web/src/exports/StyleSheet/styleResolver";
 
 import {StyleClass}                                                                           from "./class/StyleClass";
-import {Falsy}                                                                                from "./Utils";
+import * as Utils                                                                             from "./Utils";
+import {DeepFalsyList, Falsy}                                                                 from "./Utils";
 import {DYNAMIC_UNIT_REGISTER_CHECK_VALUE, finishDynamicUnitSession, startDynamicUnitSession} from "./unit/DynamicUnit";
 import {finishThemeSession, startThemedSession}                                               from "./theme/Theming";
 import {finishRuleSession, startRuleSession, StyleRuleInstance}                               from "./rule/StyleRule";
 import {FontWeight}                                                                           from "./font/FontFamily";
+import {StyleProp}                                                                            from "./component/Styler";
 
-export const DESCENDING_STYLES = ["fontSize", "fontFamily", "fontWeight", "color"];
+export const DESCENDING_STYLES = ["fontSize", "fontFamily", "fontWeight", "color", "letterSpacing", "textAlign"];
 
 export interface StylingResolution {
   styling: StylingBuilder;
@@ -22,7 +26,9 @@ export interface StylingResolution {
   resolvedStyling: Styling;
 }
 
-export type Style = Omit<ViewStyle & TextStyle & ImageStyle, "fontWeight" | "boxShadow"> & { boxShadow?: string; fontWeight?: FontWeight; };
+export type Style =
+  Omit<ViewStyle & TextStyle & ImageStyle, "fontWeight" | "boxShadow">
+  & { boxShadow?: string; fontWeight?: FontWeight; };
 
 export type StylingBuilder<S = Style> = () => Styling<S>;
 
@@ -45,13 +51,13 @@ export function computeClasses(styleClass: StyleClass[] | Falsy, options?: { inc
   for (const clazz of styleClass) {
     if (clazz.__meta.parent) {
       classNames.push(clazz.__meta.parent.__meta.className);
-      const parentStyle = computeStyle(clazz.__meta.parent.__meta, dynamicStyle, classNames);
+      const parentStyle = computeStyling(clazz.__meta.parent.__meta, dynamicStyle, classNames);
       if (style) {
         style = Object.assign(style, parentStyle);
       }
     }
     classNames.push(clazz.__meta.className);
-    const computedStyle = computeStyle(clazz.__meta, dynamicStyle, classNames);
+    const computedStyle = computeStyling(clazz.__meta, dynamicStyle, classNames);
     if (style) {
       style = Object.assign(style, computedStyle);
     }
@@ -59,7 +65,7 @@ export function computeClasses(styleClass: StyleClass[] | Falsy, options?: { inc
   return {classNames, style, dynamicStyle};
 }
 
-export const computeStyle = (resolution: StylingResolution, outDynamicStyle?: Style | null, outClassNames?: string[]): Style => {
+export const computeStyling = (resolution: StylingResolution, outDynamicStyle?: Style | null, outClassNames?: string[]): Style => {
   const {bakedStyle, hasRules, isSimple, rules, styling, dynamicProps} = resolution;
   if (isSimple && bakedStyle) {
     return bakedStyle;
@@ -204,4 +210,14 @@ export const extractDescendingStyle = (ownStyle: Style | null, computedStyle: St
   } else {
     return [null, ""];
   }
+};
+
+export const processStyle = (...styleProp: DeepFalsyList<Style>): Style => {
+  const flatStyle = StyleSheet.flatten(styleProp);
+  return Utils.isNative() ? flatStyle : styleResolver.resolve(flatStyle).style || {};
+};
+
+export const styleList = (...classes: DeepFalsyList<Style>): StyleProp => {
+  if (classes.length < 2) return classes[0];
+  return classes;
 };

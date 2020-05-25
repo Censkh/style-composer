@@ -1,9 +1,12 @@
-import React from "react";
+import React        from "react";
+import {StyleClass} from "./class/StyleClass";
 
 // @ts-ignore
 const document = (window as any).document;
 
 export type PropsOf<C extends React.ComponentType> = C extends React.ComponentType<infer P> ? P : never;
+
+export type DeepFalsyList<T> = Array<Falsy | T | DeepFalsyList<T>>;
 
 export type Falsy = false | null | undefined;
 

@@ -9,7 +9,7 @@ export default class CssClassManager extends BaseClassManager {
   constructor() {
     super();
     Utils.setStyleSheet("global", `
-    .styled {color:inherit;font-size:inherit !important;font-family:inherit!important}
+    .styled {color:inherit;font-size:inherit;font-family:inherit!important}
     body {font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;font-size:14px;}
     `);
   }

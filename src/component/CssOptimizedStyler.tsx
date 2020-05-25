@@ -1,9 +1,9 @@
 import React, {useContext, useLayoutEffect, useMemo, useRef} from "react";
 
 import {renderChildren, StylerComponent, StylerProps} from "./Styler";
-import {useStylingInternals}                          from "../Hooks";
-import {computeClasses, extractDescendingStyle}       from "../Styling";
-import DescendingStyleContext                         from "../DescendingStyleContext";
+import {useStylingInternals}                                  from "../Hooks";
+import {computeClasses, extractDescendingStyle, processStyle} from "../Styling";
+import DescendingStyleContext                                 from "../DescendingStyleContext";
 import {getFontClassName, getFontFamily}              from "../font/FontFamily";
 
 const CssOptimizedStyler = (props: StylerProps) => {
@@ -15,7 +15,7 @@ const CssOptimizedStyler = (props: StylerProps) => {
   let {inlineStyle, descendingStyle, classNames, descendingStyleKey} = useMemo(() => {
     const classResults = computeClasses(classArray, {includeDynamicStyle: true});
 
-    const inlineStyle = Object.assign(classResults.dynamicStyle || {}, style, typeof children !== "object" ? undefined : children?.props.style);
+    const inlineStyle = processStyle(classResults.dynamicStyle, style, typeof children !== "object" ? undefined : children?.props.style);
 
     const ownStyle = classResults.style;
 

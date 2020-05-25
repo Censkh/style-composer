@@ -4,7 +4,7 @@ import {Classes, classesId, classList, StyleClass}                         from 
 import {Falsy}                                                             from "./Utils";
 import {useTheming}                                                        from "./theme";
 import {Dimensions}                                                        from "react-native";
-import {computeStyle, resolveStyling, StylingBuilder, StylingResolution}   from "./Styling";
+import {computeStyling, resolveStyling, StylingBuilder, StylingResolution} from "./Styling";
 
 export const useForceUpdate = (debounceTimeout?: number): [number, () => void] => {
   const [state, setState] = useState(0);
@@ -135,7 +135,7 @@ export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: Depend
     }
   }, [resolution]);
 
-  return useMemo(() => computeStyle(resolution), [resolution, key]) as S;
+  return useMemo(() => computeStyling(resolution), [resolution, key]) as S;
 };
 
 export const useCallableEffect = <F extends (...args: any[]) => any>(effect: F, depList: DependencyList): F => {

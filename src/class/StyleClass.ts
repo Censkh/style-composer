@@ -1,7 +1,7 @@
 import {resolveStyling, StylingBuilder, StylingResolution} from "../Styling";
-import * as Utils                                          from "../Utils";
-import {Falsy}                                             from "../Utils";
-import {ClassManager}                                      from "./ClassManager";
+import * as Utils             from "../Utils";
+import {DeepFalsyList, Falsy} from "../Utils";
+import {ClassManager}         from "./ClassManager";
 
 export type StyleClass<V extends Record<string, StyleClass> = {}> = V & {
   __meta: StylingResolution & {
@@ -53,7 +53,7 @@ export function composeClass<V extends Record<string, StyleClass> = {}>(name: st
   return Object.assign(styledClass, variants);
 }
 
-export type DeepClassList = Array<Falsy | StyleClass | DeepClassList>;
+export type DeepClassList = DeepFalsyList<StyleClass>;
 
 export type Classes = Array<StyleClass | Falsy> | StyleClass | Falsy;
 

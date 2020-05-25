@@ -1,7 +1,7 @@
 import React, {useContext, useMemo} from "react";
 
-import {computeClasses, extractDescendingStyle} from "../Styling";
-import type {StylerComponent, StylerProps}      from "./Styler";
+import {computeClasses, extractDescendingStyle, processStyle} from "../Styling";
+import type {StylerComponent, StylerProps}                    from "./Styler";
 import {renderChildren}                         from "./Styler";
 import {useForceUpdate, useStylingInternals}    from "../Hooks";
 import DescendingStyleContext                   from "../DescendingStyleContext";
@@ -18,7 +18,7 @@ const InlineStyler = (props: StylerProps) => {
   const {inlineStyle, descendingStyle, descendingStyleKey, classNames} = useMemo(() => {
     const classResults = computeClasses(classArray);
 
-    const ownStyle: any = Object.assign(classResults.style || {}, style, typeof children !== "object" ? undefined : children?.props.style);
+    let ownStyle = processStyle(classResults.style, style, typeof children !== "object" ? undefined : children?.props.style);
 
     const inlineStyle = Object.assign({}, parentDescendingStyle, ownStyle);
 
