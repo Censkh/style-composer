@@ -1,6 +1,6 @@
 import React                   from "react";
 import {
-  Button,
+  Button, SafeAreaView,
   Text,
   TextInput,
   TouchableHighlight,
@@ -8,26 +8,29 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
-}                              from "react-native";
-import {StylableProps, Styler} from "./Styler";
-import * as Utils              from "./Utils";
+}                                               from "react-native";
+import {StylableProps, Styler, StylerComponent} from "../Styler";
+import * as Utils                               from "../Utils";
 
 export function styled<P>(baseComponent: React.ComponentType<P>, options?: { canBeCssOptimized?: boolean }): React.ComponentType<P & StylableProps> {
-  let stylerComponent = Styler;
+  let stylerComponent: StylerComponent = Styler;
   if (options?.canBeCssOptimized && !Utils.isNative()) {
-    stylerComponent = require("./CssOptimizedStyler").default;
+    stylerComponent = require("../CssOptimizedStyler").default;
   }
 
+  // we
   return React.memo(Object.assign((props: any) => {
     const {children, style, classes, ...otherProps} = props;
 
-    return React.createElement(stylerComponent, {
+    return stylerComponent({
       classes,
       style,
-    }, React.createElement(baseComponent, otherProps as any, children));
-  }, {displayName: `Styled${baseComponent.displayName ? `[${baseComponent.displayName}]` : ""}`}));
+      children: React.createElement(baseComponent, otherProps as any, children),
+    } as any);
+  }, {displayName: `${stylerComponent.displayName}${baseComponent.displayName ? `[${baseComponent.displayName}]` : ""}`}));
 }
 
+export const StyledSafeAreaView = styled(SafeAreaView, {canBeCssOptimized: true});
 export const StyledView = styled(View, {canBeCssOptimized: true});
 export const StyledText = styled(Text, {canBeCssOptimized: true});
 export const StyledTextInput = styled(TextInput, {canBeCssOptimized: true});

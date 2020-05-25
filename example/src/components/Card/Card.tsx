@@ -1,6 +1,6 @@
 import React from "react";
 
-import {StyledView, StylerProps, classList} from "style-composer";
+import {PolyView, StylerProps, classList} from "style-composer";
 import {$Card}                   from "./Card.style";
 
 export interface CardProps extends StylerProps {
@@ -8,9 +8,9 @@ export interface CardProps extends StylerProps {
 
 const Card = (props: CardProps) => {
   const {children, classes, style} = props;
-  return <StyledView style={style} classes={classList($Card,classes)}>
+  return <PolyView tag={"span"} style={style} classes={classList($Card,classes)}>
     {children}
-  </StyledView>;
+  </PolyView>;
 };
 
 export default Card;

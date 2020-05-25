@@ -37,6 +37,7 @@ export const renderChildren = (children: StylerChildren | undefined, computedSty
 
 export interface StylerComponent {
   (props: StylerProps): JSX.Element | null;
+  displayName: string;
 }
 
 export const Styler: StylerComponent = InlineStyler;

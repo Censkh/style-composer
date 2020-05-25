@@ -1,13 +1,6 @@
-import {finishRuleSession, startRuleSession}    from "../rule/StyleRule";
-import {Style, Styling, StylingBuilder}         from "../Styling";
-import {finishThemeSession, startThemedSession} from "../theme/Theming";
-import {StyleClass}                             from "./StyleClass";
-import {ClassManager}                           from "./ClassManager";
-import {
-  DYNAMIC_UNIT_REGISTER_CHECK_VALUE,
-  finishDynamicUnitSession,
-  startDynamicUnitSession,
-}                                               from "../unit/DynamicUnit";
+import {resolveStyling, StylingBuilder} from "../Styling";
+import {StyleClass}                     from "./StyleClass";
+import {ClassManager}                   from "./ClassManager";
 
 export default class StyleClassBuilder<V extends Record<string, StyleClass> = {}> {
 
@@ -53,73 +46,10 @@ export default class StyleClassBuilder<V extends Record<string, StyleClass> = {}
       (variants as any)[key] = variantBuilder.build(styledClass);
     });
 
-    startDynamicUnitSession();
-    startThemedSession();
-    startRuleSession(true);
-    const resolvedStyling = classMeta.styling();
-    const rules = classMeta.rules = finishRuleSession();
-    const hasThemed = classMeta.hasThemed = finishThemeSession();
-    const hasDynamicUnits = classMeta.hasDynamicUnit = finishDynamicUnitSession();
-    const hasRules = classMeta.hasRules = Object.keys(rules).length > 0;
-    const isSimple = classMeta.isSimple = !hasRules && !hasThemed && !hasDynamicUnits;
-
-    // if we have themed / dynamic units values in this style, work out which properties they are
-    if (hasThemed || hasDynamicUnits) {
-      const dynamicProps: Record<number, string[]> = {};
-      extractDynamicProps(dynamicProps, 0, resolvedStyling);
-      classMeta.dynamicProps = dynamicProps;
-    }
-
-    // if no rules or theming, bake it!
-    if (isSimple) {
-      classMeta.bakedStyle = sanitizeStylingToStyle(resolvedStyling);
-    }
+    const {resolvedStyling} = Object.assign(classMeta, resolveStyling(classMeta.styling));
 
     ClassManager.registerClass(styledClass, resolvedStyling);
 
     return Object.assign(styledClass, variants);
   }
 }
-
-/**
- * Removes any theme or query rules from the styling object, leaving only actual style rules
- */
-const sanitizeStylingToStyle = (styling: Styling): Style => {
-  return Object.keys(styling).reduce((style: any, key: any) => {
-    const value = styling[key];
-    if (typeof key === "string" && typeof value !== "object" && typeof value !== "function") {
-      style[key] = value;
-    }
-    return style;
-  }, {} as Style);
-};
-
-/**
- * When the theme session run, theme property functions will return themselves instead of the current theme
- * value and using this method we collect which style rules are themed.
- *
- * Eg.
- * ```
- * () => ({
- *   color: theming.mainColor(),
- * })
- * ```
- * will return an object with:
- * ```
- * {
- *   color: theming.mainColor
- * }
- * ```
- * whilst startThemingSession() is active
- */
-const extractDynamicProps = (dynamicProps: Record<number, string[]>, currentScope: number, styling: Styling) => {
-  dynamicProps[currentScope] = [];
-  for (const key of Object.keys(styling)) {
-    const value = (styling as any)[key];
-    if (typeof value === "object") {
-      extractDynamicProps(dynamicProps, parseInt(key), value);
-    } else if (typeof value === "function" || value === DYNAMIC_UNIT_REGISTER_CHECK_VALUE) {
-      dynamicProps[currentScope].push(key);
-    }
-  }
-};

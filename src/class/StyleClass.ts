@@ -1,23 +1,14 @@
-import {StyleRuleInstance}     from "../rule/StyleRule";
-import StyleClassBuilder       from "./StyleClassBuilder";
-import {Style, StylingBuilder} from "../Styling";
-import * as Utils              from "../Utils";
-import {Falsy}                 from "../Utils";
+import StyleClassBuilder                   from "./StyleClassBuilder";
+import {StylingBuilder, StylingResolution} from "../Styling";
+import * as Utils                          from "../Utils";
+import {Falsy}                             from "../Utils";
 
 export type StyleClass<V extends Record<string, StyleClass> = {}> = V & {
-  __meta: {
+  __meta: StylingResolution & {
     name: string;
     className: string;
-    isSimple: boolean;
-    hasRules: boolean;
-    hasThemed: boolean;
-    hasDynamicUnit: boolean;
     parent: StyleClass | null;
-    rules: Record<number, StyleRuleInstance>,
-    styling: StylingBuilder;
-    bakedStyle: Style | null;
     variants: V | null;
-    dynamicProps: Record<number, string[]>
   }
 }
 

@@ -1,23 +1,28 @@
-import {renderChildren, StylerComponent, StylerProps} from "./Styler";
-import React, {useLayoutEffect, useMemo, useRef}      from "react";
-import {useStylingInternals}                          from "./Hooks";
-import {computeClasses}                               from "./Styling";
+import {renderChildren, StylerComponent, StylerProps}        from "./Styler";
+import React, {useContext, useLayoutEffect, useMemo, useRef} from "react";
+import {useStylingInternals}                                 from "./Hooks";
+import {computeClasses, extractDescendingStyle} from "./Styling";
+import DescendingStyleContext                   from "./DescendingStyleContext";
 
-const CssOptimizedStyler: StylerComponent = (props: StylerProps) => {
+const CssOptimizedStyler = (props: StylerProps) => {
   const {children, style, classes} = props;
 
   const {id, theme, key, classId, classArray} = useStylingInternals(classes);
+  const [parentDescendingStyle, parentDescendingStyleKey] = useContext(DescendingStyleContext);
 
-  let {computedStyles, classNames} = useMemo(() => {
-    const classResults = computeClasses(classArray, {includeThemeStyle: true});
+  let {inlineStyle, descendingStyle, classNames, descendingStyleKey} = useMemo(() => {
+    const classResults = computeClasses(classArray, {includeDynamicStyle: true});
 
-    const computedStyles = Object.assign(classResults.dynamicStyle || {}, style, typeof children !== "object" ? undefined : children?.props.style);
+    const inlineStyle = Object.assign(classResults.dynamicStyle || {}, style, typeof children !== "object" ? undefined : children?.props.style);
+    const [descendingStyle, descendingStyleKey] = extractDescendingStyle(classResults.style, Object.assign({}, parentDescendingStyle, classResults.style));
 
     return {
-      computedStyles: computedStyles,
-      classNames    : classResults.classNames,
+      inlineStyle    : inlineStyle,
+      descendingStyle: descendingStyle,
+      descendingStyleKey: descendingStyleKey,
+      classNames     : classResults.classNames,
     };
-  }, [key, style, classId, theme]);
+  }, [key, style, classId, theme, parentDescendingStyleKey]);
 
   const classesString = (classNames ? " " + classNames.join(" ") : "");
 
@@ -36,7 +41,14 @@ const CssOptimizedStyler: StylerComponent = (props: StylerProps) => {
     elementRef.current.setAttribute("class", baseClasses.current + " styled" + classesString);
   }, [classesString]);
 
-  return renderChildren(children, computedStyles, classNames, id);
+  const memoDescendingStyle = useMemo(() => [descendingStyle, descendingStyleKey], [descendingStyleKey]);
+
+  const content = renderChildren(children, inlineStyle, classNames, id);
+
+  return descendingStyle ?
+    <DescendingStyleContext.Provider value={memoDescendingStyle as any}>
+      {content}
+    </DescendingStyleContext.Provider> : content as any;
 };
 
-export default React.memo(Object.assign(CssOptimizedStyler, {displayName: "CssOptimizedStyler"}));
+export default Object.assign(CssOptimizedStyler, {displayName: "CssOptimizedStyler"}) as StylerComponent;

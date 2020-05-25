@@ -3,6 +3,8 @@ import React from "react";
 // @ts-ignore
 const document = (window as any).document;
 
+export type PropsOf<C extends React.ComponentType> = C extends React.ComponentType<infer P> ? P : never;
+
 export type Falsy = false | null | undefined;
 
 export const isNative = () => {

@@ -6,7 +6,7 @@ export default class BaseClassManager implements ClassManager {
 
   classes: Record<string, StyleClass> = {};
 
-  registerClass(styleClass: StyleClass, resolEvedStyling: Styling) {
+  registerClass(styleClass: StyleClass, resolvedStyling: Styling) {
     this.classes[styleClass.__meta.className] = styleClass;
   }
 

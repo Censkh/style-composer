@@ -1,9 +1,10 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {registerRuleCallback, unregisterRuleCallback}      from "./rule/StyleRule";
-import {Classes, classesId, classList, StyleClass}         from "./class/StyleClass";
-import {Falsy}                                             from "./Utils";
-import {useTheming}                                        from "./theme";
-import {Dimensions}                                        from "react-native";
+import {DependencyList, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {registerRuleCallback, unregisterRuleCallback}                      from "./rule/StyleRule";
+import {Classes, classesId, classList, StyleClass}                         from "./class/StyleClass";
+import {Falsy}                                                             from "./Utils";
+import {useTheming}                                                        from "./theme";
+import {Dimensions}                                                        from "react-native";
+import {computeStyle, resolveStyling, StylingBuilder, StylingResolution}   from "./Styling";
 
 export const useForceUpdate = (debounceTimeout?: number): [number, () => void] => {
   const [state, setState] = useState(0);
@@ -64,22 +65,81 @@ const useRulesEffect = (id: string, classes: StyleClass[] | Falsy, classesId: st
 
   useEffect(() => {
     if (classes) {
-      for (const clazz of classes) {
-        for (const id of Object.keys(clazz.__meta.rules)) {
-          const ruleInstance = clazz.__meta.rules[id as any];
-          registerRuleCallback(ruleInstance.rule, checkForUpdates);
-        }
-      }
-      return () => {
+      const hasRules = classes.some(clazz => clazz.__meta.hasRules);
+      if (hasRules) {
         for (const clazz of classes) {
-          for (const id of Object.keys(clazz.__meta.rules)) {
-            const ruleInstance = clazz.__meta.rules[id as any];
-            unregisterRuleCallback(ruleInstance.rule, checkForUpdates);
+          if (clazz.__meta.hasRules) {
+            for (const id of Object.keys(clazz.__meta.rules)) {
+              const ruleInstance = clazz.__meta.rules[id as any];
+              registerRuleCallback(ruleInstance.rule, checkForUpdates);
+            }
           }
         }
-
-      };
+        return () => {
+          for (const clazz of classes) {
+            if (clazz.__meta.hasRules) {
+              for (const id of Object.keys(clazz.__meta.rules)) {
+                const ruleInstance = clazz.__meta.rules[id as any];
+                unregisterRuleCallback(ruleInstance.rule, checkForUpdates);
+              }
+            }
+          }
+        };
+      }
     }
   }, [classesId, forceUpdate]);
   return [key, forceUpdate];
+};
+
+export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: DependencyList): S => {
+  const [key, forceUpdate] = useForceUpdate(20);
+
+  const prevState = useRef("");
+  const currentResolution = useRef<StylingResolution>();
+  const resolution = useMemo(() => resolveStyling(styling), depList);
+  currentResolution.current = resolution;
+  const {hasDynamicUnit} = resolution;
+
+  const checkForUpdates = useCallback(() => {
+    let state = "";
+    for (const ruleInstance of Object.values(currentResolution.current!.rules)) {
+      state += ruleInstance.rule.check(ruleInstance.options) ? "1" : "0";
+    }
+    if (prevState.current !== state) {
+      prevState.current = state;
+      forceUpdate();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (hasDynamicUnit) {
+      Dimensions.addEventListener("change", forceUpdate);
+      return () => {
+        Dimensions.removeEventListener("change", forceUpdate);
+      };
+    }
+  }, [hasDynamicUnit]);
+
+  useEffect(() => {
+    if (resolution.hasRules) {
+      for (const id of Object.keys(resolution.rules)) {
+        const ruleInstance = resolution.rules[id as any];
+        registerRuleCallback(ruleInstance.rule, checkForUpdates);
+      }
+      return () => {
+        for (const id of Object.keys(resolution.rules)) {
+          const ruleInstance = resolution.rules[id as any];
+          unregisterRuleCallback(ruleInstance.rule, checkForUpdates);
+        }
+      };
+    }
+  }, [resolution]);
+
+  return useMemo(() => computeStyle(resolution), [resolution, key]) as S;
+};
+
+export const useCallableEffect = <F extends (...args: any[]) => any>(effect: F, depList: DependencyList): F => {
+  const func = useCallback(effect, depList);
+  useEffect(func, [func]);
+  return func;
 };

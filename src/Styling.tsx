@@ -1,14 +1,31 @@
 import React                              from "react";
 import {ImageStyle, TextStyle, ViewStyle} from "react-native";
 
-import {StyleClass} from "./class/StyleClass";
-import {Falsy}      from "./Utils";
+import {StyleClass}                                                                           from "./class/StyleClass";
+import {Falsy}                                                                                from "./Utils";
+import {DYNAMIC_UNIT_REGISTER_CHECK_VALUE, finishDynamicUnitSession, startDynamicUnitSession} from "./unit/DynamicUnit";
+import {finishThemeSession, startThemedSession}                                               from "./theme/Theming";
+import {finishRuleSession, startRuleSession, StyleRuleInstance}                               from "./rule/StyleRule";
+
+export const DESCENDING_STYLES = ["fontSize", "fontFamily", "color"];
+
+export interface StylingResolution {
+  styling: StylingBuilder;
+  rules: Record<number, StyleRuleInstance>,
+  bakedStyle: Style | null;
+  isSimple: boolean;
+  hasRules: boolean;
+  hasThemed: boolean;
+  hasDynamicUnit: boolean;
+  dynamicProps: Record<number, string[]>;
+  resolvedStyling: Styling;
+}
 
 export type Style = ViewStyle & TextStyle & ImageStyle & { boxShadow?: string };
 
-export type StylingBuilder = () => Styling;
+export type StylingBuilder<S = Style> = () => Styling<S>;
 
-export type Styling = Style & Record<number, Style>;
+export type Styling<S = Style> = Partial<S> & Record<number, Partial<S>>;
 
 export interface ComputeResults {
   classNames: string[] | null;
@@ -16,24 +33,24 @@ export interface ComputeResults {
   style: Style | null;
 }
 
-export function computeClasses(styleClass: StyleClass[] | Falsy, options: { includeStyle?: boolean; includeThemeStyle?: boolean; }): ComputeResults {
+export function computeClasses(styleClass: StyleClass[] | Falsy, options?: { includeDynamicStyle?: boolean; }): ComputeResults {
   if (!styleClass || styleClass.length === 0) {
     return {classNames: null, style: null, dynamicStyle: null};
   }
   const classNames: string[] = [];
-  let style: Style | null = options.includeStyle ? {} : null;
-  const dynamicStyle: Style | null = options.includeThemeStyle ? {} : null;
+  let style: Style | null = {};
+  const dynamicStyle: Style | null = options?.includeDynamicStyle ? {} : null;
 
   for (const clazz of styleClass) {
     if (clazz.__meta.parent) {
       classNames.push(clazz.__meta.parent.__meta.className);
-      const parentStyle = computeClassStyle(clazz.__meta.parent, dynamicStyle, classNames);
+      const parentStyle = computeStyle(clazz.__meta.parent.__meta, dynamicStyle, classNames);
       if (style) {
         style = Object.assign(style, parentStyle);
       }
     }
     classNames.push(clazz.__meta.className);
-    const computedStyle = computeClassStyle(clazz, dynamicStyle, classNames);
+    const computedStyle = computeStyle(clazz.__meta, dynamicStyle, classNames);
     if (style) {
       style = Object.assign(style, computedStyle);
     }
@@ -41,8 +58,8 @@ export function computeClasses(styleClass: StyleClass[] | Falsy, options: { incl
   return {classNames, style, dynamicStyle};
 }
 
-function computeClassStyle(styledClass: StyleClass, dynamicStyle: Style | null, classNames: string[]): Style {
-  const {bakedStyle, hasRules, isSimple, rules, styling, dynamicProps} = styledClass.__meta;
+export const computeStyle = (resolution: StylingResolution, outDynamicStyle?: Style | null, outClassNames?: string[]): Style => {
+  const {bakedStyle, hasRules, isSimple, rules, styling, dynamicProps} = resolution;
   if (isSimple && bakedStyle) {
     return bakedStyle;
   }
@@ -55,21 +72,23 @@ function computeClassStyle(styledClass: StyleClass, dynamicStyle: Style | null, 
       (style as any)[ruleInstance.id] = undefined;
       if (ruleStyle) {
         style = Object.assign(style, ruleStyle);
-        classNames.push(ruleInstance.className);
+        if (outClassNames) {
+          outClassNames.push(ruleInstance.className);
+        }
       }
     }
     // when rules are evalled they return 0 instead of false
     style[0] = undefined;
   }
 
-  if (dynamicStyle) {
+  if (outDynamicStyle) {
     for (const dynamicProp of dynamicProps[0]) {
-      (dynamicStyle as any)[dynamicProp] = style[dynamicProp];
+      (outDynamicStyle as any)[dynamicProp] = style[dynamicProp];
     }
   }
 
   return style;
-}
+};
 
 export const sanitizeStyle = (node: React.ReactNode, style: Style): Style => {
   if (process.env.NODE_ENV === "development") {
@@ -78,4 +97,109 @@ export const sanitizeStyle = (node: React.ReactNode, style: Style): Style => {
     }
   }
   return style;
+};
+
+/**
+ * Removes any theme or query rules from the styling object, leaving only actual style rules
+ */
+const sanitizeStylingToStyle = (styling: Styling): Style => {
+  return Object.keys(styling).reduce((style: any, key: any) => {
+    const value = styling[key];
+    if (typeof key === "string" && typeof value !== "object" && typeof value !== "function") {
+      style[key] = value;
+    }
+    return style;
+  }, {} as Style);
+};
+
+export const resolveStyling = (styling: StylingBuilder): StylingResolution => {
+  startDynamicUnitSession();
+  startThemedSession();
+  startRuleSession(true);
+  const resolvedStyling = styling();
+  const rules = finishRuleSession();
+  const hasThemed = finishThemeSession();
+  const hasDynamicUnit = finishDynamicUnitSession();
+  const hasRules = Object.keys(rules).length > 0;
+  const isSimple = !hasRules && !hasThemed && !hasDynamicUnit;
+
+  let dynamicProps: Record<number, string[]> | null = {};
+
+  // if we have themed / dynamic units values in this style, work out which properties they are
+  if (hasThemed || hasDynamicUnit) {
+    extractDynamicProps(dynamicProps, 0, resolvedStyling);
+  }
+
+  let bakedStyle = null;
+
+  // if no rules or theming, bake it!
+  if (isSimple) {
+    bakedStyle = sanitizeStylingToStyle(resolvedStyling);
+  }
+
+  return {
+    rules,
+    bakedStyle,
+    dynamicProps,
+    styling,
+    hasDynamicUnit,
+    hasRules,
+    hasThemed,
+    isSimple,
+    resolvedStyling,
+  };
+};
+
+/**
+ * When the theme session run, theme property functions will return themselves instead of the current theme
+ * value and using this method we collect which style rules are themed.
+ *
+ * Eg.
+ * ```
+ * () => ({
+ *   color: theming.mainColor(),
+ * })
+ * ```
+ * will return an object with:
+ * ```
+ * {
+ *   color: theming.mainColor
+ * }
+ * ```
+ * whilst startThemingSession() is active
+ */
+const extractDynamicProps = (dynamicProps: Record<number, string[]>, currentScope: number, styling: Styling) => {
+  dynamicProps[currentScope] = [];
+  for (const key of Object.keys(styling)) {
+    const value = (styling as any)[key];
+    if (typeof value === "object") {
+      extractDynamicProps(dynamicProps, parseInt(key), value);
+    } else if (typeof value === "function" || value === DYNAMIC_UNIT_REGISTER_CHECK_VALUE) {
+      dynamicProps[currentScope].push(key);
+    }
+  }
+};
+
+export const extractDescendingStyle = (ownStyle: Style | null, computedStyle: Style | null): [Style | null, string] => {
+  if (!ownStyle || !computedStyle) return [null, ""];
+  let hasDescending = false;
+  let descendingKey = "";
+  const descendingStyle = DESCENDING_STYLES.reduce((descending, key) => {
+    const ownValue = (ownStyle as any)[key];
+    let value;
+    if (ownValue) {
+      hasDescending = true;
+      value = ownValue;
+    } else {
+      value = (computedStyle as any)[key];
+    }
+    descendingKey += value + "|";
+    descending[key] = value;
+    return descending;
+  }, {} as any);
+  if (hasDescending) {
+    return [descendingStyle, descendingKey];
+  } else {
+    return [null, ""];
+  }
 };
