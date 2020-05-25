@@ -10,10 +10,8 @@ export const $Button = composeClass("Button", () => ({
   alignItems       : "center",
   color            : "white",
   fontWeight       : 600,
-}))
-  .build();
+}));
 
 export const $BigMargin = composeClass("BigMargin", () => ({
   margin: 10,
-}))
-  .build();
+}));

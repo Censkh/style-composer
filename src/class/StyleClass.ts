@@ -1,7 +1,7 @@
-import StyleClassBuilder                   from "./StyleClassBuilder";
-import {StylingBuilder, StylingResolution} from "../Styling";
-import * as Utils                          from "../Utils";
-import {Falsy}                             from "../Utils";
+import {resolveStyling, StylingBuilder, StylingResolution} from "../Styling";
+import * as Utils                                          from "../Utils";
+import {Falsy}                                             from "../Utils";
+import {ClassManager}                                      from "./ClassManager";
 
 export type StyleClass<V extends Record<string, StyleClass> = {}> = V & {
   __meta: StylingResolution & {
@@ -12,8 +12,45 @@ export type StyleClass<V extends Record<string, StyleClass> = {}> = V & {
   }
 }
 
-export function composeClass(name: string, styling: StylingBuilder): StyleClassBuilder {
-  return new StyleClassBuilder(name, styling);
+export interface ComposeClassOptions<V extends object> {
+  parent?: StyleClass;
+  variants?: Record<keyof V, StylingBuilder>;
+}
+
+export function composeClass<V extends Record<string, StyleClass> = {}>(name: string, styling: StylingBuilder, options?: ComposeClassOptions<V>): StyleClass<V> {
+  // we pretend variants is already full so we can add a reference to it it's self when building the variants
+  const variants: V = {} as any;
+
+  const styledClass: StyleClass<any> = {
+    __meta: {
+      name          : name,
+      parent        : options?.parent || null,
+      className     : (options?.parent ? options?.parent.__meta.name + "__" : "") + name,
+      variants      : variants,
+      rules         : null as any,
+      hasRules      : false,
+      hasThemed     : false,
+      hasDynamicUnit: false,
+      isSimple      : false,
+      bakedStyle    : null,
+      styling       : styling,
+      dynamicProps  : {},
+    },
+  };
+  const classMeta = styledClass.__meta;
+
+  if (options?.variants) {
+    Object.keys(options.variants).forEach((key: keyof V) => {
+      const variantStyling = options.variants![key as any];
+      (variants as any)[key] = composeClass(key as string, variantStyling, {parent: styledClass});
+    });
+  }
+
+  const {resolvedStyling} = Object.assign(classMeta, resolveStyling(classMeta.styling));
+
+  ClassManager.registerClass(styledClass, resolvedStyling);
+
+  return Object.assign(styledClass, variants);
 }
 
 export type DeepClassList = Array<Falsy | StyleClass | DeepClassList>;

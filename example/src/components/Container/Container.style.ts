@@ -10,4 +10,4 @@ export const $Container = composeClass("Container", () => ({
   justifyContent : "center",
   fontFamily     : raleway(),
   fontWeight     : 400,
-})).build();
+}));
