@@ -1,6 +1,6 @@
 import {createFontFamily} from "style-composer";
 
-const Raleway = createFontFamily("Raleway", {
+const raleway = createFontFamily("raleway", {
   black           : require("./Raleway-Black.ttf"),
   blackItalic     : require("./Raleway-BlackItalic.ttf"),
   bold            : require("./Raleway-Bold.ttf"),
@@ -21,4 +21,4 @@ const Raleway = createFontFamily("Raleway", {
   thinItalic      : require("./Raleway-ThinItalic.ttf"),
 });
 
-export default Raleway;
+export default raleway;

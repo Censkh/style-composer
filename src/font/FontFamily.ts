@@ -43,6 +43,7 @@ export interface FontFamilyConfig {
 }
 
 export type FontFamily = {
+  (): string;
   name: string;
   weight: (weight: FontWeight) => string;
 } & Record<keyof FontFamilyConfig, () => string>;
@@ -118,15 +119,17 @@ export const createFontFamily = (
   name: string,
   config: FontFamilyConfig,
 ): FontFamily => {
-  const fontFamily: any = {
-    name  : name,
+  const fontFamily: any = Object.assign(() => fontFamily.regular(), {
     weight: (weight: FontWeight) => {
       if (typeof weight === "number") {
         return fontFamily[weights[weight]]();
       }
       return fontFamily[weight]();
     },
-  };
+  });
+  Object.defineProperty(fontFamily, "name", {
+    value: name
+  });
 
   for (let type of types) {
     const fontName = `${name}__${type}`;

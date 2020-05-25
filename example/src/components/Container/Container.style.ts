@@ -1,5 +1,5 @@
 import {composeClass} from "style-composer";
-import Raleway        from "../../../assets/fonts/raleway";
+import raleway        from "../../../assets/fonts/raleway";
 import {THEMING}      from "../../ThemeConsts";
 
 export const $Container = composeClass("Container", () => ({
@@ -8,5 +8,6 @@ export const $Container = composeClass("Container", () => ({
   color          : THEMING.textColor(),
   alignItems     : "center",
   justifyContent : "center",
-  fontFamily     : Raleway.medium(),
+  fontFamily     : raleway(),
+  fontWeight     : 400,
 })).build();
