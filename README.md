@@ -12,6 +12,7 @@ Straightforward cross platform styling for React Native and the web
 - Theming
 - Native & web support
 - Media queries
+- Dynamic fonts
 
 ## Usage
 
@@ -110,3 +111,32 @@ export const $Card = composeClass("card", () => ({
         </ThemeProvider>;
     };
     ```
+
+### Fonts
+
+[Example font](./example/assets/fonts/raleway/index.ts)
+
+You can dynamically load fonts in your app. First create your font family object.
+
+```typescript jsx
+import {createFontFamily} from "style-composer";
+
+const Raleway = createFontFamily("Raleway", {
+  bold            : require("./Raleway-Bold.ttf"),
+  boldItalic      : require("./Raleway-BoldItalic.ttf"),
+  regular         : require("./Raleway-Regular.ttf"),
+  regularItalic   : require("./Raleway-Italic.ttf"),
+});
+
+export default Raleway;
+```
+
+Then use it in your styles:
+
+```typescript jsx
+export const $AppContainer = composeClass("app-container", () => ({
+    fontFamily: Raleway.regular(),
+}));
+```
+
+This also supports cascading to elements further in the tree as well as `fontWeight`.

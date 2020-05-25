@@ -1,12 +1,12 @@
 import React, {useContext, useMemo} from "react";
 
-import {computeClasses, extractDescendingStyle}                    from "./Styling";
-import {addFontLoadListener, isFontLoaded, removeFontLoadListener} from "./font/FontFamily";
-import type {StylerComponent, StylerProps}                         from "./Styler";
-import {renderChildren}                                            from "./Styler";
-import {useForceUpdate, useStylingInternals}                       from "./Hooks";
-import DescendingStyleContext                                      from "./DescendingStyleContext";
+import {computeClasses, extractDescendingStyle} from "../Styling";
+import type {StylerComponent, StylerProps}      from "./Styler";
+import {renderChildren}                         from "./Styler";
+import {useForceUpdate, useStylingInternals}    from "../Hooks";
+import DescendingStyleContext                   from "../DescendingStyleContext";
 
+import {addFontLoadListener, getFontFamily, isFontLoaded, removeFontLoadListener} from "../font/FontFamily";
 
 const InlineStyler = (props: StylerProps) => {
   const {children, style, classes} = props;
@@ -18,16 +18,23 @@ const InlineStyler = (props: StylerProps) => {
   const {inlineStyle, descendingStyle, descendingStyleKey, classNames} = useMemo(() => {
     const classResults = computeClasses(classArray);
 
-    const ownStyles: any = Object.assign(classResults.style || {}, style, typeof children !== "object" ? undefined : children?.props.style);
+    const ownStyle: any = Object.assign(classResults.style || {}, style, typeof children !== "object" ? undefined : children?.props.style);
 
-    const inlineStyle = Object.assign({}, parentDescendingStyle, ownStyles);
+    const inlineStyle = Object.assign({}, parentDescendingStyle, ownStyle);
 
-    const [descendingStyle, descendingStyleKey] = extractDescendingStyle(ownStyles, inlineStyle);
+    if (ownStyle?.fontWeight && !ownStyle.fontFamily && inlineStyle.fontFamily) {
+      const variant = getFontFamily(inlineStyle.fontFamily.split("__")[0])?.weight(ownStyle?.fontWeight);
+      if (variant) {
+        inlineStyle.fontFamily = variant;
+      }
+    }
+
+    const [descendingStyle, descendingStyleKey] = extractDescendingStyle(ownStyle, inlineStyle);
 
     return {
-      classNames     : classResults.classNames,
-      inlineStyle    : inlineStyle,
-      descendingStyle: descendingStyle,
+      classNames        : classResults.classNames,
+      inlineStyle       : inlineStyle,
+      descendingStyle   : descendingStyle,
       descendingStyleKey: descendingStyleKey,
     };
   }, [style, classId, parentDescendingStyleKey, key, fontKey, theme]);

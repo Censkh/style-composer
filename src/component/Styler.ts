@@ -1,9 +1,9 @@
-import {sanitizeStyle, Style} from "./Styling";
 import React                  from "react";
 
-import {Falsy}      from "./Utils";
-import {StyleClass} from "./class/StyleClass";
-import InlineStyler from "./InlineStyler";
+import {sanitizeStyle, Style} from "../Styling";
+import {Falsy}                from "../Utils";
+import {StyleClass}           from "../class/StyleClass";
+import InlineStyler           from "./InlineStyler";
 
 export interface StylableProps {
   style?: Style;
@@ -37,6 +37,7 @@ export const renderChildren = (children: StylerChildren | undefined, computedSty
 
 export interface StylerComponent {
   (props: StylerProps): JSX.Element | null;
+
   displayName: string;
 }
 

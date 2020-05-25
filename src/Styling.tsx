@@ -6,8 +6,9 @@ import {Falsy}                                                                  
 import {DYNAMIC_UNIT_REGISTER_CHECK_VALUE, finishDynamicUnitSession, startDynamicUnitSession} from "./unit/DynamicUnit";
 import {finishThemeSession, startThemedSession}                                               from "./theme/Theming";
 import {finishRuleSession, startRuleSession, StyleRuleInstance}                               from "./rule/StyleRule";
+import {FontWeight}                                                                           from "./font/FontFamily";
 
-export const DESCENDING_STYLES = ["fontSize", "fontFamily", "color"];
+export const DESCENDING_STYLES = ["fontSize", "fontFamily", "fontWeight", "color"];
 
 export interface StylingResolution {
   styling: StylingBuilder;
@@ -21,11 +22,11 @@ export interface StylingResolution {
   resolvedStyling: Styling;
 }
 
-export type Style = ViewStyle & TextStyle & ImageStyle & { boxShadow?: string };
+export type Style = Omit<ViewStyle & TextStyle & ImageStyle, "fontWeight" | "boxShadow"> & { boxShadow?: string; fontWeight?: FontWeight; };
 
 export type StylingBuilder<S = Style> = () => Styling<S>;
 
-export type Styling<S = Style> = Partial<S> & Record<number, Partial<S>>;
+export type Styling<S = Style> = Record<number, S> & S;
 
 export interface ComputeResults {
   classNames: string[] | null;
@@ -96,6 +97,7 @@ export const sanitizeStyle = (node: React.ReactNode, style: Style): Style => {
       (node.type as any).propTypes.style = require("prop-types").any;
     }
   }
+  delete style.fontWeight;
   return style;
 };
 

@@ -9,7 +9,8 @@ export const $Heading = composeClass("Heading", () => ({
     fontSize: 2.5 * REM,
   }))
   .variant("h2", () => ({
-    fontSize: 2 * REM,
+    fontSize  : 2 * REM,
+    fontWeight: "bold",
   }))
   .variant("h3", () => ({
     fontSize: 1.75 * REM,

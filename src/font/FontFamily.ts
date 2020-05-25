@@ -1,6 +1,26 @@
 import * as Font  from "expo-font";
 import * as Utils from "../Utils";
 
+type FontWeightName =
+  | "thin"
+  | "light"
+  | "regular"
+  | "medium"
+  | "semiBold"
+  | "bold"
+  | "extraBold";
+
+type FontWeightValue =
+  | 100
+  | 300
+  | 400
+  | 500
+  | 600
+  | 700
+  | 800;
+
+export type FontWeight = FontWeightName | FontWeightValue;
+
 export interface FontFamilyConfig {
   black?: string;
   blackItalic?: string;
@@ -24,7 +44,7 @@ export interface FontFamilyConfig {
 
 export type FontFamily = {
   name: string;
-  weight: (weight: number) => string;
+  weight: (weight: FontWeight) => string;
 } & Record<keyof FontFamilyConfig, () => string>;
 
 const weights: Record<number, keyof FontFamilyConfig> = {
@@ -64,7 +84,8 @@ export interface FontVariant {
   weight: number;
 }
 
-export const fontMap: Record<string, FontVariant> = {};
+export const fontFamilyMap: Record<string, FontFamily> = {};
+export const fontVariantMap: Record<string, FontVariant> = {};
 
 const fontListeners: Record<string, Set<() => void>> = {};
 
@@ -89,6 +110,9 @@ export const isFontLoaded = (name: string) => {
   return Font.isLoaded(name);
 };
 
+export const getFontFamily = (name: string): FontFamily | undefined => {
+  return fontFamilyMap[name];
+};
 
 export const createFontFamily = (
   name: string,
@@ -96,7 +120,12 @@ export const createFontFamily = (
 ): FontFamily => {
   const fontFamily: any = {
     name  : name,
-    weight: (weight: number) => fontFamily[weights[weight]](),
+    weight: (weight: FontWeight) => {
+      if (typeof weight === "number") {
+        return fontFamily[weights[weight]]();
+      }
+      return fontFamily[weight]();
+    },
   };
 
   for (let type of types) {
@@ -104,24 +133,27 @@ export const createFontFamily = (
     fontFamily[type] = () => {
       if (!isFontLoading(fontName) && !isFontLoaded(fontName)) {
         const resource = config[type] as string;
-        fontMap[fontName] = {
-          weight    : parseInt(Object.keys(weights).find(weight => weights[weight as any] === type) as string),
-          fontFamily: fontFamily,
-          resource  : resource,
-        };
+        if (resource) {
+          fontVariantMap[fontName] = {
+            weight    : parseInt(Object.keys(weights).find(weight => weights[weight as any] === type) as string),
+            fontFamily: fontFamily,
+            resource  : resource,
+          };
 
-        Utils.setStyleSheet(`font[${fontName}]`, `.${getFontClassName(fontName)}{font-family: ${fontName}!important;`);
+          Utils.setStyleSheet(`font[${fontName}]`, `.${getFontClassName(fontName)}{font-family: ${fontName}!important;`);
 
-        Font.loadAsync({
-          [fontName]: resource,
-        }).then(() => {
-          getFontCallbackList(fontName).forEach(callback => callback());
-        });
+          Font.loadAsync({
+            [fontName]: resource,
+          }).then(() => {
+            getFontCallbackList(fontName).forEach(callback => callback());
+          });
+        }
       }
       return fontName;
     };
   }
 
+  fontFamilyMap[name] = fontFamily;
   return fontFamily;
 };
 

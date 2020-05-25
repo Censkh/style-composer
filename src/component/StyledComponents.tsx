@@ -1,22 +1,28 @@
-import React                   from "react";
+import React      from "react";
 import {
-  Button, SafeAreaView,
-  Text,
+  Button,
+  SafeAreaView,
   TextInput,
   TouchableHighlight,
   TouchableNativeFeedback,
-  TouchableOpacity,
   TouchableWithoutFeedback,
-  View,
-}                                               from "react-native";
-import {StylableProps, Styler, StylerComponent} from "../Styler";
-import * as Utils                                 from "../Utils";
-import {PolyText, PolyTouchableOpacity, PolyView} from "./PolyComponents";
+}                 from "react-native";
+import {
+  StylableProps,
+  Styler,
+  StylerComponent,
+}                 from "./Styler";
+import * as Utils from "../Utils";
+import {
+  PolyText,
+  PolyTouchableOpacity,
+  PolyView,
+}                 from "./PolyComponents";
 
 export function styled<P>(baseComponent: React.ComponentType<P>, options?: { canBeCssOptimized?: boolean }): React.ComponentType<P & StylableProps> {
   let stylerComponent: StylerComponent = Styler;
   if (options?.canBeCssOptimized && !Utils.isNative()) {
-    stylerComponent = require("../CssOptimizedStyler").default;
+    stylerComponent = require("./CssOptimizedStyler").default;
   }
 
   // we

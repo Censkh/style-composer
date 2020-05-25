@@ -1,8 +1,10 @@
-import {renderChildren, StylerComponent, StylerProps}        from "./Styler";
 import React, {useContext, useLayoutEffect, useMemo, useRef} from "react";
-import {useStylingInternals}                                 from "./Hooks";
-import {computeClasses, extractDescendingStyle} from "./Styling";
-import DescendingStyleContext                   from "./DescendingStyleContext";
+
+import {renderChildren, StylerComponent, StylerProps} from "./Styler";
+import {useStylingInternals}                          from "../Hooks";
+import {computeClasses, extractDescendingStyle}       from "../Styling";
+import DescendingStyleContext                         from "../DescendingStyleContext";
+import {getFontClassName, getFontFamily}              from "../font/FontFamily";
 
 const CssOptimizedStyler = (props: StylerProps) => {
   const {children, style, classes} = props;
@@ -14,13 +16,33 @@ const CssOptimizedStyler = (props: StylerProps) => {
     const classResults = computeClasses(classArray, {includeDynamicStyle: true});
 
     const inlineStyle = Object.assign(classResults.dynamicStyle || {}, style, typeof children !== "object" ? undefined : children?.props.style);
-    const [descendingStyle, descendingStyleKey] = extractDescendingStyle(classResults.style, Object.assign({}, parentDescendingStyle, classResults.style));
+
+    const ownStyle = classResults.style;
+
+    const computedStyle = Object.assign({}, parentDescendingStyle, ownStyle);
+
+    let classNames = classResults.classNames;
+
+    if (ownStyle?.fontWeight && !ownStyle.fontFamily && computedStyle.fontFamily) {
+      const variant = getFontFamily(computedStyle.fontFamily.split("__")[0])?.weight(ownStyle?.fontWeight);
+      if (variant) {
+        ownStyle.fontFamily = variant;
+        const fontClassName = getFontClassName(variant);
+        if (classNames) {
+          classNames.push(fontClassName);
+        } else {
+          classNames = [fontClassName];
+        }
+      }
+    }
+
+    const [descendingStyle, descendingStyleKey] = extractDescendingStyle(ownStyle, computedStyle);
 
     return {
-      inlineStyle    : inlineStyle,
-      descendingStyle: descendingStyle,
+      inlineStyle       : inlineStyle,
+      descendingStyle   : descendingStyle,
       descendingStyleKey: descendingStyleKey,
-      classNames     : classResults.classNames,
+      classNames        : classNames,
     };
   }, [key, style, classId, theme, parentDescendingStyleKey]);
 

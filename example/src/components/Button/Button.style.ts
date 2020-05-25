@@ -9,6 +9,7 @@ export const $Button = composeClass("Button", () => ({
   paddingVertical  : 10,
   alignItems       : "center",
   color            : "white",
+  fontWeight       : 600,
 }))
   .build();
 
