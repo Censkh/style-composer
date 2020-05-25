@@ -54,6 +54,51 @@ Classes can be added to styled components easily, also interacting with the `sty
 <StyledView classes={classList([$Card, $BigMargin], disabled && $CardDisabled)}/>
 ```
 
+### Variants
+
+A lot of the time you will need slight variations of the same class. Here is an example:
+
+```typescript jsx
+import {composeClass} from "style-composer";
+
+const REM = 14;
+
+export const $Heading = composeClass("Heading", () => ({
+  marginBottom: 0.5 * REM,
+}), {
+  variants: {
+
+    "h1": () => ({
+      fontSize: 2.5 * REM,
+    }),
+
+    "h2": () => ({
+      fontSize  : 2 * REM,
+      fontWeight: "bold",
+    }),
+
+    "h3": () => ({
+      fontSize: 1.75 * REM,
+    }),
+
+    "h4": () => ({
+      fontSize: 1.5 * REM,
+    }),
+
+    "h5": () => ({
+      fontSize: 1.25 * REM,
+    }),
+
+  },
+});
+```
+
+You can then use those classes with:
+
+```typescript jsx
+<StyledText classes={$Text.h3}>I am a h3!</StyledText>
+```
+
 ### Media Queries
 
 ```typescript jsx
