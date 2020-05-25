@@ -19,7 +19,7 @@ import {
   PolyView,
 }                 from "./PolyComponents";
 
-export function styled<P>(baseComponent: React.ComponentType<P>, options?: { canBeCssOptimized?: boolean }): React.ComponentType<P & StylableProps> {
+export function styled<P>(baseComponent: React.ComponentType<P>, options?: { canBeCssOptimized?: boolean }): React.ComponentType<Omit<P, "style"> & StylableProps> {
   let stylerComponent: StylerComponent = Styler;
   if (options?.canBeCssOptimized && !Utils.isNative()) {
     stylerComponent = require("./CssOptimizedStyler").default;

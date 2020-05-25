@@ -11,13 +11,13 @@ type FontWeightName =
   | "extraBold";
 
 type FontWeightValue =
-  | "100" | 100
-  | "300" | 300
-  | "400" | 400
-  | "500" | 500
-  | "600" | 600
-  | "700" | 700
-  | "800" | 800;
+  | 100
+  | 300
+  | 400
+  | 500
+  | 600
+  | 700
+  | 800;
 
 export type FontWeight = FontWeightName | FontWeightValue;
 
@@ -121,14 +121,14 @@ export const createFontFamily = (
 ): FontFamily => {
   const fontFamily: any = Object.assign(() => fontFamily.regular(), {
     weight: (weight: FontWeight) => {
-      if (typeof weight === "number" || weight.toString().endsWith("00")) {
-        return fontFamily[weights[typeof weight === "number" ? weight : parseInt(weight)]]();
+      if (typeof weight === "number") {
+        return fontFamily[weights[weight]]();
       }
       return fontFamily[weight]();
     },
   });
   Object.defineProperty(fontFamily, "name", {
-    value: name,
+    value: name
   });
 
   for (let type of types) {
