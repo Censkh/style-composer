@@ -9,7 +9,6 @@ import {DeepFalsyList, Falsy}                                                   
 import {DYNAMIC_UNIT_REGISTER_CHECK_VALUE, finishDynamicUnitSession, startDynamicUnitSession} from "./unit/DynamicUnit";
 import {finishThemeSession, startThemedSession}                                               from "./theme/Theming";
 import {finishRuleSession, startRuleSession, StyleRuleInstance}                               from "./rule/StyleRule";
-import {FontWeight}                                                                           from "./font/FontFamily";
 import {StyleProp}                                                                            from "./component/Styler";
 
 export const DESCENDING_STYLES = ["fontSize", "fontFamily", "fontWeight", "color", "letterSpacing", "textAlign"];
@@ -27,8 +26,8 @@ export interface StylingResolution {
 }
 
 export type Style =
-  Omit<ViewStyle & TextStyle & ImageStyle, "fontWeight" | "boxShadow">
-  & { boxShadow?: string; fontWeight?: FontWeight; };
+  Omit<ViewStyle & TextStyle & ImageStyle, "boxShadow">
+  & { boxShadow?: string; };
 
 export type StylingBuilder<S = Style> = () => Styling<S>;
 

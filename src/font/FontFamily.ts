@@ -1,26 +1,6 @@
 import * as Font  from "expo-font";
 import * as Utils from "../Utils";
 
-type FontWeightName =
-  | "thin"
-  | "light"
-  | "regular"
-  | "medium"
-  | "semiBold"
-  | "bold"
-  | "extraBold";
-
-type FontWeightValue =
-  | 100
-  | 300
-  | 400
-  | 500
-  | 600
-  | 700
-  | 800;
-
-export type FontWeight = FontWeightName | FontWeightValue;
-
 export interface FontFamilyConfig {
   black?: string;
   blackItalic?: string;
@@ -45,7 +25,7 @@ export interface FontFamilyConfig {
 export type FontFamily = {
   (): string;
   name: string;
-  weight: (weight: FontWeight) => string;
+  weight: (weight: string) => string;
 } & Record<keyof FontFamilyConfig, () => string>;
 
 const weights: Record<number, keyof FontFamilyConfig> = {
@@ -120,9 +100,9 @@ export const createFontFamily = (
   config: FontFamilyConfig,
 ): FontFamily => {
   const fontFamily: any = Object.assign(() => fontFamily.regular(), {
-    weight: (weight: FontWeight) => {
-      if (typeof weight === "number") {
-        return fontFamily[weights[weight]]();
+    weight: (weight: string) => {
+      if (weight.endsWith("00")) {
+        return fontFamily[weights[parseInt(weight)]]();
       }
       return fontFamily[weight]();
     },

@@ -9,5 +9,5 @@ export const $Container = composeClass("Container", () => ({
   alignItems     : "center",
   justifyContent : "center",
   fontFamily     : raleway(),
-  fontWeight     : 400,
+  fontWeight     : "400",
 }));

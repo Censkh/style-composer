@@ -9,7 +9,7 @@ export const $Button = composeClass("Button", () => ({
   paddingVertical  : 10,
   alignItems       : "center",
   color            : "white",
-  fontWeight       : 600,
+  fontWeight       : "600",
 }));
 
 export const $BigMargin = composeClass("BigMargin", () => ({
