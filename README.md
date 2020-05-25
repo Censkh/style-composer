@@ -9,10 +9,11 @@ Straightforward cross platform styling for React Native and the web
 ## Features
 
 - Descending styles
-- Theming
 - Native & web support
-- Media queries
-- Dynamic fonts
+- [Media queries](#media-queries)
+- [Class variants](#variants)
+- [Dynamic fonts](#fonts)
+- [Theming](#theming)
 
 ## Usage
 
@@ -96,7 +97,7 @@ export const $Heading = composeClass("Heading", () => ({
 You can then use those classes with:
 
 ```typescript jsx
-<StyledText classes={$Text.h3}>I am a h3!</StyledText>
+<StyledText classes={$Heading.h3}>I am a h3!</StyledText>
 ```
 
 ### Media Queries
