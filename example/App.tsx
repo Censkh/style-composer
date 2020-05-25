@@ -7,7 +7,7 @@ import {CheckBox, ScrollView, View}                            from "react-nativ
 import Text                                                    from "./src/components/Text/Text";
 import Button                                                  from "./src/components/Button/Button";
 import {$BigMargin}                                            from "./src/components/Button/Button.style";
-import {ThemeFor, ThemeProvider, useComposedValues, vw, media, PolyView, PolyText} from "style-composer";
+import {ThemeFor, ThemeProvider, useComposedValues, vw, media, StyledView, StyledText} from "style-composer";
 import {THEMING}                                               from "./src/ThemeConsts";
 import {$Heading}                                              from "./src/components/Text/Text.style";
 
@@ -32,11 +32,11 @@ export default function App() {
   return (
     <ThemeProvider plan={THEMING} value={themeToggle ? DARK_THEME : LIGHT_THEME}>
       <Container>
-        <PolyText tag={"h2"} classes={$Heading.h2}>Page width: {width}</PolyText>
+        <StyledText tag={"h2"} classes={$Heading.h2}>Page width: {width}</StyledText>
         <CheckBox value={themeToggle} onChange={() => setThemeToggle(theme => !theme)}/>
-        <PolyView tag={"form"}>
+        <StyledView tag={"form"}>
           <Text>hi</Text>
-        </PolyView>
+        </StyledView>
         <ScrollView style={{maxHeight: 500}}>
           {Array(12).fill(0).map((_, index) => <Card key={index} classes={[$Card.xl]} style={{borderRadius: 5, margin: 5}}>
               <Text>hello</Text>
