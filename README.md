@@ -29,7 +29,7 @@ export const $Card = composeClass("card", () => ({
 }));
 ```
 
-We can now use this style with the following snippet which automatically descend the color and font size down to the styled text:
+We can now use this style with the following snippet which automatically cascade the color and font size down to the styled text:
 
 ```typescript jsx
 import {StyledView, StyledText} from "style-composer";
