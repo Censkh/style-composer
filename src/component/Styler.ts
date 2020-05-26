@@ -1,4 +1,4 @@
-import React                  from "react";
+import React from "react";
 
 import {sanitizeStyle, Style} from "../Styling";
 import {DeepFalsyList, Falsy} from "../Utils";

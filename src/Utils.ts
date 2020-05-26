@@ -1,5 +1,4 @@
-import React        from "react";
-import {StyleClass} from "./class/StyleClass";
+import React from "react";
 
 // @ts-ignore
 const document = (window as any).document;

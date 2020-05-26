@@ -108,7 +108,7 @@ export const createFontFamily = (
     },
   });
   Object.defineProperty(fontFamily, "name", {
-    value: name
+    value: name,
   });
 
   for (let type of types) {

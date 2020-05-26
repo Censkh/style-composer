@@ -1,6 +1,6 @@
 import {processStyle, Style, Styling} from "./Styling";
-import {StyleClass}     from "./class/StyleClass";
-import * as Utils       from "./Utils";
+import {StyleClass}                   from "./class/StyleClass";
+import * as Utils                     from "./Utils";
 
 export const extractStyleClassToCss = (styleClass: StyleClass, resolvedStyling: Styling) => {
   const parent = styleClass.__meta.parent;

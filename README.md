@@ -8,7 +8,7 @@ Straightforward cross platform styling for React Native and the web
 
 ## Features
 
-- Descending styles
+- Cascading styles
 - Native & web support
 - [Media queries](#media-queries)
 - [Class variants](#variants)

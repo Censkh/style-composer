@@ -11,7 +11,7 @@ import {finishThemeSession, startThemedSession}                                 
 import {finishRuleSession, startRuleSession, StyleRuleInstance}                               from "./rule/StyleRule";
 import {StyleProp}                                                                            from "./component/Styler";
 
-export const DESCENDING_STYLES = ["fontSize", "fontFamily", "fontWeight", "color", "letterSpacing", "textAlign"];
+export const CASCADING_STYLES = ["fontSize", "fontFamily", "fontWeight", "color", "letterSpacing", "textAlign"];
 
 export interface StylingResolution {
   styling: StylingBuilder;
@@ -187,25 +187,25 @@ const extractDynamicProps = (dynamicProps: Record<number, string[]>, currentScop
   }
 };
 
-export const extractDescendingStyle = (ownStyle: Style | null, computedStyle: Style | null): [Style | null, string] => {
+export const extractCascadingStyle = (ownStyle: Style | null, computedStyle: Style | null): [Style | null, string] => {
   if (!ownStyle || !computedStyle) return [null, ""];
-  let hasDescending = false;
-  let descendingKey = "";
-  const descendingStyle = DESCENDING_STYLES.reduce((descending, key) => {
+  let hasCascading = false;
+  let cascadingKey = "";
+  const cascadingStyle = CASCADING_STYLES.reduce((cascading, key) => {
     const ownValue = (ownStyle as any)[key];
     let value;
     if (ownValue) {
-      hasDescending = true;
+      hasCascading = true;
       value = ownValue;
     } else {
       value = (computedStyle as any)[key];
     }
-    descendingKey += value + "|";
-    descending[key] = value;
-    return descending;
+    cascadingKey += value + "|";
+    cascading[key] = value;
+    return cascading;
   }, {} as any);
-  if (hasDescending) {
-    return [descendingStyle, descendingKey];
+  if (hasCascading) {
+    return [cascadingStyle, cascadingKey];
   } else {
     return [null, ""];
   }

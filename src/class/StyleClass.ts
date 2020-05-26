@@ -1,7 +1,7 @@
 import {resolveStyling, StylingBuilder, StylingResolution} from "../Styling";
-import * as Utils             from "../Utils";
-import {DeepFalsyList, Falsy} from "../Utils";
-import {ClassManager}         from "./ClassManager";
+import * as Utils                                          from "../Utils";
+import {DeepFalsyList, Falsy}                              from "../Utils";
+import {ClassManager}                                      from "./ClassManager";
 
 export type StyleClass<V extends Record<string, StyleClass> = {}> = V & {
   __meta: StylingResolution & {
@@ -12,12 +12,12 @@ export type StyleClass<V extends Record<string, StyleClass> = {}> = V & {
   }
 }
 
-export interface ComposeClassOptions<V extends object> {
+export interface ComposeClassOptions<V extends string> {
   parent?: StyleClass;
-  variants?: Record<keyof V, StylingBuilder>;
+  variants?: Record<V, StylingBuilder>;
 }
 
-export function composeClass<V extends Record<string, StyleClass> = {}>(name: string, styling: StylingBuilder, options?: ComposeClassOptions<V>): StyleClass<V> {
+export function composeClass<V extends string = never>(name: string, styling: StylingBuilder, options?: ComposeClassOptions<V>): StyleClass<Record<V, StyleClass>> {
   // we pretend variants is already full so we can add a reference to it it's self when building the variants
   const variants: V = {} as any;
 
@@ -40,8 +40,8 @@ export function composeClass<V extends Record<string, StyleClass> = {}>(name: st
   const classMeta = styledClass.__meta;
 
   if (options?.variants) {
-    Object.keys(options.variants).forEach((key: keyof V) => {
-      const variantStyling = options.variants![key as any];
+    Object.keys(options.variants).forEach((key: any) => {
+      const variantStyling = (options.variants as any)[key];
       (variants as any)[key] = composeClass(key as string, variantStyling, {parent: styledClass});
     });
   }

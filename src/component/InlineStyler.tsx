@@ -1,26 +1,26 @@
 import React, {useContext, useMemo} from "react";
 
-import {computeClasses, extractDescendingStyle, processStyle} from "../Styling";
+import {computeClasses, extractCascadingStyle, processStyle} from "../Styling";
 import type {StylerComponent, StylerProps}                    from "./Styler";
-import {renderChildren}                         from "./Styler";
-import {useForceUpdate, useStylingInternals}    from "../Hooks";
-import DescendingStyleContext                   from "../DescendingStyleContext";
+import {renderChildren}                                       from "./Styler";
+import {useForceUpdate, useStylingInternals}                  from "../Hooks";
+import CascadingStyleContext, {CascadingStyleContextState}  from "../CascadingStyleContext";
 
 import {addFontLoadListener, getFontFamily, isFontLoaded, removeFontLoadListener} from "../font/FontFamily";
 
 const InlineStyler = (props: StylerProps) => {
   const {children, style, classes} = props;
 
-  const [parentDescendingStyle, parentDescendingStyleKey] = useContext(DescendingStyleContext);
+  const {style: parentCascadingStyle, key: parentCascadingStyleKey} = useContext(CascadingStyleContext);
   const [fontKey, forceUpdate] = useForceUpdate();
   const {id, theme, key, classId, classArray} = useStylingInternals(classes);
 
-  const {inlineStyle, descendingStyle, descendingStyleKey, classNames} = useMemo(() => {
+  const {inlineStyle, cascadingStyle, cascadingStyleKey, classNames} = useMemo(() => {
     const classResults = computeClasses(classArray);
 
     let ownStyle = processStyle(classResults.style, style, typeof children !== "object" ? undefined : children?.props.style);
 
-    const inlineStyle = Object.assign({}, parentDescendingStyle, ownStyle);
+    const inlineStyle = Object.assign({}, parentCascadingStyle, ownStyle);
 
     if (ownStyle?.fontWeight && !ownStyle.fontFamily && inlineStyle.fontFamily) {
       const variant = getFontFamily(inlineStyle.fontFamily.split("__")[0])?.weight(ownStyle?.fontWeight);
@@ -29,15 +29,15 @@ const InlineStyler = (props: StylerProps) => {
       }
     }
 
-    const [descendingStyle, descendingStyleKey] = extractDescendingStyle(ownStyle, inlineStyle);
+    const [cascadingStyle, cascadingStyleKey] = extractCascadingStyle(ownStyle, inlineStyle);
 
     return {
       classNames        : classResults.classNames,
       inlineStyle       : inlineStyle,
-      descendingStyle   : descendingStyle,
-      descendingStyleKey: descendingStyleKey,
+      cascadingStyle   : cascadingStyle,
+      cascadingStyleKey: cascadingStyleKey,
     };
-  }, [style, classId, parentDescendingStyleKey, key, fontKey, theme]);
+  }, [style, classId, parentCascadingStyleKey, key, fontKey, theme]);
 
   if (inlineStyle.fontFamily) {
     const {fontFamily} = inlineStyle;
@@ -51,14 +51,17 @@ const InlineStyler = (props: StylerProps) => {
     }
   }
 
-  const memoDescendingStyle = useMemo(() => [descendingStyle, descendingStyleKey], [descendingStyleKey]);
+  const memoCascadingStyle = useMemo<CascadingStyleContextState | null>(() => cascadingStyle && {
+    style: cascadingStyle,
+    key  : cascadingStyleKey,
+  }, [cascadingStyleKey]);
 
   const content = renderChildren(children, inlineStyle, classNames, id);
 
-  return descendingStyle ?
-    <DescendingStyleContext.Provider value={memoDescendingStyle as any}>
+  return memoCascadingStyle ?
+    <CascadingStyleContext.Provider value={memoCascadingStyle}>
       {content}
-    </DescendingStyleContext.Provider> : content as any;
+    </CascadingStyleContext.Provider> : content as any;
 };
 
 export default Object.assign(InlineStyler, {displayName: "InlineStyler"}) as StylerComponent;
