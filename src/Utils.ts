@@ -5,9 +5,7 @@ const document = (window as any).document;
 
 export type PropsOf<C extends React.ComponentType> = C extends React.ComponentType<infer P> ? P : never;
 
-export type DeepFalsyList<T> = Array<Falsy | T | DeepFalsyList<T>>;
-
-export type Falsy = false | null | undefined;
+export type Falsy = false | null | undefined | "" | 0;
 
 export const isNative = () => {
 // @ts-ignore

@@ -1,19 +1,20 @@
 import {composeClass} from "style-composer";
 
-const REM = 14;
+export const REM = 14;
 
-export const $Heading = composeClass("Heading", () => ({
+export const $Heading = composeClass("heading", () => ({
   marginBottom: 0.5 * REM,
 }), {
   variants: {
 
     "h1": () => ({
-      fontSize: 2.5 * REM,
+      fontSize  : 2.5 * REM,
+      fontWeight: "700",
     }),
 
     "h2": () => ({
       fontSize  : 2 * REM,
-      fontWeight: "bold",
+      fontWeight: "700",
     }),
 
     "h3": () => ({
@@ -26,6 +27,10 @@ export const $Heading = composeClass("Heading", () => ({
 
     "h5": () => ({
       fontSize: 1.25 * REM,
+    }),
+
+    "h6": () => ({
+      fontSize: 1.1 * REM,
     }),
 
   },

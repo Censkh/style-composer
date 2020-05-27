@@ -1,11 +1,12 @@
 import React from "react";
 
 import {sanitizeStyle, Style} from "../Styling";
-import {DeepFalsyList, Falsy} from "../Utils";
+import {Falsy}                from "../Utils";
 import {StyleClass}           from "../class/StyleClass";
 import InlineStyler           from "./InlineStyler";
+import {RecursiveArray}       from "react-native";
 
-export type StyleProp = DeepFalsyList<Style> | Style | Falsy;
+export type StyleProp = RecursiveArray<Style | undefined | null | false> | Style | undefined | null | false;
 
 export interface StylableProps {
   style?: StyleProp;

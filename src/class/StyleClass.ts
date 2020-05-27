@@ -1,7 +1,10 @@
-import {resolveStyling, StylingBuilder, StylingResolution} from "../Styling";
-import * as Utils                                          from "../Utils";
-import {DeepFalsyList, Falsy}                              from "../Utils";
-import {ClassManager}                                      from "./ClassManager";
+import {RecursiveArray}                                           from "react-native";
+
+import {resolveStyling, Style, StylingBuilder, StylingResolution} from "../Styling";
+import * as Utils                                                 from "../Utils";
+import {Falsy}                                                    from "../Utils";
+import {ClassManager}                                             from "./ClassManager";
+import {StyleProp}                                                from "../component/Styler";
 
 export type StyleClass<V extends Record<string, StyleClass> = {}> = V & {
   __meta: StylingResolution & {
@@ -53,8 +56,6 @@ export function composeClass<V extends string = never>(name: string, styling: St
   return Object.assign(styledClass, variants);
 }
 
-export type DeepClassList = DeepFalsyList<StyleClass>;
-
 export type Classes = Array<StyleClass | Falsy> | StyleClass | Falsy;
 
 export const classesId = (classes: Classes): string | null => {
@@ -74,7 +75,12 @@ export const classesId = (classes: Classes): string | null => {
   return classes.__meta.className;
 };
 
-export const classList = (...classes: DeepClassList): StyleClass[] => {
+export const classList = (...classes: RecursiveArray<StyleClass | Falsy>): StyleClass[] => {
   if (!classes) return classes;
   return Array.isArray(classes) ? Utils.flatAndRemoveFalsy(classes) : [classes];
+};
+
+export const styleList = (...style: RecursiveArray<Style | Falsy>): StyleProp => {
+  if (!style) return style;
+  return Array.isArray(style) ? Utils.flatAndRemoveFalsy(style) : [style];
 };

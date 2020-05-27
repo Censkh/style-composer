@@ -1,11 +1,11 @@
-import React                                          from "react";
-import {ImageStyle, StyleSheet, TextStyle, ViewStyle} from "react-native";
+import React                                                          from "react";
+import {ImageStyle, RecursiveArray, StyleSheet, TextStyle, ViewStyle} from "react-native";
 // @ts-ignore
 import styleResolver                                  from "react-native-web/src/exports/StyleSheet/styleResolver";
 
 import {StyleClass}                                                                           from "./class/StyleClass";
 import * as Utils                                                                             from "./Utils";
-import {DeepFalsyList, Falsy}                                                                 from "./Utils";
+import {Falsy}                                                                 from "./Utils";
 import {DYNAMIC_UNIT_REGISTER_CHECK_VALUE, finishDynamicUnitSession, startDynamicUnitSession} from "./unit/DynamicUnit";
 import {finishThemeSession, startThemedSession}                                               from "./theme/Theming";
 import {finishRuleSession, startRuleSession, StyleRuleInstance}                               from "./rule/StyleRule";
@@ -211,12 +211,7 @@ export const extractCascadingStyle = (ownStyle: Style | null, computedStyle: Sty
   }
 };
 
-export const processStyle = (...styleProp: DeepFalsyList<Style>): Style => {
+export const processStyle = (...styleProp: RecursiveArray<Style | Falsy>): Style => {
   const flatStyle = StyleSheet.flatten(styleProp);
   return Utils.isNative() ? flatStyle : styleResolver.resolve(flatStyle).style || {};
-};
-
-export const styleList = (...classes: DeepFalsyList<Style>): StyleProp => {
-  if (classes.length < 2) return classes[0];
-  return classes;
 };
