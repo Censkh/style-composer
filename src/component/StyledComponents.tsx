@@ -20,7 +20,7 @@ import {
 }                 from "./PolyComponents";
 
 // we use (P & {style?: never}) to prevent ts from merging the two style properties together
-export type StyledComponent<P> = React.ComponentType<(P & {style?: unknown}) & StylableProps>;
+export type StyledComponent<P> = React.ComponentType<(P & { style?: unknown }) & StylableProps>;
 
 export function styled<P>(baseComponent: React.ComponentType<P>, options?: { canBeCssOptimized?: boolean }): StyledComponent<P> {
   let stylerComponent: StylerComponent = Styler;
@@ -40,12 +40,12 @@ export function styled<P>(baseComponent: React.ComponentType<P>, options?: { can
   }, {displayName: `${stylerComponent.displayName}${baseComponent.displayName ? `[${baseComponent.displayName}]` : ""}`}));
 }
 
-export const StyledSafeAreaView = styled(SafeAreaView, {canBeCssOptimized: true});
-export const StyledView = styled(PolyView, {canBeCssOptimized: true});
-export const StyledText = styled(PolyText, {canBeCssOptimized: true});
-export const StyledTextInput = styled(TextInput, {canBeCssOptimized: true});
-export const StyledButton = styled(Button, {canBeCssOptimized: true});
-export const StyledTouchableNativeFeedback = styled(TouchableNativeFeedback, {canBeCssOptimized: true});
-export const StyledTouchableOpacity = styled(PolyTouchableOpacity, {canBeCssOptimized: true});
+export const StyledSafeAreaView             = styled(SafeAreaView, {canBeCssOptimized: true});
+export const StyledView                     = styled(PolyView, {canBeCssOptimized: true});
+export const StyledText                     = styled(PolyText, {canBeCssOptimized: true});
+export const StyledTextInput                = styled(TextInput, {canBeCssOptimized: true});
+export const StyledButton                   = styled(Button, {canBeCssOptimized: true});
+export const StyledTouchableNativeFeedback  = styled(TouchableNativeFeedback, {canBeCssOptimized: true});
+export const StyledTouchableOpacity         = styled(PolyTouchableOpacity, {canBeCssOptimized: true});
 export const StyledTouchableWithoutFeedback = styled(TouchableWithoutFeedback, {canBeCssOptimized: true});
-export const StyledTouchableHighlight = styled(TouchableHighlight, {canBeCssOptimized: true});
+export const StyledTouchableHighlight       = styled(TouchableHighlight, {canBeCssOptimized: true});

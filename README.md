@@ -103,7 +103,7 @@ You can then use those classes with:
 ### Media Queries
 
 ```typescript jsx
-import {media} from "style-composer";
+import {media, composeClass} from "style-composer";
 
 export const $Card = composeClass("card", () => ({
     padding: 10,
@@ -111,6 +111,29 @@ export const $Card = composeClass("card", () => ({
 
     // when screen is smaller than 500px, apply these rules
     [media({maxWidth: 500})]: {
+        padding: 5,
+        fontSize: 14
+    }
+}));
+```
+
+You can also use platform queries in combination with operator rules to create continence functions:
+
+```typescript jsx
+import {media, platform, and, composeClass} from "style-composer";
+
+export const pixel3 = () => and(
+  platform("android"),
+  media({maxWidth: 412}),
+  media({minWidth: 410})
+);
+
+export const $Card = composeClass("card", () => ({
+    padding: 10,
+    fontSize: 20,
+
+    // only apply this styling on the pixel 3
+    [pixel3()]: {
         padding: 5,
         fontSize: 14
     }

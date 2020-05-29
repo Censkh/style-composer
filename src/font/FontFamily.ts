@@ -65,7 +65,7 @@ export interface FontVariant {
   weight: number;
 }
 
-export const fontFamilyMap: Record<string, FontFamily> = {};
+export const fontFamilyMap: Record<string, FontFamily>   = {};
 export const fontVariantMap: Record<string, FontVariant> = {};
 
 const fontListeners: Record<string, Set<() => void>> = {};
@@ -112,7 +112,7 @@ export const createFontFamily = (
   });
 
   for (let type of types) {
-    const fontName = `${name}__${type}`;
+    const fontName   = `${name}__${type}`;
     fontFamily[type] = () => {
       if (!isFontLoading(fontName) && !isFontLoaded(fontName)) {
         const resource = config[type] as string;
@@ -141,5 +141,5 @@ export const createFontFamily = (
 };
 
 export const getFontClassName = (fontName: string): string => {
-  return `-font-${fontName}`;
+  return `__font_${fontName}`;
 };

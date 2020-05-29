@@ -6,7 +6,7 @@ export const extractStyleClassToCss = (styleClass: StyleClass, resolvedStyling: 
   const parent = styleClass.__meta.parent;
 
   const selector = `.styled${parent ? "." + parent.__meta.className : ""}.${styleClass.__meta.className}`;
-  const body = styleToCss(resolvedStyling, {important: true});
+  const body     = styleToCss(resolvedStyling, {important: true});
 
   let css = `${selector}{${body}}`;
 

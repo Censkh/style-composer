@@ -1,4 +1,4 @@
-import {RecursiveArray}                                           from "react-native";
+import {RecursiveArray} from "react-native";
 
 import {resolveStyling, Style, StylingBuilder, StylingResolution} from "../Styling";
 import * as Utils                                                 from "../Utils";
@@ -40,11 +40,11 @@ export function composeClass<V extends string = never>(name: string, styling: St
       dynamicProps  : {},
     },
   };
-  const classMeta = styledClass.__meta;
+  const classMeta                    = styledClass.__meta;
 
   if (options?.variants) {
     Object.keys(options.variants).forEach((key: any) => {
-      const variantStyling = (options.variants as any)[key];
+      const variantStyling   = (options.variants as any)[key];
       (variants as any)[key] = composeClass(key as string, variantStyling, {parent: styledClass});
     });
   }

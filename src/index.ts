@@ -1,7 +1,7 @@
 /// <reference types="typescript" />
 
-export *                                   from "./Styling";
-export {useComposedValues}                 from "./Hooks";
+export *                                  from "./Styling";
+export {useComposedValues}                from "./Hooks";
 export {default as CascadingStyleContext} from "./CascadingStyleContext";
 
 export *                               from "./component/Styler";

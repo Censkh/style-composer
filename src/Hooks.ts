@@ -8,7 +8,7 @@ import {computeStyling, resolveStyling, StylingBuilder, StylingResolution} from 
 
 export const useForceUpdate = (debounceTimeout?: number): [number, () => void] => {
   const [state, setState] = useState(0);
-  const forceUpdate = useCallback(() => {
+  const forceUpdate       = useCallback(() => {
     return setState(i => i + 1);
   }, [setState, debounceTimeout]);
   return [state, forceUpdate];
@@ -19,14 +19,14 @@ export const useStylingInternals = (classes: Classes | undefined) => {
 
   const {classArray, classId, hasDynamicUnit} = useMemo(() => {
     const classArray: StyleClass[] | undefined = classes && classList(classes) || undefined;
-    const classId = classesId(classArray);
-    const hasDynamicUnit = classArray?.some(clazz => clazz.__meta.hasDynamicUnit);
+    const classId                              = classesId(classArray);
+    const hasDynamicUnit                       = classArray?.some(clazz => clazz.__meta.hasDynamicUnit);
 
     return {classArray, classId, hasDynamicUnit};
   }, [classes]);
 
   const [key, forceUpdate] = useRulesEffect(idRef.current, classArray, classId);
-  const theme = useTheming();
+  const theme              = useTheming();
 
   useEffect(() => {
     if (hasDynamicUnit) {
@@ -43,8 +43,8 @@ export const useStylingInternals = (classes: Classes | undefined) => {
 const useRulesEffect = (id: string, classes: StyleClass[] | Falsy, classesId: string | null): [number, () => void] => {
   const [key, forceUpdate] = useForceUpdate(20);
 
-  const prevState = useRef("");
-  const currentClasses = useRef<StyleClass[] | Falsy>();
+  const prevState        = useRef("");
+  const currentClasses   = useRef<StyleClass[] | Falsy>();
   currentClasses.current = classes;
 
   const checkForUpdates = useCallback(() => {
@@ -94,11 +94,11 @@ const useRulesEffect = (id: string, classes: StyleClass[] | Falsy, classesId: st
 export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: DependencyList): S => {
   const [key, forceUpdate] = useForceUpdate(20);
 
-  const prevState = useRef("");
-  const currentResolution = useRef<StylingResolution>();
-  const resolution = useMemo(() => resolveStyling(styling), depList);
+  const prevState           = useRef("");
+  const currentResolution   = useRef<StylingResolution>();
+  const resolution          = useMemo(() => resolveStyling(styling), depList);
   currentResolution.current = resolution;
-  const {hasDynamicUnit} = resolution;
+  const {hasDynamicUnit}    = resolution;
 
   const checkForUpdates = useCallback(() => {
     let state = "";

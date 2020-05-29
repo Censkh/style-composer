@@ -1,15 +1,15 @@
 import React, {useContext, useLayoutEffect, useMemo, useRef} from "react";
 
-import {renderChildren, StylerComponent, StylerProps}         from "./Styler";
-import {useStylingInternals}                                  from "../Hooks";
+import {renderChildren, StylerComponent, StylerProps}        from "./Styler";
+import {useStylingInternals}                                 from "../Hooks";
 import {computeClasses, extractCascadingStyle, processStyle} from "../Styling";
-import CascadingStyleContext, {CascadingStyleContextState}  from "../CascadingStyleContext";
-import {getFontClassName, getFontFamily}                      from "../font/FontFamily";
+import CascadingStyleContext, {CascadingStyleContextState}   from "../CascadingStyleContext";
+import {getFontClassName, getFontFamily}                     from "../font/FontFamily";
 
 const CssOptimizedStyler = (props: StylerProps) => {
   const {children, style, classes} = props;
 
-  const {id, theme, key, classId, classArray} = useStylingInternals(classes);
+  const {id, theme, key, classId, classArray}                       = useStylingInternals(classes);
   const {style: parentCascadingStyle, key: parentCascadingStyleKey} = useContext(CascadingStyleContext);
 
   let {inlineStyle, cascadingStyle, classNames, cascadingStyleKey} = useMemo(() => {
@@ -39,16 +39,16 @@ const CssOptimizedStyler = (props: StylerProps) => {
     const [cascadingStyle, cascadingStyleKey] = extractCascadingStyle(ownStyle, computedStyle);
 
     return {
-      inlineStyle       : inlineStyle,
+      inlineStyle      : inlineStyle,
       cascadingStyle   : cascadingStyle,
       cascadingStyleKey: cascadingStyleKey,
-      classNames        : classNames,
+      classNames       : classNames,
     };
   }, [key, style, classId, theme, parentCascadingStyleKey]);
 
   const classesString = (classNames ? " " + classNames.join(" ") : "");
 
-  const elementRef = useRef<any>();
+  const elementRef  = useRef<any>();
   const baseClasses = useRef<string>();
   useLayoutEffect(() => {
     if (!elementRef.current) {

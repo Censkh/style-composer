@@ -12,7 +12,7 @@ export interface ThemedSession {
 }
 
 export const startThemedSession = () => {
-  themedSession.called = false;
+  themedSession.called  = false;
   themedSession.running = true;
 };
 
@@ -46,7 +46,7 @@ export interface ThemeProperty<T = any> {
 }
 
 export const useTheming = (): ThemeValues => {
-  const theme = useContext(ThemeContext);
+  const theme  = useContext(ThemeContext);
   currentTheme = theme;
   return theme;
 };
@@ -60,7 +60,7 @@ export type ThemePlan<T extends ThemeValues> = {
 export function themePlan<T extends ThemeValues>(themePlanInfo: T): ThemePlan<T> {
   const plan: ThemePlan<any> = {};
   for (const key of Object.keys(themePlanInfo)) {
-    const defaultValue = themePlanInfo[key];
+    const defaultValue          = themePlanInfo[key];
     let property: ThemeProperty = plan[key] = Object.assign(function(this: ThemeProperty<T>) {
       themedSession.called = true;
       if (themedSession.running) return property;

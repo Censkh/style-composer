@@ -1,10 +1,10 @@
 import React, {useContext, useMemo} from "react";
 
 import {computeClasses, extractCascadingStyle, processStyle} from "../Styling";
-import type {StylerComponent, StylerProps}                    from "./Styler";
-import {renderChildren}                                       from "./Styler";
-import {useForceUpdate, useStylingInternals}                  from "../Hooks";
-import CascadingStyleContext, {CascadingStyleContextState}  from "../CascadingStyleContext";
+import type {StylerComponent, StylerProps}                   from "./Styler";
+import {renderChildren}                                      from "./Styler";
+import {useForceUpdate, useStylingInternals}                 from "../Hooks";
+import CascadingStyleContext, {CascadingStyleContextState}   from "../CascadingStyleContext";
 
 import {addFontLoadListener, getFontFamily, isFontLoaded, removeFontLoadListener} from "../font/FontFamily";
 
@@ -12,8 +12,8 @@ const InlineStyler = (props: StylerProps) => {
   const {children, style, classes} = props;
 
   const {style: parentCascadingStyle, key: parentCascadingStyleKey} = useContext(CascadingStyleContext);
-  const [fontKey, forceUpdate] = useForceUpdate();
-  const {id, theme, key, classId, classArray} = useStylingInternals(classes);
+  const [fontKey, forceUpdate]                                      = useForceUpdate();
+  const {id, theme, key, classId, classArray}                       = useStylingInternals(classes);
 
   const {inlineStyle, cascadingStyle, cascadingStyleKey, classNames} = useMemo(() => {
     const classResults = computeClasses(classArray);
@@ -32,8 +32,8 @@ const InlineStyler = (props: StylerProps) => {
     const [cascadingStyle, cascadingStyleKey] = extractCascadingStyle(ownStyle, inlineStyle);
 
     return {
-      classNames        : classResults.classNames,
-      inlineStyle       : inlineStyle,
+      classNames       : classResults.classNames,
+      inlineStyle      : inlineStyle,
       cascadingStyle   : cascadingStyle,
       cascadingStyleKey: cascadingStyleKey,
     };

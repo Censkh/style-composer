@@ -12,7 +12,7 @@ export interface MediaQuery {
 
 const media = createStyleRule<MediaQuery>("media", {
   check(options: MediaQuery) {
-    const screenWidth = Math.round(Dimensions.get("window").width);
+    const screenWidth  = Math.round(Dimensions.get("window").width);
     const screenHeight = Math.round(Dimensions.get("window").height);
 
     if (typeof options.maxWidth === "number" && screenWidth > options.maxWidth) {

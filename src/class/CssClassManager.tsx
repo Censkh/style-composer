@@ -12,6 +12,8 @@ export default class CssClassManager extends BaseClassManager {
     .styled {color:inherit;font-size:inherit;font-family:inherit!important}
     body {font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;font-size:14px;}
     `);
+    // @ts-ignore
+    (window as any).__classManager = this;
   }
 
   registerClass(styleClass: StyleClass, resolvedStyling: Styling) {

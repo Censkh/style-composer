@@ -1,4 +1,10 @@
-import {composeClass, media, vw} from "style-composer";
+import {composeClass, media, vw, platform, and, or} from "style-composer";
+
+export const pixel3 = () => and(
+  platform("android"),
+  media({maxWidth: 412}),
+  media({minWidth: 410})
+);
 
 export const $Card = composeClass("Card", () => ({
   padding        : 5,
@@ -8,9 +14,10 @@ export const $Card = composeClass("Card", () => ({
   minWidth       : 200,
   textAlign      : "center",
 
-  [media({maxWidth: 500}) && media({minWidth: 200})]: {
+  [and(media({maxWidth: 500}), media({minWidth: 200}))]: {
     backgroundColor: "#009688",
   },
+
 }), {
   variants: {
 

@@ -14,10 +14,10 @@ export const isNative = () => {
 
 export const setStyleSheet = (name: string, content: string) => {
   if (!isNative()) {
-    const id = `stylesheet-${name}`;
+    const id       = `stylesheet-${name}`;
     let style: any = document.getElementById(id);
     if (!style) {
-      style = document.createElement("style");
+      style    = document.createElement("style");
       style.id = `stylesheet-${name}`;
       style.setAttribute("data-name", name);
       document.head.appendChild(style);

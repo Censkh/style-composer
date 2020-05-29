@@ -7,8 +7,8 @@ export type PolyProps<P> = P & {
 };
 
 
-export const poly = <P>(baseComponent: React.ComponentType<P>, disableStyled?: boolean): React.ComponentType<PolyProps<P>> => {
-  const polyClass = class extends (baseComponent as any) {
+export const poly  = <P>(baseComponent: React.ComponentType<P>, disableStyled?: boolean): React.ComponentType<PolyProps<P>> => {
+  const polyClass       = class extends (baseComponent as any) {
     render() {
       const element: any = super.render();
       if (!this.props.tag) {
@@ -25,6 +25,6 @@ export const poly = <P>(baseComponent: React.ComponentType<P>, disableStyled?: b
 };
 const BasePolyView = Utils.isNative() ? View : poly(View, true);
 
-export const PolyView = Utils.isNative() ? View : poly(View);
+export const PolyView             = Utils.isNative() ? View : poly(View);
 export const PolyTouchableOpacity = Utils.isNative() ? TouchableOpacity : poly(TouchableOpacity);
-export const PolyText = Utils.isNative() ? Text : poly(Text);
+export const PolyText             = Utils.isNative() ? Text : poly(Text);

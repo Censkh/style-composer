@@ -1,15 +1,14 @@
 import React                                                          from "react";
 import {ImageStyle, RecursiveArray, StyleSheet, TextStyle, ViewStyle} from "react-native";
 // @ts-ignore
-import styleResolver                                  from "react-native-web/src/exports/StyleSheet/styleResolver";
+import styleResolver from "react-native-web/src/exports/StyleSheet/styleResolver";
 
 import {StyleClass}                                                                           from "./class/StyleClass";
 import * as Utils                                                                             from "./Utils";
-import {Falsy}                                                                 from "./Utils";
+import {Falsy}                                                                                from "./Utils";
 import {DYNAMIC_UNIT_REGISTER_CHECK_VALUE, finishDynamicUnitSession, startDynamicUnitSession} from "./unit/DynamicUnit";
 import {finishThemeSession, startThemedSession}                                               from "./theme/Theming";
 import {finishRuleSession, startRuleSession, StyleRuleInstance}                               from "./rule/StyleRule";
-import {StyleProp}                                                                            from "./component/Styler";
 
 export const CASCADING_STYLES = ["fontSize", "fontFamily", "fontWeight", "color", "letterSpacing", "textAlign"];
 
@@ -43,8 +42,8 @@ export function computeClasses(styleClass: StyleClass[] | Falsy, options?: { inc
   if (!styleClass || styleClass.length === 0) {
     return {classNames: null, style: null, dynamicStyle: null};
   }
-  const classNames: string[] = [];
-  let style: Style | null = {};
+  const classNames: string[]       = [];
+  let style: Style | null          = {};
   const dynamicStyle: Style | null = options?.includeDynamicStyle ? {} : null;
 
   for (const clazz of styleClass) {
@@ -70,11 +69,13 @@ export const computeStyling = (resolution: StylingResolution, outDynamicStyle?: 
     return bakedStyle;
   }
 
+  startRuleSession();
   let style: any = styling();
+  finishRuleSession();
 
   if (hasRules) {
     for (const ruleInstance of Object.values(rules)) {
-      const ruleStyle = (style as any)[ruleInstance.id] as Style;
+      const ruleStyle                 = (style as any)[ruleInstance.id] as Style;
       (style as any)[ruleInstance.id] = undefined;
       if (ruleStyle) {
         style = Object.assign(style, ruleStyle);
@@ -123,12 +124,14 @@ export const resolveStyling = (styling: StylingBuilder): StylingResolution => {
   startDynamicUnitSession();
   startThemedSession();
   startRuleSession(true);
+
   const resolvedStyling = styling();
-  const rules = finishRuleSession();
-  const hasThemed = finishThemeSession();
+
+  const rules          = finishRuleSession();
+  const hasThemed      = finishThemeSession();
   const hasDynamicUnit = finishDynamicUnitSession();
-  const hasRules = Object.keys(rules).length > 0;
-  const isSimple = !hasRules && !hasThemed && !hasDynamicUnit;
+  const hasRules       = Object.keys(rules).length > 0;
+  const isSimple       = !hasRules && !hasThemed && !hasDynamicUnit;
 
   let dynamicProps: Record<number, string[]> | null = {};
 
@@ -145,15 +148,15 @@ export const resolveStyling = (styling: StylingBuilder): StylingResolution => {
   }
 
   return {
-    rules,
-    bakedStyle,
-    dynamicProps,
-    styling,
-    hasDynamicUnit,
-    hasRules,
-    hasThemed,
-    isSimple,
-    resolvedStyling,
+    rules          : rules,
+    bakedStyle     : bakedStyle,
+    dynamicProps   : dynamicProps,
+    styling        : styling,
+    hasDynamicUnit : hasDynamicUnit,
+    hasRules       : hasRules,
+    hasThemed      : hasThemed,
+    isSimple       : isSimple,
+    resolvedStyling: resolvedStyling,
   };
 };
 
@@ -176,27 +179,26 @@ export const resolveStyling = (styling: StylingBuilder): StylingResolution => {
  * whilst startThemingSession() is active
  */
 const extractDynamicProps = (dynamicProps: Record<number, string[]>, currentScope: number, styling: Styling) => {
-  dynamicProps[currentScope] = [];
   for (const key of Object.keys(styling)) {
     const value = (styling as any)[key];
     if (typeof value === "object") {
       extractDynamicProps(dynamicProps, parseInt(key), value);
     } else if (typeof value === "function" || value === DYNAMIC_UNIT_REGISTER_CHECK_VALUE) {
-      dynamicProps[currentScope].push(key);
+      (dynamicProps[currentScope] || (dynamicProps[currentScope] = [])).push(key);
     }
   }
 };
 
 export const extractCascadingStyle = (ownStyle: Style | null, computedStyle: Style | null): [Style | null, string] => {
   if (!ownStyle || !computedStyle) return [null, ""];
-  let hasCascading = false;
-  let cascadingKey = "";
+  let hasCascading     = false;
+  let cascadingKey     = "";
   const cascadingStyle = CASCADING_STYLES.reduce((cascading, key) => {
     const ownValue = (ownStyle as any)[key];
     let value;
     if (ownValue) {
       hasCascading = true;
-      value = ownValue;
+      value        = ownValue;
     } else {
       value = (computedStyle as any)[key];
     }

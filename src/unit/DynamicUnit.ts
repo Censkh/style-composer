@@ -12,7 +12,7 @@ export interface DynamicUnitSession {
 }
 
 export const startDynamicUnitSession = () => {
-  dynamicUnitSession.called = false;
+  dynamicUnitSession.called  = false;
   dynamicUnitSession.running = true;
 };
 
