@@ -1,19 +1,26 @@
 import React from "react";
 
-// @ts-ignore
-const document = (window as any).document;
-
 export type PropsOf<C extends React.ComponentType> = C extends React.ComponentType<infer P> ? P : never;
 
 export type Falsy = false | null | undefined | "" | 0;
 
+export const getGlobal = () => {
+  // @ts-ignore
+  return typeof global !== "undefined" ? global : window;
+}
+
+export const getDocument = () => {
+  return getGlobal().document;
+}
+
 export const isNative = () => {
-// @ts-ignore
-  return typeof (window && window.addEventListener) === "undefined";
+  // @ts-ignore
+  return typeof document === "undefined";
 };
 
 export const setStyleSheet = (name: string, content: string) => {
   if (!isNative()) {
+    const document = getDocument();
     const id       = `stylesheet-${name}`;
     let style: any = document.getElementById(id);
     if (!style) {

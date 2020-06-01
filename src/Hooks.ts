@@ -6,11 +6,11 @@ import {useTheming}                                                        from 
 import {Dimensions}                                                        from "react-native";
 import {computeStyling, resolveStyling, StylingBuilder, StylingResolution} from "./Styling";
 
-export const useForceUpdate = (debounceTimeout?: number): [number, () => void] => {
+export const useForceUpdate = (): [number, () => void] => {
   const [state, setState] = useState(0);
   const forceUpdate       = useCallback(() => {
     return setState(i => i + 1);
-  }, [setState, debounceTimeout]);
+  }, [setState]);
   return [state, forceUpdate];
 };
 
@@ -41,7 +41,7 @@ export const useStylingInternals = (classes: Classes | undefined) => {
 };
 
 const useRulesEffect = (id: string, classes: StyleClass[] | Falsy, classesId: string | null): [number, () => void] => {
-  const [key, forceUpdate] = useForceUpdate(20);
+  const [key, forceUpdate] = useForceUpdate();
 
   const prevState        = useRef("");
   const currentClasses   = useRef<StyleClass[] | Falsy>();
@@ -92,7 +92,7 @@ const useRulesEffect = (id: string, classes: StyleClass[] | Falsy, classesId: st
 };
 
 export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: DependencyList): S => {
-  const [key, forceUpdate] = useForceUpdate(20);
+  const [key, forceUpdate] = useForceUpdate();
 
   const prevState           = useRef("");
   const currentResolution   = useRef<StylingResolution>();

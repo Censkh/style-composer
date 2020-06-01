@@ -5,6 +5,7 @@ import {useStylingInternals}                                 from "../Hooks";
 import {computeClasses, extractCascadingStyle, processStyle} from "../Styling";
 import CascadingStyleContext, {CascadingStyleContextState}   from "../CascadingStyleContext";
 import {getFontClassName, getFontFamily}                     from "../font/FontFamily";
+import * as Utils                                            from "../Utils";
 
 const CssOptimizedStyler = (props: StylerProps) => {
   const {children, style, classes} = props;
@@ -52,8 +53,7 @@ const CssOptimizedStyler = (props: StylerProps) => {
   const baseClasses = useRef<string>();
   useLayoutEffect(() => {
     if (!elementRef.current) {
-      // @ts-ignore
-      elementRef.current = (window as any).document.querySelector(`[data-id="${id}"]`);
+      elementRef.current = Utils.getDocument().querySelector(`[data-id="${id}"]`);
       if (!elementRef.current) {
         console.error("[style-composer] Prop 'data-id' was not passed down to rendered element. This may mean this element cannot be optimized for css");
         return;

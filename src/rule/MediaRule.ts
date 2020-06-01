@@ -1,6 +1,5 @@
 import {Dimensions}      from "react-native";
 import {createStyleRule} from "./StyleRule";
-import debounce          from "lodash.debounce";
 
 export interface MediaQuery {
   maxWidth?: number,
@@ -35,7 +34,7 @@ const media = createStyleRule<MediaQuery>("media", {
   },
 
   register(update) {
-    Dimensions.addEventListener("change", debounce(update, 20));
+    Dimensions.addEventListener("change", update);
   },
 });
 
