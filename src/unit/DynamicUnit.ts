@@ -1,6 +1,6 @@
 export const DYNAMIC_UNIT_REGISTER_CHECK_VALUE = -Infinity;
 
-let dynamicUnitSession: DynamicUnitSession = {
+const dynamicUnitSession: DynamicUnitSession = {
   running: false,
   called : false,
 
@@ -11,7 +11,7 @@ export interface DynamicUnitSession {
   called: boolean;
 }
 
-export const startDynamicUnitSession = () => {
+export const startDynamicUnitSession = (): void => {
   dynamicUnitSession.called  = false;
   dynamicUnitSession.running = true;
 };

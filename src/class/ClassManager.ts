@@ -1,10 +1,25 @@
 import * as Utils   from "../Utils";
 import {StyleClass} from "./StyleClass";
-import {Styling}    from "../Styling";
 
-export interface ClassManager {
-  registerClass(styleClass: StyleClass, resolvedStyling: Styling): void;
+const ClassManager = new (class {
 
-}
+  classes: Record<string, StyleClass> = {};
 
-export const ClassManager: ClassManager = Utils.isNative() ? new (require("./BaseClassManager").default) : new (require("./CssClassManager").default);
+  constructor() {
+    if (!Utils.isNative()) {
+      Utils.setStyleSheet("global", `
+    .styled {color:inherit;font-size:inherit;font-family:inherit!important}
+    body {font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;font-size:14px;}
+    `);
+      Utils.getGlobal().__classManager = this;
+    }
+  }
+
+
+  registerClass(styleClass: StyleClass) {
+    this.classes[styleClass.__meta.className] = styleClass;
+  }
+
+});
+
+export default ClassManager;

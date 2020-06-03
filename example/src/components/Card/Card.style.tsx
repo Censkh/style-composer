@@ -1,9 +1,9 @@
-import {composeClass, media, vw, platform, and, or} from "style-composer";
+import {and, composeClass, media, platform, vw} from "style-composer";
 
 export const pixel3 = () => and(
   platform("android"),
   media({maxWidth: 412}),
-  media({minWidth: 410})
+  media({minWidth: 410}),
 );
 
 export const $Card = composeClass("Card", () => ({

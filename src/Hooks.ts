@@ -2,19 +2,25 @@ import {DependencyList, useCallback, useEffect, useMemo, useRef, useState} from 
 import {registerRuleCallback, unregisterRuleCallback}                      from "./rule/StyleRule";
 import {Classes, classesId, classList, StyleClass}                         from "./class/StyleClass";
 import {Falsy}                                                             from "./Utils";
-import {useTheming}                                                        from "./theme";
+import {ThemeValues, useTheming}                                           from "./theme";
 import {Dimensions}                                                        from "react-native";
 import {computeStyling, resolveStyling, StylingBuilder, StylingResolution} from "./Styling";
 
 export const useForceUpdate = (): [number, () => void] => {
   const [state, setState] = useState(0);
-  const forceUpdate       = useCallback(() => {
-    return setState(i => i + 1);
-  }, [setState]);
+  const forceUpdate       = useCallback(() => setState(i => i + 1), [setState]);
   return [state, forceUpdate];
 };
 
-export const useStylingInternals = (classes: Classes | undefined) => {
+export interface StylingInternals {
+  theme: ThemeValues,
+  key: number,
+  classId: string | null,
+  classArray: StyleClass[] | undefined,
+  id: string;
+}
+
+export const useStylingInternals = (classes: Classes | undefined): StylingInternals => {
   const idRef = useRef(Math.floor(Math.random() * 100000000).toString());
 
   const {classArray, classId, hasDynamicUnit} = useMemo(() => {
@@ -102,8 +108,10 @@ export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: Depend
 
   const checkForUpdates = useCallback(() => {
     let state = "";
-    for (const ruleInstance of Object.values(currentResolution.current!.rules)) {
-      state += ruleInstance.rule.check(ruleInstance.options) ? "1" : "0";
+    if (currentResolution.current) {
+      for (const ruleInstance of Object.values(currentResolution.current.rules)) {
+        state += ruleInstance.rule.check(ruleInstance.options) ? "1" : "0";
+      }
     }
     if (prevState.current !== state) {
       prevState.current = state;

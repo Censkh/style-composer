@@ -1,7 +1,5 @@
 import React                                                          from "react";
 import {ImageStyle, RecursiveArray, StyleSheet, TextStyle, ViewStyle} from "react-native";
-// @ts-ignore
-import styleResolver from "react-native-web/src/exports/StyleSheet/styleResolver";
 
 import {StyleClass}                                                                           from "./class/StyleClass";
 import * as Utils                                                                             from "./Utils";
@@ -13,13 +11,15 @@ import {finishRuleSession, startRuleSession, StyleRuleInstance}                 
 export const CASCADING_STYLES = ["fontSize", "fontFamily", "fontWeight", "color", "letterSpacing", "textAlign"];
 
 export interface StylingResolution {
+  sheetId: number | null;
   styling: StylingBuilder;
   rules: Record<number, StyleRuleInstance>,
-  bakedStyle: Style | null;
+  bakedStyle: Style;
   isSimple: boolean;
   hasRules: boolean;
   hasThemed: boolean;
   hasDynamicUnit: boolean;
+  hasDynamicProps: boolean;
   dynamicProps: Record<number, string[]>;
   resolvedStyling: Styling;
 }
@@ -34,51 +34,74 @@ export type Styling<S = Style> = Record<number, S> & S;
 
 export interface ComputeResults {
   classNames: string[] | null;
-  dynamicStyle: Style | null,
-  style: Style | null;
+  style: ComputedStyleList;
 }
 
-export function computeClasses(styleClass: StyleClass[] | Falsy, options?: { includeDynamicStyle?: boolean; }): ComputeResults {
+export function computeClasses(styleClass: StyleClass[] | Falsy): ComputeResults {
   if (!styleClass || styleClass.length === 0) {
-    return {classNames: null, style: null, dynamicStyle: null};
+    return {classNames: null, style: []};
   }
-  const classNames: string[]       = [];
-  let style: Style | null          = {};
-  const dynamicStyle: Style | null = options?.includeDynamicStyle ? {} : null;
+  const classNames: string[]     = [];
+  const style: ComputedStyleList = [];
 
   for (const clazz of styleClass) {
     if (clazz.__meta.parent) {
       classNames.push(clazz.__meta.parent.__meta.className);
-      const parentStyle = computeStyling(clazz.__meta.parent.__meta, dynamicStyle, classNames);
-      if (style) {
-        style = Object.assign(style, parentStyle);
-      }
+      internalComputedStyling(clazz.__meta.parent.__meta, style, classNames);
     }
     classNames.push(clazz.__meta.className);
-    const computedStyle = computeStyling(clazz.__meta, dynamicStyle, classNames);
-    if (style) {
-      style = Object.assign(style, computedStyle);
-    }
+    internalComputedStyling(clazz.__meta, style, classNames);
   }
-  return {classNames, style, dynamicStyle};
+
+  return {classNames, style};
 }
 
-export const computeStyling = (resolution: StylingResolution, outDynamicStyle?: Style | null, outClassNames?: string[]): Style => {
-  const {bakedStyle, hasRules, isSimple, rules, styling, dynamicProps} = resolution;
-  if (isSimple && bakedStyle) {
-    return bakedStyle;
+export type ComputedStyleList = Array<Style | number>;
+
+export const computeStyling = (resolution: StylingResolution): Style => {
+  const style: ComputedStyleList = [];
+  internalComputedStyling(resolution, style);
+  return StyleSheet.flatten(style as any);
+};
+
+const internalComputedStyling = (resolution: StylingResolution, outStyle: ComputedStyleList, outClassNames?: string[]): void => {
+  const {bakedStyle, hasRules, sheetId, isSimple, rules, styling, hasDynamicProps, dynamicProps} = resolution;
+  if (isSimple) {
+    outStyle.push((sheetId || bakedStyle) as any);
+    return;
   }
 
   startRuleSession();
-  let style: any = styling();
+  const style: any = styling();
   finishRuleSession();
+
+  outStyle.push((sheetId || style) as any);
+
+  if (hasDynamicProps) {
+    const dynamicStyle: Style = {};
+    for (const dynamicProp of dynamicProps[0]) {
+      (dynamicStyle as any)[dynamicProp] = style[dynamicProp];
+    }
+    outStyle.push(dynamicStyle);
+  }
 
   if (hasRules) {
     for (const ruleInstance of Object.values(rules)) {
       const ruleStyle                 = (style as any)[ruleInstance.id] as Style;
       (style as any)[ruleInstance.id] = undefined;
       if (ruleStyle) {
-        style = Object.assign(style, ruleStyle);
+
+        // add dyanmic props for rule
+        const ruleDynamicProps = dynamicProps[ruleInstance.id];
+        if (hasDynamicProps && ruleDynamicProps) {
+          const ruleDynamicStyle: Style = {};
+          for (const dynamicProp of ruleDynamicProps) {
+            (ruleDynamicStyle as any)[dynamicProp] = (ruleStyle as any)[dynamicProp];
+          }
+          outStyle.push(ruleDynamicStyle);
+        }
+
+        outStyle.push((ruleInstance.sheetId || ruleStyle));
         if (outClassNames) {
           outClassNames.push(ruleInstance.className);
         }
@@ -87,23 +110,18 @@ export const computeStyling = (resolution: StylingResolution, outDynamicStyle?: 
     // when rules are evalled they return 0 instead of false
     style[0] = undefined;
   }
-
-  if (outDynamicStyle) {
-    for (const dynamicProp of dynamicProps[0]) {
-      (outDynamicStyle as any)[dynamicProp] = style[dynamicProp];
-    }
-  }
-
-  return style;
 };
 
-export const sanitizeStyle = (node: React.ReactNode, style: Style): Style => {
+export const sanitizeStyleList = (node: React.ReactNode, style: RecursiveArray<Style | Falsy>): Style[] => {
   if (process.env.NODE_ENV === "development") {
     if (node && typeof node === "object" && "type" in node && (node.type as any).propTypes) {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       (node.type as any).propTypes.style = require("prop-types").any;
     }
   }
-  delete style.fontWeight;
+  if (style) {
+    return Utils.flatAndRemoveFalsy(style);
+  }
   return style;
 };
 
@@ -133,25 +151,24 @@ export const resolveStyling = (styling: StylingBuilder): StylingResolution => {
   const hasRules       = Object.keys(rules).length > 0;
   const isSimple       = !hasRules && !hasThemed && !hasDynamicUnit;
 
-  let dynamicProps: Record<number, string[]> | null = {};
+  const dynamicProps: Record<number, string[]> | null = {};
+  const hasDynamicProps                               = hasThemed || hasDynamicUnit;
 
   // if we have themed / dynamic units values in this style, work out which properties they are
-  if (hasThemed || hasDynamicUnit) {
+  if (hasDynamicProps) {
     extractDynamicProps(dynamicProps, 0, resolvedStyling);
   }
 
-  let bakedStyle = null;
 
-  // if no rules or theming, bake it!
-  if (isSimple) {
-    bakedStyle = sanitizeStylingToStyle(resolvedStyling);
-  }
+  const bakedStyle = sanitizeStylingToStyle(resolvedStyling);
 
   return {
+    sheetId        : null,
     rules          : rules,
     bakedStyle     : bakedStyle,
     dynamicProps   : dynamicProps,
     styling        : styling,
+    hasDynamicProps: hasDynamicProps,
     hasDynamicUnit : hasDynamicUnit,
     hasRules       : hasRules,
     hasThemed      : hasThemed,
@@ -183,7 +200,7 @@ const extractDynamicProps = (dynamicProps: Record<number, string[]>, currentScop
     const value = (styling as any)[key];
     if (typeof value === "object") {
       extractDynamicProps(dynamicProps, parseInt(key), value);
-    } else if (typeof value === "function" || value === DYNAMIC_UNIT_REGISTER_CHECK_VALUE) {
+    } else if (typeof value === "function" || value === DYNAMIC_UNIT_REGISTER_CHECK_VALUE || (typeof value === "string" && value.includes(DYNAMIC_UNIT_REGISTER_CHECK_VALUE.toString()))) {
       (dynamicProps[currentScope] || (dynamicProps[currentScope] = [])).push(key);
     }
   }
@@ -211,9 +228,4 @@ export const extractCascadingStyle = (ownStyle: Style | null, computedStyle: Sty
   } else {
     return [null, ""];
   }
-};
-
-export const processStyle = (...styleProp: RecursiveArray<Style | Falsy>): Style => {
-  const flatStyle = StyleSheet.flatten(styleProp);
-  return Utils.isNative() ? flatStyle : styleResolver.resolve(flatStyle).style || {};
 };

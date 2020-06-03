@@ -1,5 +1,4 @@
-import * as Font  from "expo-font";
-import * as Utils from "../Utils";
+import * as Font from "expo-font";
 
 export interface FontFamilyConfig {
   black?: string;
@@ -74,21 +73,25 @@ const getFontCallbackList = (name: string): Set<() => void> => {
   return fontListeners[name] || (fontListeners[name] = new Set());
 };
 
-export const addFontLoadListener = (name: string, callback: () => void) => {
+export const addFontLoadListener = (name: string, callback: () => void): void => {
   if (Font.isLoaded(name)) callback();
   getFontCallbackList(name).add(callback);
 };
 
-export const removeFontLoadListener = (name: string, callback: () => void) => {
+export const removeFontLoadListener = (name: string, callback: () => void): void => {
   getFontCallbackList(name).delete(callback);
 };
 
-export const isFontLoading = (name: string) => {
+export const isFontLoading = (name: string): boolean => {
   return Font.isLoading(name);
 };
 
-export const isFontLoaded = (name: string) => {
+export const isFontLoaded = (name: string): boolean => {
   return Font.isLoaded(name);
+};
+
+export const isStyleComposerFont = (name: string): boolean => {
+  return Boolean(fontVariantMap[name]);
 };
 
 export const getFontFamily = (name: string): FontFamily | undefined => {
@@ -111,7 +114,7 @@ export const createFontFamily = (
     value: name,
   });
 
-  for (let type of types) {
+  for (const type of types) {
     const fontName   = `${name}__${type}`;
     fontFamily[type] = () => {
       if (!isFontLoading(fontName) && !isFontLoaded(fontName)) {
@@ -122,8 +125,6 @@ export const createFontFamily = (
             fontFamily: fontFamily,
             resource  : resource,
           };
-
-          Utils.setStyleSheet(`font[${fontName}]`, `.${getFontClassName(fontName)}{font-family: ${fontName}!important;`);
 
           Font.loadAsync({
             [fontName]: resource,
@@ -138,8 +139,4 @@ export const createFontFamily = (
 
   fontFamilyMap[name] = fontFamily;
   return fontFamily;
-};
-
-export const getFontClassName = (fontName: string): string => {
-  return `__font_${fontName}`;
 };

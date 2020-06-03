@@ -1,6 +1,6 @@
 const path = require("path");
 
-const specialModules = ["react", "react-native", "expo-font", "@babel/runtime"];
+const specialModules = ["react", "react-native", "react-native-web", "expo-font", "@babel/runtime"];
 const extraNodeModules = specialModules.reduce((modules, module) => {
   modules[module] = path.resolve(__dirname, "node_modules/" + module);
   return modules;
@@ -9,6 +9,7 @@ const extraNodeModules = specialModules.reduce((modules, module) => {
 const blacklistRegexes = [
   /C:[\/\\]Users[\/\\]09jwa[\/\\]Documents[\/\\]style-composer[\/\\]node_modules[\/\\]react[\/\\].*/,
   /C:[\/\\]Users[\/\\]09jwa[\/\\]Documents[\/\\]style-composer[\/\\]node_modules[\/\\]react-native[\/\\].*/,
+  /C:[\/\\]Users[\/\\]09jwa[\/\\]Documents[\/\\]style-composer[\/\\]node_modules[\/\\]react-native-web[\/\\].*/,
   /C:[\/\\]Users[\/\\]09jwa[\/\\]Documents[\/\\]style-composer[\/\\]node_modules[\/\\]expo-font[\/\\].*/,
   /C:[\/\\]Users[\/\\]09jwa[\/\\]Documents[\/\\]style-composer[\/\\]node_modules[\/\\]@babel\/runtime[\/\\].*/
 ];

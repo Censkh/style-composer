@@ -1,9 +1,10 @@
 import React from "react";
 
-import {classList, StyledView, StylerProps} from "style-composer";
-import {$Card}                              from "./Card.style";
+import {classList, StylableProps, StyledView} from "style-composer";
+import {$Card}                                from "./Card.style";
 
-export interface CardProps extends StylerProps {
+export interface CardProps extends StylableProps {
+  children?: React.ReactNode;
 }
 
 const Card = (props: CardProps) => {

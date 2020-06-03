@@ -1,6 +1,6 @@
 import React, {useContext} from "react";
 
-let themedSession: ThemedSession = {
+const themedSession: ThemedSession = {
   running: false,
   called : false,
 
@@ -11,7 +11,7 @@ export interface ThemedSession {
   called: boolean;
 }
 
-export const startThemedSession = () => {
+export const startThemedSession = (): void => {
   themedSession.called  = false;
   themedSession.running = true;
 };
@@ -33,7 +33,7 @@ export interface ThemeProviderProps<T extends ThemeValues> {
   plan: ThemePlan<T>
 }
 
-export function ThemeProvider<T extends ThemeValues>(props: ThemeProviderProps<T>) {
+export function ThemeProvider<T extends ThemeValues>(props: ThemeProviderProps<T>): JSX.Element {
   return React.createElement(ThemeContext.Provider, props as any);
 }
 
@@ -60,8 +60,8 @@ export type ThemePlan<T extends ThemeValues> = {
 export function themePlan<T extends ThemeValues>(themePlanInfo: T): ThemePlan<T> {
   const plan: ThemePlan<any> = {};
   for (const key of Object.keys(themePlanInfo)) {
-    const defaultValue          = themePlanInfo[key];
-    let property: ThemeProperty = plan[key] = Object.assign(function(this: ThemeProperty<T>) {
+    const defaultValue            = themePlanInfo[key];
+    const property: ThemeProperty = plan[key] = Object.assign(function(this: ThemeProperty<T>) {
       themedSession.called = true;
       if (themedSession.running) return property;
       return currentTheme[key] || defaultValue;

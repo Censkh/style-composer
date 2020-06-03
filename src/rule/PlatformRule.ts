@@ -5,10 +5,10 @@ export type PlatformQuery = PlatformOSType[] | PlatformOSType;
 
 const platform = createStyleRule<PlatformQuery>("platform", {
   check(query: PlatformQuery) {
-    return Array.isArray(query) ? query.includes(Platform.OS): query === Platform.OS;
+    return Array.isArray(query) ? query.includes(Platform.OS) : query === Platform.OS;
   },
 
-  register(update) {
+  register() {
   },
 });
 

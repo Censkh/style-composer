@@ -12,14 +12,14 @@ import {THEMING}    from "./src/ThemeConsts";
 import {$Heading}   from "./src/components/Text/Text.style";
 
 const LIGHT_THEME: ThemeFor<typeof THEMING> = {};
-const DARK_THEME: ThemeFor<typeof THEMING> = {
+const DARK_THEME: ThemeFor<typeof THEMING>  = {
   textColor      : "rgba(255,255,255,0.98)",
   backgroundColor: "#333",
 };
 
 export default function App() {
   const [themeToggle, setThemeToggle] = useState(false);
-  const {width} = useComposedValues(() => ({
+  const {width}                       = useComposedValues(() => ({
     width                   : vw() + "px",
     [media({maxWidth: 800})]: {
       width: "small",

@@ -4,12 +4,10 @@ export *                                  from "./Styling";
 export {useComposedValues}                from "./Hooks";
 export {default as CascadingStyleContext} from "./CascadingStyleContext";
 
-export *                               from "./component/Styler";
-export {default as CssOptimizedStyler} from "./component/CssOptimizedStyler";
-export {default as InlineStyler}       from "./component/InlineStyler";
-export {default as CssGlobalStyling}   from "./component/CssGlobalStyling";
-export *                               from "./component/StyledComponents";
-export *                               from "./component/PolyComponents";
+export *                             from "./component/Styler";
+export {default as CssGlobalStyling} from "./component/CssGlobalStyling";
+export *                             from "./component/StyledComponents";
+export *                             from "./component/PolyComponents";
 
 export * from "./class/StyleClass";
 

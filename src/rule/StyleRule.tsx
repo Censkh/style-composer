@@ -48,6 +48,7 @@ export interface StyleRule<O = undefined> extends StyleRuleOptions<O> {
 export interface StyleRuleInstance<O = undefined> {
   id: number;
   className: string;
+  sheetId: number | null;
   options: O;
   rule: StyleRule<O>;
 }
@@ -56,14 +57,15 @@ type Callback = () => void;
 
 const ruleCallbacks = {} as Record<string, Set<Callback>>;
 
-export const registerRuleCallback   = (rule: StyleRule, callback: Callback) => {
+export const registerRuleCallback   = (rule: StyleRule, callback: Callback): void => {
   let callbacks = ruleCallbacks[rule.name];
   if (!callbacks) {
     callbacks = ruleCallbacks[rule.name] = new Set();
   }
   callbacks.add(callback);
 };
-export const unregisterRuleCallback = (rule: StyleRule, callback: Callback) => {
+
+export const unregisterRuleCallback = (rule: StyleRule, callback: Callback): void => {
   const callbacks = ruleCallbacks[rule.name];
   if (callbacks) {
     callbacks.delete(callback);
@@ -89,6 +91,7 @@ export function createStyleRule<O>(name: string, options: StyleRuleOptions<O>): 
         options  : options || {},
         rule     : rule,
         className: "__rule_" + id + rule.name,
+        sheetId  : null,
       };
 
       return id;

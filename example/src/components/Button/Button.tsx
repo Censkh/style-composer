@@ -1,11 +1,11 @@
-import React                                            from "react";
+import React                                              from "react";
 // eslint-disable-next-line no-restricted-imports
-import {ButtonProps as BaseButtonProps}                 from "react-native";
-import {$Button}                                        from "./Button.style";
-import Text                                             from "../Text/Text";
-import {classList, StyledTouchableOpacity, StylerProps} from "style-composer";
+import {ButtonProps as BaseButtonProps}                   from "react-native";
+import {$Button}                                          from "./Button.style";
+import Text                                               from "../Text/Text";
+import {classList, StylableProps, StyledTouchableOpacity} from "style-composer";
 
-export interface ButtonProps extends BaseButtonProps, StylerProps {
+export interface ButtonProps extends BaseButtonProps, StylableProps {
   loading?: boolean;
 }
 

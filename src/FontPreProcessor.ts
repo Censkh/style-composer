@@ -1,0 +1,39 @@
+import {isLoaded, isLoading}                       from "expo-font";
+import {fontFamilyNeedsScoping, getNativeFontName} from "expo-font/build/FontLoader";
+import {StyleSheet}                                from "react-native";
+import {isStyleComposerFont}                       from "./font/FontFamily";
+
+/**
+ * This overrides expo-font/build/Font in order to disable the warnings when we are loading the font and know what
+ * we are doing
+ */
+const processFontFamily = (fontFamily: string): string => {
+  if (!fontFamily || !fontFamilyNeedsScoping(fontFamily)) {
+    return fontFamily;
+  }
+
+
+  if (!isLoaded(fontFamily)) {
+    if (__DEV__) {
+      if (isLoading(fontFamily)) {
+        if (!isStyleComposerFont(fontFamily)) {
+          console.error(`You started loading the font "${fontFamily}", but used it before it finished loading.\n
+- You need to wait for Font.loadAsync to complete before using the font.\n
+- We recommend loading all fonts before rendering the app, and rendering only Expo.AppLoading while waiting for loading to complete.`);
+        }
+      } else {
+        console.error(`fontFamily "${fontFamily}" is not a system font and has not been loaded through Font.loadAsync.\n
+- If you intended to use a system font, make sure you typed the name correctly and that it is supported by your device operating system.\n
+- If this is a custom font, be sure to load it with Font.loadAsync.`);
+      }
+    }
+    return "System";
+  }
+  return `ExpoFont-${getNativeFontName(fontFamily)}`;
+};
+
+export const setupFontPreProcessor = (): void => {
+  if (StyleSheet.setStyleAttributePreprocessor) {
+    StyleSheet.setStyleAttributePreprocessor("fontFamily", processFontFamily);
+  }
+};

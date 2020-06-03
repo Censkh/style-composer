@@ -6,7 +6,7 @@ export interface CssGlobalStyling {
   children: string;
 }
 
-const CssGlobalStyling = (props: CssGlobalStyling) => {
+const CssGlobalStyling = (props: CssGlobalStyling): null => {
   if (Utils.isNative()) return null;
   const {name, children} = props;
   useLayoutEffect(() => {
