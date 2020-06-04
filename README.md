@@ -1,6 +1,6 @@
 # [style-composer](https://github.com/Censkh/style-composer/) &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Censkh/style-composer/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/style-composer.svg?style=flat)](https://www.npmjs.com/package/style-composer)
 
-Straightforward cross platform styling for React Native and the web
+Straightforward and powerful cross platform styling for React Native supporting Android, iOS and web
 
 ``` npm i style-composer ```
 
@@ -14,6 +14,14 @@ Straightforward cross platform styling for React Native and the web
 - [Class variants](#variants)
 - [Dynamic fonts](#fonts)
 - [Theming](#theming)
+
+## Why?
+
+The inbuilt styling system for React Native isn't powerful enough to allow for universal styling without the need to add component level logic to adapt to platform or screen size changes.
+
+For example, currently with RN's inbuilt StyleSheets it is not possible to have media queries or themes without component logic.
+
+To solve this `style-composer` builds on-top of this system to provide many features it can't.
 
 ## Usage
 
@@ -117,7 +125,7 @@ export const $Card = composeClass("card", () => ({
 }));
 ```
 
-You can also use platform queries in combination with operator rules to create continence functions:
+You can also use other queries in combination with operator rules to create compound queries:
 
 ```typescript jsx
 import {media, platform, and, composeClass} from "style-composer";
@@ -185,27 +193,40 @@ export const $Card = composeClass("card", () => ({
 
 [Example font](./example/assets/fonts/raleway/index.ts)
 
-You can dynamically load fonts in your app. First create your font family object.
+You can dynamically load fonts in your app. First create your font family object:
 
 ```typescript jsx
 import {createFontFamily} from "style-composer";
 
-const Raleway = createFontFamily("Raleway", {
+const raleway = createFontFamily("raleway", {
   bold            : require("./Raleway-Bold.ttf"),
   boldItalic      : require("./Raleway-BoldItalic.ttf"),
   regular         : require("./Raleway-Regular.ttf"),
   regularItalic   : require("./Raleway-Italic.ttf"),
 });
 
-export default Raleway;
+export default raleway;
 ```
 
 Then use it in your styles:
 
 ```typescript jsx
 export const $AppContainer = composeClass("app-container", () => ({
-    fontFamily: Raleway.regular(),
+    fontFamily: raleway(),
 }));
 ```
 
-This also supports cascading to elements further in the tree as well as `fontWeight`.
+This also supports cascading that font family child elements further in the tree.
+
+Fonts created using this method can now interact with the `fontWeight` style as well to dynamically load different weights of your font:
+
+```typescript jsx
+const $Bold = composeClass("bold", () => ({
+    fontWeight: "700",
+    // fontWeight: "bold"
+}));
+
+<StyledView classes={[$Bold]}>
+    <StyledText>I am going to be brave and bold!</StyledText>
+</StyledView>
+```
