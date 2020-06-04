@@ -7,10 +7,6 @@ const ClassManager = new (class {
 
   constructor() {
     if (!Utils.isNative()) {
-      Utils.setStyleSheet("global", `
-    .styled {color:inherit;font-size:inherit;font-family:inherit!important}
-    body {font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;font-size:14px;}
-    `);
       Utils.getGlobal().__classManager = this;
     }
   }

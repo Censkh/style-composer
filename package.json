@@ -1,20 +1,9 @@
 {
   "name": "style-composer",
   "version": "0.2.0-alpha1",
-  "author": "James Waterhouse <09jwater@gmail.com>",
-  "license": "MIT",
   "main": "cjs/index.js",
   "types": "esm/index.d.ts",
   "module": "esm/index.js",
-  "repository": "https://github.com/Censkh/style-composer",
-  "keywords": [
-    "typescript",
-    "javascript",
-    "react",
-    "react-native",
-    "styling",
-    "styling-css-in-js"
-  ],
   "scripts": {
     "example:start": "cd example && npm run start",
     "example:dev": "cd example && npm run dev",
@@ -55,5 +44,16 @@
     "README.md",
     "esm/",
     "cjs/"
+  ],
+  "author": "James Waterhouse <09jwater@gmail.com>",
+  "license": "MIT",
+  "repository": "https://github.com/Censkh/style-composer",
+  "keywords": [
+    "typescript",
+    "javascript",
+    "react",
+    "react-native",
+    "styling",
+    "styling-css-in-js"
   ]
 }
