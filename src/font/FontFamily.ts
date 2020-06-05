@@ -29,12 +29,14 @@ export type FontFamily = {
 
 const weights: Record<number, keyof FontFamilyConfig> = {
   [100]: "thin",
+  [200]: "extraLight",
   [300]: "light",
   [400]: "regular",
   [500]: "medium",
   [600]: "semiBold",
   [700]: "bold",
   [800]: "extraBold",
+  [900]: "black",
 };
 
 const types: Array<keyof FontFamilyConfig> = [

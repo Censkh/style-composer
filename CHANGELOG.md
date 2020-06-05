@@ -4,6 +4,15 @@
 
 Refactoring and optimizations, fun!
 
+### Features / Changes
+
+- add support for all font weights
+
+### Fix
+
+- if a poly component fails to render bail and on all poly components
+- fix a bug where certain font families would not display correctly with the actual font weight they are
+
 ### Internal
 
 - remove old global stylesheet that is no longer needed

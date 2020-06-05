@@ -113,12 +113,6 @@ const internalComputedStyling = (resolution: StylingResolution, outStyle: Comput
 };
 
 export const sanitizeStyleList = (node: React.ReactNode, style: RecursiveArray<Style | Falsy>): Style[] => {
-  if (process.env.NODE_ENV === "development") {
-    if (node && typeof node === "object" && "type" in node && (node.type as any).propTypes) {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      (node.type as any).propTypes.style = require("prop-types").any;
-    }
-  }
   if (style) {
     return Utils.flatAndRemoveFalsy(style);
   }

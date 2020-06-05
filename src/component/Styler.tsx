@@ -1,15 +1,25 @@
 import React, {useContext, useMemo, useRef} from "react";
 
-import {computeClasses, extractCascadingStyle, sanitizeStyleList, Style}          from "../Styling";
-import * as Utils                                                                 from "../Utils";
-import {Falsy}                                                                    from "../Utils";
-import {StyleClass}                                                               from "../class/StyleClass";
-import {RecursiveArray, StyleSheet, Text}                                         from "react-native";
-import CascadingStyleContext, {CascadingStyleContextState}                        from "../CascadingStyleContext";
-import {useForceUpdate, useStylingInternals}                                      from "../Hooks";
-import {addFontLoadListener, getFontFamily, isFontLoaded, removeFontLoadListener} from "../font/FontFamily";
-import {PolyText}                                                                 from "./PolyComponents";
-import {setupFontPreProcessor}                                                    from "../FontPreProcessor";
+import {computeClasses, extractCascadingStyle, sanitizeStyleList, Style} from "../Styling";
+import * as Utils                                                        from "../Utils";
+import {Falsy}                                                           from "../Utils";
+import {StyleClass}                                                      from "../class/StyleClass";
+import {
+  RecursiveArray,
+  StyleSheet,
+  Text,
+}                                                                        from "react-native";
+import CascadingStyleContext, {CascadingStyleContextState}               from "../CascadingStyleContext";
+import {useForceUpdate, useStylingInternals}                             from "../Hooks";
+import {
+  addFontLoadListener,
+  getFontFamily,
+  isFontLoaded,
+  isStyleComposerFont,
+  removeFontLoadListener,
+}                                                                        from "../font/FontFamily";
+import {PolyText}              from "./PolyComponents";
+import {setupFontPreProcessor} from "../font/FontPreProcessor";
 
 export type StyleProp = RecursiveArray<Style | undefined | null | false> | Style | undefined | null | false;
 
@@ -48,10 +58,13 @@ const Styler = (props: StylerProps) => {
     if (ownStyleFlat?.fontWeight) {
       const currentFontFamily = ownStyleFlat.fontFamily || parentCascadingStyle.fontFamily;
       if (currentFontFamily) {
-        const variant = getFontFamily(currentFontFamily.split("__")[0])?.weight(ownStyleFlat?.fontWeight);
-        if (variant && currentFontFamily !== variant) {
-          ownStyleFlat.fontFamily = variant;
-          ownStyle.push({fontFamily: variant});
+        const styleComposerFontFamily = getFontFamily(currentFontFamily.split("__")[0]);
+        if (styleComposerFontFamily) {
+          const variant = styleComposerFontFamily.weight(ownStyleFlat?.fontWeight);
+          if (variant && currentFontFamily !== variant) {
+            ownStyleFlat.fontFamily = variant;
+            ownStyle.push({fontFamily: variant});
+          }
         }
       }
     }
@@ -59,22 +72,27 @@ const Styler = (props: StylerProps) => {
     const computedStyle     = needsCascade ? [parentCascadingStyle, ownStyle] : [ownStyle];
     const computedStyleFlat = StyleSheet.flatten(computedStyle) as Style;
 
+    const [cascadingStyle, cascadingStyleKey] = extractCascadingStyle(ownStyleFlat, parentCascadingStyle);
+
     if (Utils.isNative() && computedStyleFlat.fontFamily) {
       const fontFamily = computedStyleFlat.fontFamily;
-      if (!isFontLoaded(fontFamily)) {
-        let callback: () => void;
-        if (!fontListeners.current.includes(fontFamily)) {
-          fontListeners.current.push(fontFamily);
-          addFontLoadListener(fontFamily, callback = () => {
-            forceUpdate();
-            removeFontLoadListener(fontFamily, callback);
-          });
+      if (isStyleComposerFont(fontFamily)) {
+        if (!isFontLoaded(fontFamily)) {
+          let callback: () => void;
+          if (!fontListeners.current.includes(fontFamily)) {
+            fontListeners.current.push(fontFamily);
+            addFontLoadListener(fontFamily, callback = () => {
+              forceUpdate();
+              removeFontLoadListener(fontFamily, callback);
+            });
+          }
+          computedStyle.push({fontFamily: "System"});
+        } else {
+          computedStyle.push({fontWeight: "normal"});
         }
-        computedStyle.push({fontFamily: "System"});
       }
     }
 
-    const [cascadingStyle, cascadingStyleKey] = extractCascadingStyle(ownStyleFlat, parentCascadingStyle);
 
     return {
       classNames       : classResults.classNames,

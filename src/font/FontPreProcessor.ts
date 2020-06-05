@@ -1,7 +1,7 @@
 import {isLoaded, isLoading}                       from "expo-font";
 import {fontFamilyNeedsScoping, getNativeFontName} from "expo-font/build/FontLoader";
-import {StyleSheet}                                from "react-native";
-import {isStyleComposerFont}                       from "./font/FontFamily";
+import {StyleSheet}          from "react-native";
+import {isStyleComposerFont} from "./FontFamily";
 
 /**
  * This overrides expo-font/build/Font in order to disable the warnings when we are loading the font and know what
@@ -12,10 +12,10 @@ const processFontFamily = (fontFamily: string): string => {
     return fontFamily;
   }
 
-
   if (!isLoaded(fontFamily)) {
     if (__DEV__) {
       if (isLoading(fontFamily)) {
+        // this is our patch, if we are style-composer's font.. we know what we are doing.. no error please
         if (!isStyleComposerFont(fontFamily)) {
           console.error(`You started loading the font "${fontFamily}", but used it before it finished loading.\n
 - You need to wait for Font.loadAsync to complete before using the font.\n
@@ -34,6 +34,17 @@ const processFontFamily = (fontFamily: string): string => {
 
 export const setupFontPreProcessor = (): void => {
   if (StyleSheet.setStyleAttributePreprocessor) {
+    const warn: any = console.warn;
+    // if we are native, kill the warning for overriding the font pre-processor
+    console.warn = (...args: any[]) => {
+      if (typeof args[0] === "string" && args[0].startsWith("Overwriting fontFamily")) {
+        return;
+      }
+      return warn.apply(null, args);
+    };
+
     StyleSheet.setStyleAttributePreprocessor("fontFamily", processFontFamily);
+
+    console.warn = warn;
   }
 };

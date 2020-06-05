@@ -1,6 +1,6 @@
 {
   "name": "style-composer",
-  "version": "0.2.0-alpha1",
+  "version": "0.2.0-alpha2",
   "main": "cjs/index.js",
   "types": "esm/index.d.ts",
   "module": "esm/index.js",
@@ -35,10 +35,7 @@
     "expo-asset": "^8.1.5",
     "expo-font": "^8.1.1"
   },
-  "dependencies": {
-    "lodash": "^4.17.15",
-    "lodash.debounce": "^4.0.8"
-  },
+  "dependencies": {},
   "files": [
     "LICENSE",
     "README.md",
