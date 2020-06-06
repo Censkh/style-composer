@@ -7,6 +7,7 @@ import ClassManager                                               from "./ClassM
 import {StyleProp}                                                from "../component/Styler";
 
 export type StyleClassMeta<V extends Record<string, StyleClass> = {}> = StylingResolution & {
+  id: number;
   name: string;
   className: string;
   parent: StyleClass | null;
@@ -26,6 +27,7 @@ const createStyleSheet = (name: string, style: Style): number => {
   return StyleSheet.create({[name]: style})[name] as number;
 };
 
+let globalClassIdCounter = 0;
 
 export function composeClass<V extends string = never>(name: string, styling: StylingBuilder, options?: ComposeClassOptions<V>): StyleClass<Record<V, StyleClass>> {
   // we pretend variants is already full so we can add a reference to it it's self when building the variants
@@ -35,6 +37,7 @@ export function composeClass<V extends string = never>(name: string, styling: St
 
   const styledClass: StyleClass<any> = {
     __meta: {
+      id            : globalClassIdCounter++,
       name          : name,
       parent        : options?.parent || null,
       className     : className,
@@ -81,7 +84,7 @@ export const classesId = (classes: Classes): string | null => {
   if (Array.isArray(classes)) {
     const classArray = classes.reduce((classes, clazz) => {
       if (clazz) {
-        classes.push(clazz.__meta.className);
+        classes.push(clazz.__meta.id.toString());
       }
       return classes;
     }, [] as string[]);

@@ -18,8 +18,8 @@ import {
   isStyleComposerFont,
   removeFontLoadListener,
 }                                                                        from "../font/FontFamily";
-import {PolyText}              from "./PolyComponents";
-import {setupFontPreProcessor} from "../font/FontPreProcessor";
+import {PolyText}                                                        from "./PolyComponents";
+import {setupFontPreProcessor}                                           from "../font/FontPreProcessor";
 
 export type StyleProp = RecursiveArray<Style | undefined | null | false> | Style | undefined | null | false;
 

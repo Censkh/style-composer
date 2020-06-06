@@ -6,6 +6,7 @@ Refactoring and optimizations, fun!
 
 ### Features / Changes
 
+- hot reload support
 - add support for all font weights
 
 ### Fix

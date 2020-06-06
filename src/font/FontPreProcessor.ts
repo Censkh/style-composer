@@ -1,7 +1,7 @@
 import {isLoaded, isLoading}                       from "expo-font";
 import {fontFamilyNeedsScoping, getNativeFontName} from "expo-font/build/FontLoader";
-import {StyleSheet}          from "react-native";
-import {isStyleComposerFont} from "./FontFamily";
+import {StyleSheet}                                from "react-native";
+import {isStyleComposerFont}                       from "./FontFamily";
 
 /**
  * This overrides expo-font/build/Font in order to disable the warnings when we are loading the font and know what
@@ -36,7 +36,7 @@ export const setupFontPreProcessor = (): void => {
   if (StyleSheet.setStyleAttributePreprocessor) {
     const warn: any = console.warn;
     // if we are native, kill the warning for overriding the font pre-processor
-    console.warn = (...args: any[]) => {
+    console.warn    = (...args: any[]) => {
       if (typeof args[0] === "string" && args[0].startsWith("Overwriting fontFamily")) {
         return;
       }

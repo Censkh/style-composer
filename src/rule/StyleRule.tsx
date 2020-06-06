@@ -57,7 +57,7 @@ type Callback = () => void;
 
 const ruleCallbacks = {} as Record<string, Set<Callback>>;
 
-export const registerRuleCallback   = (rule: StyleRule, callback: Callback): void => {
+export const registerRuleCallback = (rule: StyleRule, callback: Callback): void => {
   let callbacks = ruleCallbacks[rule.name];
   if (!callbacks) {
     callbacks = ruleCallbacks[rule.name] = new Set();
