@@ -6,6 +6,10 @@ Refactoring and optimizations, fun!
 
 ### Features / Changes
 
+- `important()` function to emulate CSS's `!important`
+- new exported hook `useComposedStyle` which is used internally
+- provide `CascadingStyleProvider` export
+- memoize classes prop based upon class ID
 - hot reload support
 - add support for all font weights
 

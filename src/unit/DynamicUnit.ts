@@ -3,7 +3,6 @@ export const DYNAMIC_UNIT_REGISTER_CHECK_VALUE = -Infinity;
 const dynamicUnitSession: DynamicUnitSession = {
   running: false,
   called : false,
-
 };
 
 export interface DynamicUnitSession {

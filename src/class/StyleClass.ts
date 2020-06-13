@@ -1,10 +1,17 @@
 import {RecursiveArray, StyleSheet} from "react-native";
 
-import {resolveStyling, Style, StylingBuilder, StylingResolution} from "../Styling";
-import * as Utils                                                 from "../Utils";
-import {Falsy}                                                    from "../Utils";
-import ClassManager                                               from "./ClassManager";
-import {StyleProp}                                                from "../component/Styler";
+import {
+  resolveStyling,
+  sanitizeStylingToStaticStyle,
+  Style,
+  StyleObject,
+  StylingBuilder,
+  StylingResolution,
+}                   from "../Styling";
+import * as Utils   from "../Utils";
+import {Falsy}      from "../Utils";
+import ClassManager from "./ClassManager";
+import {StyleProp}  from "../component/Styler";
 
 export type StyleClassMeta<V extends Record<string, StyleClass> = {}> = StylingResolution & {
   id: number;
@@ -23,7 +30,7 @@ export interface ComposeClassOptions<V extends string> {
   variants?: Record<V, StylingBuilder>;
 }
 
-const createStyleSheet = (name: string, style: Style): number => {
+const createStyleSheet = (name: string, style: StyleObject): number => {
   return StyleSheet.create({[name]: style})[name] as number;
 };
 
@@ -47,7 +54,7 @@ export function composeClass<V extends string = never>(name: string, styling: St
       hasThemed     : false,
       hasDynamicUnit: false,
       isSimple      : false,
-      bakedStyle    : null,
+      staticStyle   : null,
       styling       : styling,
       dynamicProps  : {},
     },
@@ -62,20 +69,26 @@ export function composeClass<V extends string = never>(name: string, styling: St
   }
 
   Object.assign(classMeta, resolveStyling(classMeta.styling));
-  classMeta.sheetId = createStyleSheet(className, classMeta.bakedStyle);
-  if (classMeta.hasRules) {
-    for (const rule of Object.values(classMeta.rules)) {
-      const ruleStyling = classMeta.resolvedStyling[rule.id];
-      if (ruleStyling) {
-        rule.sheetId = createStyleSheet(rule.className, ruleStyling);
-      }
-    }
-  }
 
   ClassManager.registerClass(styledClass);
 
   return Object.assign(styledClass, variants);
 }
+
+export const registerStyleSheets = (classMeta: StyleClassMeta): void => {
+  if (classMeta.sheetId) {
+    return;
+  }
+  classMeta.sheetId = createStyleSheet(classMeta.className, classMeta.staticStyle);
+  if (classMeta.hasRules) {
+    for (const rule of Object.values(classMeta.rules)) {
+      const ruleStyling = classMeta.resolvedStyling[rule.id];
+      if (ruleStyling) {
+        rule.sheetId = createStyleSheet(rule.className, sanitizeStylingToStaticStyle(ruleStyling).style);
+      }
+    }
+  }
+};
 
 export type Classes = Array<StyleClass | Falsy> | StyleClass | Falsy;
 

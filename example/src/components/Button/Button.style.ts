@@ -1,4 +1,4 @@
-import {composeClass} from "style-composer";
+import {composeClass, important} from "style-composer";
 
 // replace with style lib when we have
 export const $Button = composeClass("Button", () => ({
@@ -11,6 +11,11 @@ export const $Button = composeClass("Button", () => ({
   color            : "white",
   fontWeight       : "600",
 }));
+
+export const $ButtonDisabled = composeClass("Button__disabled", () => ({
+  backgroundColor  : important("#999"),
+}));
+
 
 export const $BigMargin = composeClass("BigMargin", () => ({
   margin: 10,

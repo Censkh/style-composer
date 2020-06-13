@@ -1,10 +1,40 @@
-import {DependencyList, useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {registerRuleCallback, unregisterRuleCallback}                      from "./rule/StyleRule";
-import {Classes, classesId, classList, StyleClass}                         from "./class/StyleClass";
-import {Falsy}                                                             from "./Utils";
-import {ThemeValues, useTheming}                                           from "./theme";
-import {Dimensions}                                                        from "react-native";
-import {computeStyling, resolveStyling, StylingBuilder, StylingResolution} from "./Styling";
+import {DependencyList, useCallback, useContext, useEffect, useMemo, useRef, useState} from "react";
+import {
+  registerRuleCallback,
+  unregisterRuleCallback,
+}                                                                                      from "./rule/StyleRule";
+import {
+  Classes,
+  classesId,
+  classList,
+  StyleClass,
+}                                                                                      from "./class/StyleClass";
+import * as Utils                                                                      from "./Utils";
+import {Falsy}                                                                         from "./Utils";
+import {ThemeValues, useTheming}                                                       from "./theme";
+import {
+  Dimensions,
+  StyleSheet,
+}                                                                                      from "react-native";
+import {
+  computeClasses,
+  ComputedStyleList,
+  computeStyling,
+  extractCascadingStyle,
+  resolveStyling,
+  StyleObject,
+  StylingBuilder,
+  StylingResolution,
+}                                                                                      from "./Styling";
+import {StyleProp}                                                                     from "./component/Styler";
+import CascadingStyleContext, {CascadingStyleContextState}                             from "./CascadingStyleContext";
+import {
+  addFontLoadListener,
+  getFontFamily,
+  isFontLoaded,
+  isStyleComposerFont,
+  removeFontLoadListener,
+}                                                                                      from "./font/FontFamily";
 
 export const useForceUpdate = (): [number, () => void] => {
   const [state, setState] = useState(0);
@@ -19,6 +49,86 @@ export interface StylingInternals {
   classArray: StyleClass[] | undefined,
   id: string;
 }
+
+export interface ComposedStyleResult {
+  cascadingStyle: CascadingStyleContextState | null;
+  computedStyle: ComputedStyleList;
+  classNames: string[];
+}
+
+export const useComposedStyle = (classes: Classes | undefined, style: StyleProp | undefined, disableCascade?: boolean): ComposedStyleResult => {
+  const fontListeners                                               = useRef<string[]>([]);
+  const {style: parentCascadingStyle, key: parentCascadingStyleKey} = useContext(CascadingStyleContext);
+  const [fontKey, forceUpdate]                                      = useForceUpdate();
+  const {theme, key, classId, classArray}                           = useStylingInternals(classes);
+
+  const needsCascade = !disableCascade;
+
+  const {computedStyle, cascadingStyle, cascadingStyleKey, classNames} = useMemo(() => {
+    const classResults = computeClasses(classArray, style);
+
+    const ownStyle     = classResults.style;
+    const ownStyleFlat = StyleSheet.flatten(ownStyle) as StyleObject;
+
+    if (ownStyleFlat?.fontWeight) {
+      const currentFontFamily = ownStyleFlat.fontFamily || parentCascadingStyle.fontFamily;
+      if (currentFontFamily) {
+        const styleComposerFontFamily = getFontFamily(currentFontFamily.split("__")[0]);
+        if (styleComposerFontFamily) {
+          const variant = styleComposerFontFamily.weight(ownStyleFlat?.fontWeight);
+          if (variant && currentFontFamily !== variant) {
+            ownStyleFlat.fontFamily = variant;
+            ownStyle.push({fontFamily: variant});
+          }
+        }
+      }
+    }
+
+    const computedStyle     = needsCascade ? [parentCascadingStyle, ownStyle] : [ownStyle];
+    const computedStyleFlat = StyleSheet.flatten(computedStyle) as StyleObject;
+
+    const [cascadingStyle, cascadingStyleKey] = extractCascadingStyle(ownStyleFlat, parentCascadingStyle);
+
+    if (Utils.isNative() && computedStyleFlat.fontFamily) {
+      const fontFamily = computedStyleFlat.fontFamily;
+      if (isStyleComposerFont(fontFamily)) {
+        if (!isFontLoaded(fontFamily)) {
+          let callback: () => void;
+          if (!fontListeners.current.includes(fontFamily)) {
+            fontListeners.current.push(fontFamily);
+            addFontLoadListener(fontFamily, callback = () => {
+              forceUpdate();
+              removeFontLoadListener(fontFamily, callback);
+            });
+          }
+          computedStyle.push({fontFamily: "System"});
+        } else {
+          computedStyle.push({fontWeight: "normal"});
+        }
+      }
+    }
+
+
+    return {
+      classNames       : classResults.classNames,
+      computedStyle    : computedStyle,
+      computedStyleFlat: computedStyleFlat,
+      cascadingStyle   : cascadingStyle,
+      cascadingStyleKey: cascadingStyleKey,
+    };
+  }, [style, classId, parentCascadingStyleKey, key, fontKey, theme]);
+
+  const memoCascadingStyle = useMemo<CascadingStyleContextState | null>(() => cascadingStyle && {
+    style: cascadingStyle,
+    key  : cascadingStyleKey,
+  }, [cascadingStyleKey]);
+
+  return {
+    computedStyle : computedStyle as ComputedStyleList,
+    cascadingStyle: memoCascadingStyle,
+    classNames    : classNames,
+  };
+};
 
 export const useStylingInternals = (classes: Classes | undefined): StylingInternals => {
   const idRef = useRef(Math.floor(Math.random() * 100000000).toString());

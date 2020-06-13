@@ -13,6 +13,8 @@ import {
   PolyTouchableOpacity,
   PolyView,
 }                              from "./PolyComponents";
+import {classesId}             from "..";
+import {shallowEqual}          from "../Utils";
 
 // we use (P & {style?: never}) to prevent ts from merging the two style properties together
 export type StyledComponent<P> = React.ComponentType<(P & { style?: unknown }) & StylableProps>;
@@ -27,7 +29,13 @@ export function styled<P>(baseComponent: React.ComponentType<P>): StyledComponen
       _baseComponent: baseComponent,
       children      : React.createElement(baseComponent, otherProps as any, children),
     } as any);
-  }, {displayName: `${Styler.displayName}${baseComponent.displayName ? `[${baseComponent.displayName}]` : ""}`}));
+  }, {displayName: `Styler${baseComponent.displayName ? `[${baseComponent.displayName}]` : ""}`}), styledArePropsEqual);
+}
+
+export function styledArePropsEqual<T>(prevProps: T, nextProps: T): boolean {
+  return shallowEqual(prevProps, nextProps, {
+    "classes": (a, b) => classesId(a) === classesId(b),
+  });
 }
 
 export const StyledSafeAreaView             = styled(SafeAreaView);

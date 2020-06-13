@@ -1,4 +1,4 @@
-import React, {useState}                                                               from "react";
+import React, {Profiler, useCallback, useEffect, useState}                             from "react";
 import {media, StyledText, StyledView, ThemeFor, ThemeProvider, useComposedValues, vw} from "style-composer";
 import {CheckBox, ScrollView}                                                          from "react-native";
 
@@ -17,8 +17,12 @@ const DARK_THEME: ThemeFor<typeof THEMING>  = {
   backgroundColor: "#333",
 };
 
-export default function App() {
-  const [themeToggle, setThemeToggle] = useState(false);
+
+interface AppInternalProps {
+  onProfilePress: () => void;
+}
+
+const Title = () => {
   const {width}                       = useComposedValues(() => ({
     width                   : vw() + "px",
     [media({maxWidth: 800})]: {
@@ -29,26 +33,62 @@ export default function App() {
     },
   }), []);
 
+  return         <StyledText tag={"h2"} classes={$Heading.h2}>Page width: {width}</StyledText>;
+};
+
+const AppInternal = React.memo((props: AppInternalProps) => {
+  const {onProfilePress} = props;
+
+  const [themeToggle, setThemeToggle] = useState(false);
+
+
   return (
     <ThemeProvider plan={THEMING} value={themeToggle ? DARK_THEME : LIGHT_THEME}>
       <Container>
-        <StyledText tag={"h2"} classes={$Heading.h2}>Page width: {width}</StyledText>
+        <Title/>
+        <Button title={"Profile"} onPress={onProfilePress}/>
         <CheckBox value={themeToggle} onChange={() => setThemeToggle(theme => !theme)}/>
-        <StyledView tag={"form"}>
-          <Text>hi</Text>
-        </StyledView>
         <ScrollView style={{maxHeight: 500}}>
           {Array(12).fill(0).map((_, index) => <Card key={index} classes={[$Card.xl]}
                                                      style={{borderRadius: 5, margin: 5}}>
             <Text>hello</Text>
           </Card>)}
         </ScrollView>
-        <Button title={"hi"} classes={[$BigMargin]} onPress={() => {
+        <Button title={"hi"} disabled={true} style={{backgroundColor: "red"}} classes={[$BigMargin]} onPress={() => {
           console.log("hi");
         }}/>
         <Text>Open up App.tsx to start working on your app!</Text>
       </Container>
     </ThemeProvider>
   );
-}
+});
 
+export default function App() {
+  const handleRender = useCallback((id, // the "id" prop of the Profiler tree that has just committed
+                                    phase, // either "mount" (if the tree just mounted) or "update" (if it re-rendered)
+                                    actualDuration, // time spent rendering the committed update
+                                    baseDuration, // estimated time to render the entire subtree without memoization
+                                    startTime, // when React began rendering this update
+                                    commitTime, // when React committed this update
+                                    interactions, // the Set of interactions belonging to this update
+  ) => {
+    console.log(actualDuration, interactions);
+  }, []);
+
+  const [key, setState] = useState(0);
+
+  const handleProfile = useCallback(() => {
+    let times = 0;
+    setInterval(() => {
+      if (times < 100) {
+        times++;
+        console.log("Re-render " + times);
+        setState(i => i + 1);
+      }
+    }, 100);
+  }, []);
+
+  return <Profiler id={"app"} onRender={handleRender}>
+    <AppInternal onProfilePress={handleProfile}/>
+  </Profiler>;
+}

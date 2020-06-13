@@ -52,3 +52,37 @@ export const flatAndRemoveFalsy = <T>(array: RecursiveArray<T | Falsy>, mapFunc?
     return flatArray;
   }, [] as any[]);
 };
+
+const hasOwnProperty = Function.prototype.bind.call(
+  Function.prototype.call,
+  Object.prototype.hasOwnProperty,
+);
+
+export type EqualityFunction<T = any> = (a: T, b: T) => boolean;
+
+export const shallowEqual = (a: Record<string, any>, b: Record<string, any>, customEquals?: Record<string, EqualityFunction>): boolean => {
+  const aKeys = Object.keys(a);
+
+  const {length} = aKeys;
+
+  if (Object.keys(b).length !== length) {
+    return false;
+  }
+
+  let key: string;
+  for (let i = 0; i < length; i++) {
+    key = aKeys[i];
+
+    if (!hasOwnProperty(b, key)) {
+      return false;
+    }
+
+    const equalityFunction = customEquals && customEquals[key];
+
+    if (equalityFunction ? !equalityFunction(a[key], b[key]) : a[key] !== b[key]) {
+      return false;
+    }
+  }
+
+  return true;
+};

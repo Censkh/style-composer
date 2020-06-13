@@ -63,6 +63,21 @@ Classes can be added to styled components easily, also interacting with the `sty
 <StyledView classes={classList([$Card, $BigMargin], disabled && $CardDisabled)}/>
 ```
 
+### Style Ordering and important()
+
+Styles are applied in the following order, with #1 being styles that will have the highest priority:
+
+1. class rule (eg. media queries) values with `important()`
+2. class values with `important()`
+3. `style` prop
+4. class rule (eg. media queries) values
+5. class values
+6. cascading styles (eg. `color`)
+
+#### Important values
+
+When defining classes you can wrap any value in `important()` which will make it take priority over other values that would
+
 ### Variants
 
 A lot of the time you will need slight variations of the same class. Here is an example:
