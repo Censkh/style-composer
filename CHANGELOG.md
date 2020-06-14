@@ -2,8 +2,6 @@
 
 ## 0.2.0
 
-Refactoring and optimizations, fun!
-
 ### Features / Changes
 
 - `important()` function to emulate CSS's `!important`

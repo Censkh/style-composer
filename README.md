@@ -10,6 +10,7 @@ Straightforward and powerful cross platform styling for React Native supporting 
 
 - Cascading styles
 - Native & web support
+- [`!important` like feature](#important-values)
 - [Media queries](#media-queries)
 - [Class variants](#variants)
 - [Dynamic fonts](#fonts)
@@ -63,7 +64,44 @@ Classes can be added to styled components easily, also interacting with the `sty
 <StyledView classes={classList([$Card, $BigMargin], disabled && $CardDisabled)}/>
 ```
 
-### Style Ordering and important()
+### important() values
+
+When defining classes you can wrap any value in `important()` which will make it take priority over other values in the same was in which `!important` would work in CSS.
+
+This can be useful in scenarios such as buttons which have a grey background when disabled. If you were to make a style for your button component you may wish to add a new background colour in the `style` prop like so:
+
+```typescript jsx
+<CustomButton title={"I am a button"} style={{background: "red"}} disabled={true}/>
+```
+
+The `CustomButton` component could look like:
+
+```jsx
+export const CustomButton = (props) => {
+    const {classes, disabled, ...otherProps} = props;
+    return <StyledView classes={[$Button, disabled && $ButtonDisabled, classes]} {...otherProps}/>;
+};
+```
+
+with the styles:
+
+```jsx
+export const $ButtonDisabled = composeClass("button-disabled", () => ({
+    backgroundColor: "#888"
+}));
+```
+
+As the `style` prop normal takes precedence over any class styling, the disabled style would not apply. We can use `important()` to make the class style override:
+
+```jsx
+import {important, composeClass} from "style-composer";
+
+export const $ButtonDisabled = composeClass("button-disabled", () => ({
+    backgroundColor: important("#888")
+}));
+```
+
+### Style Ordering
 
 Styles are applied in the following order, with #1 being styles that will have the highest priority:
 
@@ -74,9 +112,6 @@ Styles are applied in the following order, with #1 being styles that will have t
 5. class values
 6. cascading styles (eg. `color`)
 
-#### Important values
-
-When defining classes you can wrap any value in `important()` which will make it take priority over other values that would
 
 ### Variants
 
