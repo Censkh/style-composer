@@ -13,8 +13,8 @@ Straightforward and powerful cross platform styling for React Native supporting 
 - [`!important` like feature](#important-values)
 - [Media queries](#media-queries)
 - [Class variants](#variants)
-- [Dynamic fonts](#fonts)
 - [Theming](#theming)
+- [Dynamic Units (vw, vh)](#dynamic-units)
 
 ## Why?
 
@@ -239,6 +239,7 @@ export const $Card = composeClass("card", () => ({
     };
     ```
 
+<!--
 ### Fonts
 
 [Example font](./example/assets/fonts/raleway/index.ts)
@@ -279,4 +280,24 @@ const $Bold = composeClass("bold", () => ({
 <StyledView classes={[$Bold]}>
     <StyledText>I am going to be brave and bold!</StyledText>
 </StyledView>
+```
+
+-->
+
+### Dynamic Units
+
+Sometimes we want to use a value in our styles that reflects some value that may change. Eg. the screen size. You can use dynamic units to add these values to your styles and have them update automatically:
+
+```
+import {vw, composeClass} from "style-composer";
+
+// vw and vh resolve to pixel values eg. a screen size of 1920x1080 vh would resolve to the value 1080
+
+const $Card = composeClass("card", () => ({
+    width: vw() * 0.5,
+
+    [media({maxWidth: 500})]: {
+        width: 320,
+    }
+}));
 ```
