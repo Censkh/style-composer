@@ -288,7 +288,7 @@ const $Bold = composeClass("bold", () => ({
 
 Sometimes we want to use a value in our styles that reflects some value that may change. Eg. the screen size. You can use dynamic units to add these values to your styles and have them update automatically:
 
-```
+```typescript jsx
 import {vw, composeClass} from "style-composer";
 
 // vw and vh resolve to pixel values eg. a screen size of 1920x1080 vh would resolve to the value 1080
