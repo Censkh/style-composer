@@ -7,6 +7,7 @@ import {
   Classes,
   classesId,
   classList,
+  PseudoClasses,
   StyleClass,
 }                                                                                      from "./class/StyleClass";
 import * as Utils                                                                      from "./Utils";
@@ -20,13 +21,14 @@ import {
   computeClasses,
   ComputedStyleList,
   computeStyling,
+  createSession,
   extractCascadingStyle,
   resolveStyling,
   StyleObject,
   StylingBuilder,
-  StylingResolution,
-}                                                                                      from "./Styling";
-import {StyleProp}                                                                     from "./component/Styler";
+  StylingResolution, StylingSession,
+} from "./Styling";
+import {StylableProps}                                                                 from "./component/Styler";
 import CascadingStyleContext, {CascadingStyleContextState}                             from "./CascadingStyleContext";
 import {
   addFontLoadListener,
@@ -44,10 +46,10 @@ export const useForceUpdate = (): [number, () => void] => {
 
 export interface StylingInternals {
   theme: ThemeValues,
-  key: number,
+  key: string,
   classId: string | null,
   classArray: StyleClass[] | undefined,
-  id: string;
+  uid: string;
 }
 
 export interface ComposedStyleResult {
@@ -56,16 +58,23 @@ export interface ComposedStyleResult {
   classNames: string[];
 }
 
-export const useComposedStyle = (classes: Classes | undefined, style: StyleProp | undefined, disableCascade?: boolean): ComposedStyleResult => {
+export const useComposedStyle = (props: StylableProps, options?: { disableCascade?: boolean }): ComposedStyleResult => {
+  const {classes, style, pseudoClasses}                             = props;
   const fontListeners                                               = useRef<string[]>([]);
   const {style: parentCascadingStyle, key: parentCascadingStyleKey} = useContext(CascadingStyleContext);
   const [fontKey, forceUpdate]                                      = useForceUpdate();
-  const {theme, key, classId, classArray}                           = useStylingInternals(classes);
 
-  const needsCascade = !disableCascade;
+  const flatPseudoClasses = Array.isArray(pseudoClasses) ? Utils.flatAndRemoveFalsy(pseudoClasses) : (pseudoClasses && [pseudoClasses]);
+  const session = createSession({
+    pseudoClasses: flatPseudoClasses || [],
+  });
+
+  const {theme, key, classArray}                                    = useStylingInternals(classes, session);
+
+  const needsCascade = !options?.disableCascade;
 
   const {computedStyle, cascadingStyle, cascadingStyleKey, classNames} = useMemo(() => {
-    const classResults = computeClasses(classArray, style);
+    const classResults = computeClasses(classArray, style, session);
 
     const ownStyle     = classResults.style;
     const ownStyleFlat = StyleSheet.flatten(ownStyle) as StyleObject;
@@ -116,7 +125,7 @@ export const useComposedStyle = (classes: Classes | undefined, style: StyleProp 
       cascadingStyle   : cascadingStyle,
       cascadingStyleKey: cascadingStyleKey,
     };
-  }, [style, classId, parentCascadingStyleKey, key, fontKey, theme]);
+  }, [style, parentCascadingStyleKey, key, fontKey, theme]);
 
   const memoCascadingStyle = useMemo<CascadingStyleContextState | null>(() => cascadingStyle && {
     style: cascadingStyle,
@@ -130,8 +139,8 @@ export const useComposedStyle = (classes: Classes | undefined, style: StyleProp 
   };
 };
 
-export const useStylingInternals = (classes: Classes | undefined): StylingInternals => {
-  const idRef = useRef(Math.floor(Math.random() * 100000000).toString());
+export const useStylingInternals = (classes: Classes | undefined, session: StylingSession): StylingInternals => {
+  const uidRef = useRef(Math.floor(Math.random() * 100000000).toString());
 
   const {classArray, classId, hasDynamicUnit} = useMemo(() => {
     const classArray: StyleClass[] | undefined = classes && classList(classes) || undefined;
@@ -141,8 +150,9 @@ export const useStylingInternals = (classes: Classes | undefined): StylingIntern
     return {classArray, classId, hasDynamicUnit};
   }, [classes]);
 
-  const [key, forceUpdate] = useRulesEffect(idRef.current, classArray, classId);
-  const theme              = useTheming();
+
+  const [forceUpdateKey, forceUpdate] = useRulesEffect(uidRef.current, classArray, session, classId);
+  const theme                         = useTheming();
 
   useEffect(() => {
     if (hasDynamicUnit) {
@@ -153,10 +163,12 @@ export const useStylingInternals = (classes: Classes | undefined): StylingIntern
     }
   }, [hasDynamicUnit]);
 
-  return {theme, key, classId, classArray, id: idRef.current};
+  const key = forceUpdateKey + "_" + classId + "_" + (session.context.pseudoClasses ? session.context.pseudoClasses.sort().join(",") : "");
+
+  return {theme, key, classId, classArray, uid: uidRef.current};
 };
 
-const useRulesEffect = (id: string, classes: StyleClass[] | Falsy, classesId: string | null): [number, () => void] => {
+const useRulesEffect = (id: string, classes: StyleClass[] | Falsy, session: StylingSession, classesId: string | null): [number, () => void] => {
   const [key, forceUpdate] = useForceUpdate();
 
   const prevState        = useRef("");
@@ -168,7 +180,7 @@ const useRulesEffect = (id: string, classes: StyleClass[] | Falsy, classesId: st
     if (currentClasses.current) {
       for (const clazz of currentClasses.current) {
         for (const ruleInstance of Object.values(clazz.__meta.rules)) {
-          state += ruleInstance.rule.check(ruleInstance.options) ? "1" : "0";
+          state += ruleInstance.rule.check(ruleInstance.options, session) ? "1" : "0";
         }
         state += "-";
       }
@@ -216,11 +228,13 @@ export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: Depend
   currentResolution.current = resolution;
   const {hasDynamicUnit}    = resolution;
 
+  const session = createSession();
+
   const checkForUpdates = useCallback(() => {
     let state = "";
     if (currentResolution.current) {
       for (const ruleInstance of Object.values(currentResolution.current.rules)) {
-        state += ruleInstance.rule.check(ruleInstance.options) ? "1" : "0";
+        state += ruleInstance.rule.check(ruleInstance.options, session) ? "1" : "0";
       }
     }
     if (prevState.current !== state) {

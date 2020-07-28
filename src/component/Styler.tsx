@@ -1,8 +1,8 @@
-import React from "react";
+import React                  from "react";
+import {RecursiveArray, Text} from "react-native";
 
 import {sanitizeStyleList, Style} from "../Styling";
-import {Classes}                  from "../class/StyleClass";
-import {RecursiveArray, Text}     from "react-native";
+import {Classes, PseudoClasses}   from "../class/StyleClass";
 import {CascadingStyleProvider}   from "../CascadingStyleContext";
 import {useComposedStyle}         from "../Hooks";
 import {PolyText}                 from "./PolyComponents";
@@ -13,6 +13,7 @@ export type StyleProp = RecursiveArray<Style | undefined | null | false> | Style
 export interface StylableProps {
   style?: StyleProp;
   classes?: Classes,
+  pseudoClasses?: PseudoClasses;
 }
 
 export type StylerChildren =
@@ -27,9 +28,9 @@ export interface StylerProps extends StylableProps {
 setupFontPreProcessor();
 
 const Styler = (props: StylerProps) => {
-  const {children, style, classes, _baseComponent} = props;
+  const {children, _baseComponent} = props;
 
-  const {computedStyle, classNames, cascadingStyle} = useComposedStyle(classes, [style, typeof children !== "object" ? undefined : children?.props.style], _baseComponent !== Text && _baseComponent !== PolyText);
+  const {computedStyle, classNames, cascadingStyle} = useComposedStyle(props, {disableCascade: _baseComponent !== Text && _baseComponent !== PolyText});
 
   const content = !children || typeof children === "string" ? children : React.cloneElement(children, {
     style       : sanitizeStyleList(children, computedStyle as any),

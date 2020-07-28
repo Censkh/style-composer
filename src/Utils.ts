@@ -1,5 +1,6 @@
 import React            from "react";
 import {RecursiveArray} from "react-native";
+import {StyleClass}     from "./class/StyleClass";
 
 export type PropsOf<C extends React.ComponentType> = C extends React.ComponentType<infer P> ? P : never;
 
@@ -36,7 +37,7 @@ export const setStyleSheet = (name: string, content: string): void => {
   }
 };
 
-export const flatAndRemoveFalsy = <T>(array: RecursiveArray<T | Falsy>, mapFunc?: (value: T) => T): Array<T> => {
+export const flatAndRemoveFalsy = <T>(array: RecursiveArray<T | Falsy>): Array<T> => {
   return array.reduce((flatArray, item: any) => {
     if (!item) {
       return flatArray;
@@ -45,9 +46,9 @@ export const flatAndRemoveFalsy = <T>(array: RecursiveArray<T | Falsy>, mapFunc?
       if (item.length === 0) {
         return flatArray;
       }
-      flatArray.push(...flatAndRemoveFalsy(item, mapFunc));
+      flatArray.push(...flatAndRemoveFalsy(item));
     } else {
-      flatArray.push(mapFunc ? mapFunc(item) : item);
+      flatArray.push(item);
     }
     return flatArray;
   }, [] as any[]);

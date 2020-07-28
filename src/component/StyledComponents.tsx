@@ -3,13 +3,13 @@ import {
   Button,
   SafeAreaView,
   TextInput,
-  TouchableHighlight,
-  TouchableNativeFeedback,
   TouchableWithoutFeedback,
 }                              from "react-native";
 import Styler, {StylableProps} from "./Styler";
 import {
   PolyText,
+  PolyTouchableHighlight,
+  PolyTouchableNativeFeedback,
   PolyTouchableOpacity,
   PolyView,
 }                              from "./PolyComponents";
@@ -21,11 +21,12 @@ export type StyledComponent<P> = React.ComponentType<(P & { style?: unknown }) &
 
 export function styled<P>(baseComponent: React.ComponentType<P>): StyledComponent<P> {
   return React.memo(Object.assign((props: any) => {
-    const {children, style, classes, ...otherProps} = props;
+    const {children, style, pseudoClasses, classes, ...otherProps} = props;
 
     return Styler({
       classes,
       style,
+      pseudoClasses,
       _baseComponent: baseComponent,
       children      : React.createElement(baseComponent, otherProps as any, children),
     } as any);
@@ -43,8 +44,8 @@ export const StyledView                     = styled(PolyView);
 export const StyledText                     = styled(PolyText);
 export const StyledTextInput                = styled(TextInput);
 export const StyledButton                   = styled(Button);
-export const StyledTouchableNativeFeedback  = styled(TouchableNativeFeedback);
+export const StyledTouchableNativeFeedback  = styled(PolyTouchableNativeFeedback);
 export const StyledTouchableOpacity         = styled(PolyTouchableOpacity);
 export const StyledTouchableWithoutFeedback = styled(TouchableWithoutFeedback);
-export const StyledTouchableHighlight       = styled(TouchableHighlight);
+export const StyledTouchableHighlight       = styled(PolyTouchableHighlight);
 

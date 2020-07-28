@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.0
+
+### Breaking
+
+- `useComposedStyle` has it's signature changed to make it easier to use
+
+### Features / Changes
+
+- added pseudo classes :D
+- allow `important()` inside rules
+
+
 ## 0.2.0
 
 ### Features / Changes

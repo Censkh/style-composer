@@ -1,4 +1,4 @@
-import {and, composeClass, media, platform, vw} from "style-composer";
+import {and, composeClass, media, platform} from "style-composer";
 
 export const pixel3 = () => and(
   platform("android"),

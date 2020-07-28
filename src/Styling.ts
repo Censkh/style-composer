@@ -37,15 +37,31 @@ export type StylingBuilder<S = StyleObject> = () => Styling<S>;
 
 export type Styling<S = StyleObject> = Record<number, S> & S;
 
+export interface StylingContext {
+  pseudoClasses?: string[]
+}
+
+export interface StylingSession {
+  context: StylingContext;
+}
+
 export interface ComputeResults {
   classNames: string[];
   style: ComputedStyleList;
 }
 
-export function computeClasses(styleClass: StyleClass[] | Falsy, styleProp?: StyleProp): ComputeResults {
+const DEFAULT_CONTEXT: StylingContext = {};
+
+export const createSession = (context?: StylingContext): StylingSession => {
+  return {context: context || DEFAULT_CONTEXT};
+};
+
+export function computeClasses(styleClass: StyleClass[] | Falsy, styleProp?: StyleProp, session?: StylingSession): ComputeResults {
   if (!styleClass || styleClass.length === 0) {
     return {classNames: [], style: styleProp ? [styleProp] as any : []};
   }
+
+  const computedSession                   = session || createSession();
   const classNames: string[]              = [];
   const style: ComputedStyleList          = [];
   const importantStyle: ComputedStyleList = [];
@@ -53,10 +69,10 @@ export function computeClasses(styleClass: StyleClass[] | Falsy, styleProp?: Sty
   for (const clazz of styleClass) {
     if (clazz.__meta.parent) {
       classNames.push(clazz.__meta.parent.__meta.className);
-      internalComputedStyling(clazz.__meta.parent.__meta, style, importantStyle, classNames);
+      internalComputedStyling(clazz.__meta.parent.__meta, computedSession, style, importantStyle, classNames);
     }
     classNames.push(clazz.__meta.className);
-    internalComputedStyling(clazz.__meta, style, importantStyle, classNames);
+    internalComputedStyling(clazz.__meta, computedSession, style, importantStyle, classNames);
   }
 
   if (styleProp) {
@@ -73,13 +89,14 @@ export function computeClasses(styleClass: StyleClass[] | Falsy, styleProp?: Sty
 export type ComputedStyleList = Array<Style>;
 
 export const computeStyling = (resolution: StylingResolution): StyleObject => {
+  const session                           = createSession();
   const style: ComputedStyleList          = [];
   const importantStyle: ComputedStyleList = [];
-  internalComputedStyling(resolution, importantStyle, style);
+  internalComputedStyling(resolution, session, importantStyle, style);
   return StyleSheet.flatten([style, importantStyle]);
 };
 
-const internalComputedStyling = (resolution: StylingResolution, outStyle: ComputedStyleList, outImportantStyle: ComputedStyleList, outClassNames?: string[]): void => {
+const internalComputedStyling = (resolution: StylingResolution, session: StylingSession, outStyle: ComputedStyleList, outImportantStyle: ComputedStyleList, outClassNames?: string[]): void => {
   if ("className" in resolution) {
     registerStyleSheets(resolution);
   }
@@ -106,7 +123,7 @@ const internalComputedStyling = (resolution: StylingResolution, outStyle: Comput
     return;
   }
 
-  startRuleSession();
+  startRuleSession(false, session);
   const style: any = styling();
   finishRuleSession();
 
@@ -152,7 +169,7 @@ const internalComputedStyling = (resolution: StylingResolution, outStyle: Comput
           for (const importantProp of ruleImportantProps) {
             (ruleImportantStyle as any)[importantProp] = (ruleStyle as any)[importantProp];
           }
-          outStyle.push(ruleImportantStyle);
+          outImportantStyle.push(ruleImportantStyle);
         }
 
         if (outClassNames) {
@@ -223,7 +240,7 @@ export const resolveStyling = (styling: StylingBuilder): StylingResolution => {
   const hasRules = Object.keys(rules).length > 0;
   const isSimple = !hasRules && !hasThemed && !hasDynamicUnit;
 
-  const dynamicProps: Record<number, string[]> | null = {};
+  const dynamicProps: Record<number, string[]> | null = {0: []};
   const hasDynamicProps                               = hasThemed || hasDynamicUnit;
 
   // if we have themed / dynamic units values in this style, work out which properties they are
@@ -231,7 +248,7 @@ export const resolveStyling = (styling: StylingBuilder): StylingResolution => {
     extractDynamicProps(dynamicProps, 0, resolvedStyling);
   }
 
-  const importantProps: Record<number, string[]> | null = {};
+  const importantProps: Record<number, string[]> | null = {0: []};
   // if we have important values, extract which ones they are
   if (hasImportant) {
     extractImportantProps(importantProps, 0, resolvedStyling);

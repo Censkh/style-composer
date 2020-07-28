@@ -1,3 +1,5 @@
+import {StylingSession} from "../Styling";
+
 export type StyleRuleInstances = Record<number, StyleRuleInstance<any>>;
 
 const ruleSession = {
@@ -5,11 +7,13 @@ const ruleSession = {
   registering: false,
   running    : false,
   instances  : {} as StyleRuleInstances,
+  session    : undefined as (StylingSession | undefined),
 };
 
-export const startRuleSession = (registering?: boolean): void => {
+export const startRuleSession = (registering?: boolean, session?: StylingSession): void => {
   ruleSession.id          = 1;
   ruleSession.registering = Boolean(registering);
+  ruleSession.session= session;
   ruleSession.running     = true;
   ruleSession.instances   = {};
 };
@@ -30,34 +34,34 @@ export const or = (...rules: number[]): number => {
   return rules.some(n => Boolean(n)) ? Math.max(...rules) : 0;
 };
 
-export interface StyleRuleOptions<O = undefined> {
-  check: (options: O) => boolean;
+export interface StyleRuleOptions<O = void> {
+  check: (options: O, session: StylingSession) => boolean;
 
   register?: (update: () => void) => void;
 
   unregister?: () => void;
 }
 
-export interface StyleRule<O = undefined> extends StyleRuleOptions<O> {
-  (options: O): number;
+export type StyleRule<O = void> = void extends O ? (options?: O) => number : (options: O) => number;
 
+export type StyleRuleType<O = void> = StyleRuleOptions<O> & StyleRule<O> & {
   id: number;
   name: string;
 }
 
-export interface StyleRuleInstance<O = undefined> {
+export interface StyleRuleInstance<O = void> {
   id: number;
   className: string;
   sheetId: number | null;
   options: O;
-  rule: StyleRule<O>;
+  rule: StyleRuleType<O>;
 }
 
 type Callback = () => void;
 
 const ruleCallbacks = {} as Record<string, Set<Callback>>;
 
-export const registerRuleCallback = (rule: StyleRule, callback: Callback): void => {
+export const registerRuleCallback = (rule: StyleRuleType, callback: Callback): void => {
   let callbacks = ruleCallbacks[rule.name];
   if (!callbacks) {
     callbacks = ruleCallbacks[rule.name] = new Set();
@@ -65,21 +69,21 @@ export const registerRuleCallback = (rule: StyleRule, callback: Callback): void 
   callbacks.add(callback);
 };
 
-export const unregisterRuleCallback = (rule: StyleRule, callback: Callback): void => {
+export const unregisterRuleCallback = (rule: StyleRuleType, callback: Callback): void => {
   const callbacks = ruleCallbacks[rule.name];
   if (callbacks) {
     callbacks.delete(callback);
   }
 };
 
-const createUpdateCallback = (rule: StyleRule<any>) => {
+const createUpdateCallback = (rule: StyleRuleType<any>) => {
   return () => {
     ruleCallbacks[rule.name]?.forEach(callback => callback());
   };
 };
 
-export function createStyleRule<O>(name: string, options: StyleRuleOptions<O>): StyleRule<O> {
-  const rule: StyleRule<O> = Object.assign((options: O) => {
+export function createStyleRule<O>(name: string, options: StyleRuleOptions<O>): StyleRuleType<O> {
+  const rule: StyleRuleType<any> = Object.assign((options: O) => {
     if (!ruleSession.running) {
       throw new Error("[style-composer] Do not call rule functions outside of a class definition");
     }
@@ -97,12 +101,13 @@ export function createStyleRule<O>(name: string, options: StyleRuleOptions<O>): 
       return id;
     }
 
-    return rule.check(options) ? id : 0;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return rule.check(options, ruleSession.session!) ? id : 0;
   }, options || {}, {id: 0});
   Object.defineProperty(rule, "name", {value: name});
 
   if (rule.register) {
     rule.register(createUpdateCallback(rule));
   }
-  return rule;
+  return rule as any;
 }

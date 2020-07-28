@@ -1,6 +1,6 @@
-import React                          from "react";
-import * as Utils                     from "../Utils";
-import {Text, TouchableOpacity, View} from "react-native";
+import React                                                                        from "react";
+import * as Utils                                                                   from "../Utils";
+import {Text, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedback, View} from "react-native";
 
 export type PolyProps<P> = P & {
   tag?: keyof JSX.IntrinsicElements;
@@ -56,6 +56,9 @@ export const poly  = <P>(baseComponent: React.ComponentType<P>): React.Component
 };
 const BasePolyView = poly(View);
 
-export const PolyView             = poly(View);
-export const PolyTouchableOpacity = poly(TouchableOpacity);
-export const PolyText             = poly(Text);
+export const PolyView                     = poly(View);
+export const PolyTouchableNativeFeedback  = poly(TouchableWithoutFeedback);
+export const PolyTouchableOpacity         = poly(TouchableOpacity);
+export const PolyTouchableWithoutFeedback = poly(TouchableWithoutFeedback);
+export const PolyTouchableHighlight       = poly(TouchableHighlight);
+export const PolyText                     = poly(Text);

@@ -1,4 +1,7 @@
-import {composeClass, important} from "style-composer";
+import {composeClass, createPseudoRule, important} from "style-composer";
+
+export const active = createPseudoRule("active");
+export const disabled = createPseudoRule("disabled");
 
 // replace with style lib when we have
 export const $Button = composeClass("Button", () => ({
@@ -10,12 +13,15 @@ export const $Button = composeClass("Button", () => ({
   alignItems       : "center",
   color            : "white",
   fontWeight       : "600",
-}));
 
-export const $ButtonDisabled = composeClass("Button__disabled", () => ({
-  backgroundColor  : important("#999"),
-}));
+  [active()]: {
+    backgroundColor: "#606fc7",
+  },
 
+  [disabled()]: {
+    backgroundColor: important("#999"),
+  },
+}));
 
 export const $BigMargin = composeClass("BigMargin", () => ({
   margin: 10,

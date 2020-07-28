@@ -90,12 +90,14 @@ export const registerStyleSheets = (classMeta: StyleClassMeta): void => {
   }
 };
 
-export type Classes = Array<StyleClass | Falsy> | StyleClass | Falsy;
+export type Classes = RecursiveArray<StyleClass | Falsy> | StyleClass | Falsy;
+
+export type PseudoClasses = RecursiveArray<string | Falsy> | string | Falsy;
 
 export const classesId = (classes: Classes): string | null => {
   if (!classes) return null;
   if (Array.isArray(classes)) {
-    const classArray = classes.reduce((classes, clazz) => {
+    const classArray = Utils.flatAndRemoveFalsy(classes).reduce((classes, clazz) => {
       if (clazz) {
         classes.push(clazz.__meta.id.toString());
       }
@@ -110,11 +112,5 @@ export const classesId = (classes: Classes): string | null => {
 };
 
 export const classList = (...classes: RecursiveArray<StyleClass | Falsy>): StyleClass[] => {
-  if (!classes) return classes;
-  return Array.isArray(classes) ? Utils.flatAndRemoveFalsy(classes) : [classes];
-};
-
-export const styleList = (...style: RecursiveArray<Style | Falsy>): StyleProp => {
-  if (!style) return style;
-  return Array.isArray(style) ? Utils.flatAndRemoveFalsy(style) : [style];
+  return Utils.flatAndRemoveFalsy(classes);
 };
