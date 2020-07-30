@@ -55,6 +55,7 @@ export interface StylingInternals {
 export interface ComposedStyleResult {
   cascadingStyle: CascadingStyleContextState | null;
   computedStyle: ComputedStyleList;
+  flatPseudoClasses: string[],
   classNames: string[];
 }
 
@@ -64,7 +65,7 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
   const {style: parentCascadingStyle, key: parentCascadingStyleKey} = useContext(CascadingStyleContext);
   const [fontKey, forceUpdate]                                      = useForceUpdate();
 
-  const flatPseudoClasses = Array.isArray(pseudoClasses) ? Utils.flatAndRemoveFalsy(pseudoClasses) : (pseudoClasses && [pseudoClasses]);
+  const flatPseudoClasses = Array.isArray(pseudoClasses) ? Utils.flatAndRemoveFalsy(pseudoClasses) : (pseudoClasses && [pseudoClasses]) || [];
   const session           = createSession({
     pseudoClasses: flatPseudoClasses || [],
   });
@@ -73,7 +74,12 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
 
   const needsCascade = !options?.disableCascade;
 
-  const {computedStyle, cascadingStyle, cascadingStyleKey, classNames} = useMemo(() => {
+  const {
+          computedStyle,
+          cascadingStyle,
+          cascadingStyleKey,
+          classNames,
+        } = useMemo(() => {
     const classResults = computeClasses(classArray, style, session);
 
     const ownStyle     = classResults.style;
@@ -133,9 +139,10 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
   }, [cascadingStyleKey]);
 
   return {
-    computedStyle : computedStyle as ComputedStyleList,
-    cascadingStyle: memoCascadingStyle,
-    classNames    : classNames,
+    computedStyle    : computedStyle as ComputedStyleList,
+    cascadingStyle   : memoCascadingStyle,
+    classNames       : classNames,
+    flatPseudoClasses: flatPseudoClasses,
   };
 };
 

@@ -8,6 +8,8 @@ const pseudo = createStyleRule<string>("pseudo", {
 
 export type PseudoRule = StyleRule & { type: string };
 
-export const createPseudoRule = (type: string): PseudoRule => Object.assign(() => pseudo(type), {type});
+export const createPseudoRule = (type: string): PseudoRule => Object.assign(() => {
+  return pseudo(type);
+}, {type});
 
 export default pseudo;

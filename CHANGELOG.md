@@ -11,6 +11,7 @@
 - added pseudo classes :D
 - allow `important()` inside rules
 - refs are now forwarded to base component
+- add `not()` rule
 
 ## 0.2.0
 

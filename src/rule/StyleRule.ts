@@ -24,14 +24,31 @@ export const finishRuleSession = (): StyleRuleInstances => {
   return ruleSession.instances;
 };
 
-export const and = (...rules: number[]): number => {
-  if (ruleSession.registering) return Math.max(...rules);
-  return rules.every(n => Boolean(n)) ? Math.max(...rules) : 0;
+export type StyleRuleResult = number & { __ruleId: number };
+
+const createRuleResult = (ruleId: number, result: boolean): StyleRuleResult => {
+  return Object.assign(result ? ruleId : 0, {__ruleId: ruleId});
 };
 
-export const or = (...rules: number[]): number => {
-  if (ruleSession.registering) return Math.max(...rules);
-  return rules.some(n => Boolean(n)) ? Math.max(...rules) : 0;
+export const isResultSuccess = (result: StyleRuleResult): boolean => result != 0;
+
+export const not = (rule: StyleRuleResult): StyleRuleResult => {
+  return createRuleResult(rule.__ruleId, !isResultSuccess(rule));
+};
+
+export const and = (...rules: StyleRuleResult[]): StyleRuleResult => {
+  const ruleId = Math.max(...rules.map(result => result.__ruleId));
+
+  if (ruleSession.registering) return createRuleResult(ruleId, true);
+
+  return createRuleResult(ruleId, rules.every(isResultSuccess));
+};
+
+export const or = (...rules: StyleRuleResult[]): StyleRuleResult => {
+  const ruleId = Math.max(...rules.map(result => result.__ruleId));
+
+  if (ruleSession.registering) return createRuleResult(ruleId, true);
+  return createRuleResult(ruleId, rules.some(isResultSuccess));
 };
 
 export interface StyleRuleOptions<O = void> {
@@ -42,7 +59,7 @@ export interface StyleRuleOptions<O = void> {
   unregister?: () => void;
 }
 
-export type StyleRule<O = void> = void extends O ? (options?: O) => number : (options: O) => number;
+export type StyleRule<O = void> = void extends O ? (options?: O) => StyleRuleResult : (options: O) => StyleRuleResult;
 
 export type StyleRuleType<O = void> = StyleRuleOptions<O> & StyleRule<O> & {
   id: number;
@@ -98,11 +115,11 @@ export function createStyleRule<O>(name: string, options: StyleRuleOptions<O>): 
         sheetId  : null,
       };
 
-      return id;
+      return createRuleResult(id, true);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return rule.check(options, ruleSession.session!) ? id : 0;
+    return createRuleResult(id, rule.check(options, ruleSession.session!));
   }, options || {}, {id: 0});
   Object.defineProperty(rule, "name", {value: name});
 

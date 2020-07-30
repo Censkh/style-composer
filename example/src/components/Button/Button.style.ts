@@ -1,4 +1,4 @@
-import {composeClass, createPseudoRule, important} from "style-composer";
+import {and, composeClass, createPseudoRule, important, not} from "style-composer";
 
 export const active   = createPseudoRule("active");
 export const disabled = createPseudoRule("disabled");
@@ -24,7 +24,7 @@ export const $Button = composeClass("Button", () => ({
     backgroundColor: important("#999"),
   },
 
-  [focus()]: {
+  [and(focus(), not(active()))]: {
     backgroundColor: "red",
   },
 }));

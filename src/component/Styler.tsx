@@ -30,11 +30,12 @@ setupFontPreProcessor();
 const Styler = (props: StylerProps) => {
   const {children, _baseComponent} = props;
 
-  const {computedStyle, classNames, cascadingStyle} = useComposedStyle(props, {disableCascade: _baseComponent !== Text && _baseComponent !== PolyText});
+  const {computedStyle, classNames, cascadingStyle, flatPseudoClasses} = useComposedStyle(props, {disableCascade: _baseComponent !== Text && _baseComponent !== PolyText});
 
   const content = !children || typeof children === "string" ? children : React.cloneElement(children, {
-    style       : sanitizeStyleList(children, computedStyle as any),
-    "data-class": classNames?.join(" "),
+    style              : sanitizeStyleList(children, computedStyle as any),
+    "data-class"       : classNames?.join(" "),
+    "data-pseudo-class": flatPseudoClasses.join(" "),
   } as any);
 
   return cascadingStyle ?

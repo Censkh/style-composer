@@ -1,10 +1,16 @@
-import React, {useCallback, useRef, useState} from "react";
+import React, {useCallback, useRef, useState}             from "react";
 // eslint-disable-next-line no-restricted-imports
 import {ButtonProps as BaseButtonProps}                   from "react-native";
 import {classList, StylableProps, StyledTouchableOpacity} from "style-composer";
 
 
-import {$Button, active as activeRule, disabled as disabledRule, focus as focusRule, hover as hoverRule} from "./Button.style";
+import {
+  $Button,
+  active as activeRule,
+  disabled as disabledRule,
+  focus as focusRule,
+  hover as hoverRule,
+}                           from "./Button.style";
 import Text                 from "../Text/Text";
 import {useFocus, useHover} from "react-native-web-hooks";
 
@@ -29,7 +35,7 @@ const Button = (props: ButtonProps) => {
   const hover = useHover(ref);
 
   return <StyledTouchableOpacity tag={"button"}
-                                 // @ts-ignore
+    // @ts-ignore
                                  ref={ref}
                                  activeOpacity={1}
                                  onPressOut={setActiveFalse}
