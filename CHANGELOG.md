@@ -9,6 +9,7 @@
 ### Features / Changes
 
 - added pseudo classes :D
+- inbuilt pseudo classes `hover`, `disabled` and `active`
 - allow `important()` inside rules
 - refs are now forwarded to base component
 - add `not()` rule
