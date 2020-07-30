@@ -13,7 +13,7 @@ const ruleSession = {
 export const startRuleSession = (registering?: boolean, session?: StylingSession): void => {
   ruleSession.id          = 1;
   ruleSession.registering = Boolean(registering);
-  ruleSession.session= session;
+  ruleSession.session     = session;
   ruleSession.running     = true;
   ruleSession.instances   = {};
 };

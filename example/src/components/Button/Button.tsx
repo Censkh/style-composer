@@ -1,11 +1,12 @@
-import React, {useCallback, useState}                     from "react";
+import React, {useCallback, useRef, useState} from "react";
 // eslint-disable-next-line no-restricted-imports
 import {ButtonProps as BaseButtonProps}                   from "react-native";
 import {classList, StylableProps, StyledTouchableOpacity} from "style-composer";
 
 
-import {$Button, active as activeRule, disabled as disabledRule} from "./Button.style";
-import Text                                                      from "../Text/Text";
+import {$Button, active as activeRule, disabled as disabledRule, focus as focusRule, hover as hoverRule} from "./Button.style";
+import Text                 from "../Text/Text";
+import {useFocus, useHover} from "react-native-web-hooks";
 
 export interface ButtonProps extends BaseButtonProps, StylableProps {
   loading?: boolean;
@@ -22,12 +23,19 @@ const Button = (props: ButtonProps) => {
   const setActiveFalse = useCallback(() => setActive(false), []);
   const setActiveTrue  = useCallback(() => setActive(true), []);
 
+  const ref = useRef();
+
+  const focus = useFocus(ref);
+  const hover = useHover(ref);
+
   return <StyledTouchableOpacity tag={"button"}
+                                 // @ts-ignore
+                                 ref={ref}
                                  activeOpacity={1}
                                  onPressOut={setActiveFalse}
                                  onPressIn={setActiveTrue}
                                  classes={ownClasses}
-                                 pseudoClasses={[disabled && disabledRule.type, active && activeRule.type]}
+                                 pseudoClasses={[disabled && disabledRule.type, active && activeRule.type, focus && focusRule.type, hover && hoverRule.type]}
                                  style={style}
                                  {...otherProps}>
     <Text>{title}</Text>

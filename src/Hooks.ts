@@ -7,7 +7,6 @@ import {
   Classes,
   classesId,
   classList,
-  PseudoClasses,
   StyleClass,
 }                                                                                      from "./class/StyleClass";
 import * as Utils                                                                      from "./Utils";
@@ -26,8 +25,9 @@ import {
   resolveStyling,
   StyleObject,
   StylingBuilder,
-  StylingResolution, StylingSession,
-} from "./Styling";
+  StylingResolution,
+  StylingSession,
+}                                                                                      from "./Styling";
 import {StylableProps}                                                                 from "./component/Styler";
 import CascadingStyleContext, {CascadingStyleContextState}                             from "./CascadingStyleContext";
 import {
@@ -65,11 +65,11 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
   const [fontKey, forceUpdate]                                      = useForceUpdate();
 
   const flatPseudoClasses = Array.isArray(pseudoClasses) ? Utils.flatAndRemoveFalsy(pseudoClasses) : (pseudoClasses && [pseudoClasses]);
-  const session = createSession({
+  const session           = createSession({
     pseudoClasses: flatPseudoClasses || [],
   });
 
-  const {theme, key, classArray}                                    = useStylingInternals(classes, session);
+  const {theme, key, classArray} = useStylingInternals(classes, session);
 
   const needsCascade = !options?.disableCascade;
 

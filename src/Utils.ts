@@ -1,6 +1,5 @@
 import React            from "react";
 import {RecursiveArray} from "react-native";
-import {StyleClass}     from "./class/StyleClass";
 
 export type PropsOf<C extends React.ComponentType> = C extends React.ComponentType<infer P> ? P : never;
 

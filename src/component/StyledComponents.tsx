@@ -20,17 +20,20 @@ import {shallowEqual}          from "../Utils";
 export type StyledComponent<P> = React.ComponentType<(P & { style?: unknown }) & StylableProps>;
 
 export function styled<P>(baseComponent: React.ComponentType<P>): StyledComponent<P> {
-  return React.memo(Object.assign((props: any) => {
+  return React.memo(Object.assign(React.forwardRef((props: any, ref) => {
     const {children, style, pseudoClasses, classes, ...otherProps} = props;
+
+    otherProps.ref = ref;
 
     return Styler({
       classes,
       style,
       pseudoClasses,
+      ref,
       _baseComponent: baseComponent,
       children      : React.createElement(baseComponent, otherProps as any, children),
     } as any);
-  }, {displayName: `Styler${baseComponent.displayName ? `[${baseComponent.displayName}]` : ""}`}), styledArePropsEqual);
+  }), {displayName: `Styler${baseComponent.displayName ? `[${baseComponent.displayName}]` : ""}`}), styledArePropsEqual);
 }
 
 export function styledArePropsEqual<T>(prevProps: T, nextProps: T): boolean {

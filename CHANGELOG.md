@@ -10,7 +10,7 @@
 
 - added pseudo classes :D
 - allow `important()` inside rules
-
+- refs are now forwarded to base component
 
 ## 0.2.0
 

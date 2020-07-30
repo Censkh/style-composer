@@ -3,7 +3,6 @@ import {RecursiveArray, StyleSheet} from "react-native";
 import {
   resolveStyling,
   sanitizeStylingToStaticStyle,
-  Style,
   StyleObject,
   StylingBuilder,
   StylingResolution,
@@ -11,7 +10,6 @@ import {
 import * as Utils   from "../Utils";
 import {Falsy}      from "../Utils";
 import ClassManager from "./ClassManager";
-import {StyleProp}  from "../component/Styler";
 
 export type StyleClassMeta<V extends Record<string, StyleClass> = {}> = StylingResolution & {
   id: number;

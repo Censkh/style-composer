@@ -1,7 +1,9 @@
 import {composeClass, createPseudoRule, important} from "style-composer";
 
-export const active = createPseudoRule("active");
+export const active   = createPseudoRule("active");
 export const disabled = createPseudoRule("disabled");
+export const hover    = createPseudoRule("hover");
+export const focus    = createPseudoRule("focus");
 
 // replace with style lib when we have
 export const $Button = composeClass("Button", () => ({
@@ -20,6 +22,10 @@ export const $Button = composeClass("Button", () => ({
 
   [disabled()]: {
     backgroundColor: important("#999"),
+  },
+
+  [focus()]: {
+    backgroundColor: "red",
   },
 }));
 
