@@ -1,7 +1,7 @@
-import React, {useCallback, useRef, useState}             from "react";
+import React, {useCallback, useRef, useState}  from "react";
 // eslint-disable-next-line no-restricted-imports
-import {ButtonProps as BaseButtonProps}                   from "react-native";
-import {classList, StylableProps, StyledTouchableOpacity} from "style-composer";
+import {ButtonProps as BaseButtonProps}        from "react-native";
+import {StylableProps, StyledTouchableOpacity} from "style-composer";
 
 
 import {
@@ -24,7 +24,7 @@ const Button = (props: ButtonProps) => {
 
   const [active, setActive] = useState(false);
 
-  const ownClasses = classList($Button, classes);
+  const ownClasses = [$Button, classes];
 
   const setActiveFalse = useCallback(() => setActive(false), []);
   const setActiveTrue  = useCallback(() => setActive(true), []);

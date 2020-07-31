@@ -6,7 +6,7 @@ import {
 import {
   Classes,
   classesId,
-  classList,
+  flattenClasses,
   StyleClass,
 }                                                                                      from "./class/StyleClass";
 import * as Utils                                                                      from "./Utils";
@@ -150,7 +150,7 @@ export const useStylingInternals = (classes: Classes | undefined, session: Styli
   const uidRef = useRef(Math.floor(Math.random() * 100000000).toString());
 
   const {classArray, classId, hasDynamicUnit} = useMemo(() => {
-    const classArray: StyleClass[] | undefined = classes && classList(classes) || undefined;
+    const classArray: StyleClass[] | undefined = classes && flattenClasses(classes) || undefined;
     const classId                              = classesId(classArray);
     const hasDynamicUnit                       = classArray?.some(clazz => clazz.__meta.hasDynamicUnit);
 

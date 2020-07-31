@@ -5,6 +5,7 @@
 ### Breaking
 
 - `useComposedStyle` has it's signature changed to make it easier to use
+- remove `classList` as you can simply use a deep array of `classes`
 
 ### Features / Changes
 

@@ -61,7 +61,7 @@ Classes can be added to styled components easily, also interacting with the `sty
 <StyledView classes={[$Card, $BigMargin]}/>
 
 // you can use classList to easily compose a deep list of classes
-<StyledView classes={classList([$Card, $BigMargin], disabled && $CardDisabled)}/>
+<StyledView classes={[[$Card, $BigMargin], disabled && $CardDisabled]}/>
 ```
 
 ### important() values

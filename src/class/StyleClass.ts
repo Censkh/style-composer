@@ -109,6 +109,6 @@ export const classesId = (classes: Classes): string | null => {
   return classes.__meta.className;
 };
 
-export const classList = (...classes: RecursiveArray<StyleClass | Falsy>): StyleClass[] => {
+export const flattenClasses = (...classes: RecursiveArray<StyleClass | Falsy>): StyleClass[] => {
   return Utils.flatAndRemoveFalsy(classes);
 };
