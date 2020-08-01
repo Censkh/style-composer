@@ -307,6 +307,7 @@ const extractImportantProps = (importantProps: Record<number, string[]>, current
   for (const key of Object.keys(styling)) {
     const value = (styling as any)[key];
     if (isImportantValue(value)) {
+      (styling as any)[key] = sanitizeStyleValue(value);
       (importantProps[currentScope] || (importantProps[currentScope] = [])).push(key);
     } else if (typeof value === "object") {
       extractImportantProps(importantProps, parseInt(key), value);

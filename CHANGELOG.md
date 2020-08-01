@@ -16,6 +16,10 @@
 - add `not()` rule
 - add `StyledScrollView` and `StyledImage`
 
+### Fix
+
+- make sure complex string values are not passed to RN as it doesn't like it
+
 ## 0.2.0
 
 ### Features / Changes
