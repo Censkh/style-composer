@@ -14,6 +14,7 @@
 - allow `important()` inside rules
 - refs are now forwarded to base component
 - add `not()` rule
+- add `StyledScrollView` and `StyledImage`
 
 ## 0.2.0
 

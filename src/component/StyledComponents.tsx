@@ -1,11 +1,6 @@
-import React                   from "react";
-import {
-  Button,
-  SafeAreaView,
-  TextInput,
-  TouchableWithoutFeedback,
-}                              from "react-native";
-import Styler, {StylableProps} from "./Styler";
+import React                                                                          from "react";
+import {Button, Image, SafeAreaView, ScrollView, TextInput, TouchableWithoutFeedback} from "react-native";
+
 import {
   PolyText,
   PolyTouchableHighlight,
@@ -15,6 +10,7 @@ import {
 }                              from "./PolyComponents";
 import {classesId}             from "..";
 import {shallowEqual}          from "../Utils";
+import Styler, {StylableProps} from "./Styler";
 
 // we use (P & {style?: never}) to prevent ts from merging the two style properties together
 export type StyledComponent<P> = React.ComponentType<(P & { style?: unknown }) & StylableProps>;
@@ -51,4 +47,6 @@ export const StyledTouchableNativeFeedback  = styled(PolyTouchableNativeFeedback
 export const StyledTouchableOpacity         = styled(PolyTouchableOpacity);
 export const StyledTouchableWithoutFeedback = styled(TouchableWithoutFeedback);
 export const StyledTouchableHighlight       = styled(PolyTouchableHighlight);
+export const StyledScrollView               = styled(ScrollView);
+export const StyledImage                    = styled(Image);
 
