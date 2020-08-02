@@ -15,6 +15,7 @@
 - refs are now forwarded to base component
 - add `not()` rule
 - add `StyledScrollView` and `StyledImage`
+- add `rtl()` rule
 
 ### Fix
 
