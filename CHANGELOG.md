@@ -14,6 +14,12 @@
 - allow `important()` inside rules
 - refs are now forwarded to base component
 - add `not()` rule
+- add `StyledScrollView` and `StyledImage`
+- add `rtl()` rule
+
+### Fix
+
+- make sure complex string values are not passed to RN as it doesn't like it
 
 ## 0.2.0
 

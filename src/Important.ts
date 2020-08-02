@@ -20,11 +20,12 @@ export const finishImportantSession = (): boolean => {
   return importantSession.called;
 };
 
-const important = <T extends string | number>(value: T): ImportantValue<T> => {
+const important = <T extends string | number>(value: T): ImportantValue<T> | T => {
   if (importantSession.running) {
     importantSession.called = true;
+    return Object.assign(value, {__important: true}) as any;
   }
-  return Object.assign(value, {__important: true}) as any;
+  return value;
 };
 
 export const isImportantValue = (value: any): value is string | number => {

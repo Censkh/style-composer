@@ -34,6 +34,8 @@ const Button = (props: ButtonProps) => {
   const focus = useFocus(ref);
   const hover = useHover(ref);
 
+  const ownPseudoClasses = [disabled && disabledRule.type, active && activeRule.type, focus && focusRule.type, hover && hoverRule.type];
+
   return <StyledTouchableOpacity tag={"button"}
     // @ts-ignore
                                  ref={ref}
@@ -41,7 +43,7 @@ const Button = (props: ButtonProps) => {
                                  onPressOut={setActiveFalse}
                                  onPressIn={setActiveTrue}
                                  classes={ownClasses}
-                                 pseudoClasses={[disabled && disabledRule.type, active && activeRule.type, focus && focusRule.type, hover && hoverRule.type]}
+                                 pseudoClasses={ownPseudoClasses}
                                  style={style}
                                  {...otherProps}>
     <Text>{title}</Text>
