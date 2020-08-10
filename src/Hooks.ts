@@ -27,16 +27,17 @@ import {
   StylingBuilder,
   StylingResolution,
   StylingSession,
-}                                                                                      from "./Styling";
-import {StylableProps}                                                                 from "./component/Styler";
-import CascadingStyleContext, {CascadingStyleContextState}                             from "./CascadingStyleContext";
+}                                                          from "./Styling";
+import {StylableProps}                                     from "./component/Styler";
+import CascadingStyleContext, {CascadingStyleContextState} from "./CascadingStyleContext";
 import {
   addFontLoadListener,
   getFontFamily,
   isFontLoaded,
   isStyleComposerFont,
   removeFontLoadListener,
-}                                                                                      from "./font/FontFamily";
+}                                                          from "./font/FontFamily";
+import {setupFontPreProcessor}                             from "./font/FontPreProcessor";
 
 export const useForceUpdate = (): [number, () => void] => {
   const [state, setState] = useState(0);
@@ -107,6 +108,8 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
     if (Utils.isNative() && computedStyleFlat.fontFamily) {
       const fontFamily = computedStyleFlat.fontFamily;
       if (isStyleComposerFont(fontFamily)) {
+        setupFontPreProcessor();
+
         if (!isFontLoaded(fontFamily)) {
           let callback: () => void;
           if (!fontListeners.current.includes(fontFamily)) {

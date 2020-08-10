@@ -1,6 +1,6 @@
 module.exports = {
   someSidebar: {
-    "Style Composer": ["getting-started", "usage", "doc3"],
-    Features  : ["mdx"],
+    "Style Composer": ["getting-started", "usage", "style-rules", "pseudo-classes", "dynamic-units"],
+    Rules: ["rule-media"],
   },
 };

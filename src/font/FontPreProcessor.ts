@@ -32,7 +32,14 @@ const processFontFamily = (fontFamily: string): string => {
   return `ExpoFont-${getNativeFontName(fontFamily)}`;
 };
 
+let initialised = false;
+
 export const setupFontPreProcessor = (): void => {
+  if (initialised) {
+    return;
+  }
+  initialised= true;
+
   if (StyleSheet.setStyleAttributePreprocessor) {
     const warn: any = console.warn;
     // if we are native, kill the warning for overriding the font pre-processor

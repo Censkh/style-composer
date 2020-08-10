@@ -25,8 +25,6 @@ export interface StylerProps extends StylableProps {
   _baseComponent: React.ElementType;
 }
 
-setupFontPreProcessor();
-
 const Styler = (props: StylerProps) => {
   const {children, _baseComponent} = props;
 
