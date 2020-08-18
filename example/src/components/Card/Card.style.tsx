@@ -1,4 +1,5 @@
-import {and, composeClass, media, platform} from "style-composer";
+import {and, child, composeClass, media, platform} from "style-composer";
+import {$Text}                                     from "../Text/Text.style";
 
 export const pixel3 = () => and(
   platform("android"),
@@ -6,7 +7,7 @@ export const pixel3 = () => and(
   media({minWidth: 410}),
 );
 
-export const $Card = composeClass("Card", () => ({
+export const $Card = composeClass("card", () => ({
   padding        : 5,
   backgroundColor: "#2196f3",
   color          : "rgba(255,255,255,0.98)",
@@ -27,3 +28,12 @@ export const $Card = composeClass("Card", () => ({
 
   },
 });
+
+export const $ChildRuleTest = composeClass("child-rule-test", () => ({
+  backgroundColor: "grey",
+
+  [child($Text)]: {
+    fontSize: 24,
+  },
+
+}));

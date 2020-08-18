@@ -2,9 +2,9 @@ import React, {Profiler, useCallback, useEffect, useState}                      
 import {media, StyledText, StyledView, ThemeFor, ThemeProvider, useComposedValues, vw} from "style-composer";
 import {CheckBox, ScrollView}                                                          from "react-native";
 
-import Card         from "../example/src/components/Card/Card";
-import {$Card}      from "../example/src/components/Card/Card.style";
-import Container    from "./src/components/Container/Container";
+import Card                    from "../example/src/components/Card/Card";
+import {$Card, $ChildRuleTest} from "../example/src/components/Card/Card.style";
+import Container               from "./src/components/Container/Container";
 import Text         from "./src/components/Text/Text";
 import Button       from "./src/components/Button/Button";
 import {$BigMargin} from "./src/components/Button/Button.style";
@@ -54,6 +54,9 @@ const AppInternal = React.memo((props: AppInternalProps) => {
             <Text>hello</Text>
           </Card>)}
         </ScrollView>
+        <Card classes={$ChildRuleTest}>
+          <Text>asda</Text>
+        </Card>
         <Button title={"hi"} disabled={true} style={{backgroundColor: "red"}} classes={[$BigMargin]} onPress={() => {
           console.log("hi");
         }}/>

@@ -2,6 +2,10 @@ import {composeClass} from "style-composer";
 
 export const REM = 14;
 
+export const $Text = composeClass("text", () => ({
+
+}));
+
 export const $Heading = composeClass("heading", () => ({
   marginBottom: 0.5 * REM,
 }), {

@@ -86,3 +86,11 @@ export const shallowEqual = (a: Record<string, any>, b: Record<string, any>, cus
 
   return true;
 };
+
+export const isEmptyOrFalsy = (array: Array<any> | Falsy): boolean => {
+  return !array || array.length === 0;
+};
+
+export const arrayify = <T>(arrayOrItem: T | Array<T>): Array<T> => {
+  return Array.isArray(arrayOrItem) ? arrayOrItem : [arrayOrItem];
+};

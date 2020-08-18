@@ -1,6 +1,7 @@
 import {DependencyList, useCallback, useContext, useEffect, useMemo, useRef, useState} from "react";
 import {
   registerRuleCallback,
+  StyleRuleInstance,
   unregisterRuleCallback,
 }                                                                                      from "./rule/StyleRule";
 import {
@@ -20,7 +21,6 @@ import {
   computeClasses,
   ComputedStyleList,
   computeStyling,
-  createSession,
   extractCascadingStyle,
   resolveStyling,
   StyleObject,
@@ -36,7 +36,8 @@ import {
   isFontLoaded,
   isStyleComposerFont,
   removeFontLoadListener,
-}                                                                                      from "./font/FontFamily";
+}                          from "./font/FontFamily";
+import child, {ChildQuery} from "./rule/ChildRule";
 
 export const useForceUpdate = (): [number, () => void] => {
   const [state, setState] = useState(0);
@@ -60,17 +61,24 @@ export interface ComposedStyleResult {
 }
 
 export const useComposedStyle = (props: StylableProps, options?: { disableCascade?: boolean }): ComposedStyleResult => {
-  const {classes, style, pseudoClasses}                             = props;
-  const fontListeners                                               = useRef<string[]>([]);
-  const {style: parentCascadingStyle, key: parentCascadingStyleKey} = useContext(CascadingStyleContext);
-  const [fontKey, forceUpdate]                                      = useForceUpdate();
+  const {classes, style, pseudoClasses} = props;
+  const fontListeners                   = useRef<string[]>([]);
+  const {
+          style     : parentCascadingStyle,
+          key       : parentCascadingStyleKey,
+          childRules: parentChildRules,
+        }                               = useContext(CascadingStyleContext);
+  const [fontKey, forceUpdate]          = useForceUpdate();
 
-  const flatPseudoClasses = Array.isArray(pseudoClasses) ? Utils.flatAndRemoveFalsy(pseudoClasses) : (pseudoClasses && [pseudoClasses]) || [];
-  const session           = createSession({
+  const flatPseudoClasses       = Array.isArray(pseudoClasses) ? Utils.flatAndRemoveFalsy(pseudoClasses) : (pseudoClasses && [pseudoClasses]) || [];
+  const session: StylingSession = {
     pseudoClasses: flatPseudoClasses || [],
-  });
+    childRules   : parentChildRules,
+  };
 
-  const {theme, key, classArray} = useStylingInternals(classes, session);
+  const {theme, classId, key, classArray} = useStylingInternals(classes, session);
+
+  const applicableChildRules = classArray && parentChildRules.filter(rule => Utils.arrayify(rule.options).some(clazz => classArray?.includes(clazz)));
 
   const needsCascade = !options?.disableCascade;
 
@@ -99,7 +107,9 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
       }
     }
 
-    const computedStyle     = needsCascade ? [parentCascadingStyle, ownStyle] : [ownStyle];
+    const childRuleStyle = applicableChildRules?.map(rule => rule.sheetId);
+
+    const computedStyle     = needsCascade ? [parentCascadingStyle, childRuleStyle, ownStyle] : [ownStyle];
     const computedStyleFlat = StyleSheet.flatten(computedStyle) as StyleObject;
 
     const [cascadingStyle, cascadingStyleKey] = extractCascadingStyle(ownStyleFlat, parentCascadingStyle);
@@ -133,9 +143,17 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
     };
   }, [style, parentCascadingStyleKey, key, fontKey, theme]);
 
+  const childRules = useMemo(() => {
+    return classArray?.flatMap<StyleRuleInstance<any> | Falsy>((clazz) => {
+      return clazz.__meta.hasRules && Object.values(clazz.__meta.rules).filter(ruleInstance => ruleInstance.rule.id === child.id);
+    }).filter(Boolean) as Array<StyleRuleInstance<any>> | undefined;
+  }, [classId]);
+
+
   const memoCascadingStyle = useMemo<CascadingStyleContextState | null>(() => cascadingStyle && {
-    style: cascadingStyle,
-    key  : cascadingStyleKey,
+    style     : cascadingStyle,
+    key       : cascadingStyleKey,
+    childRules: childRules && childRules.length > 0 ? [...childRules, ...parentChildRules] : parentChildRules,
   }, [cascadingStyleKey]);
 
   return {
@@ -170,7 +188,7 @@ export const useStylingInternals = (classes: Classes | undefined, session: Styli
     }
   }, [hasDynamicUnit]);
 
-  const key = forceUpdateKey + "_" + classId + "_" + (session.context.pseudoClasses ? session.context.pseudoClasses.sort().join(",") : "");
+  const key = forceUpdateKey + "_" + classId + "_" + (session.pseudoClasses ? session.pseudoClasses.sort().join(",") : "");
 
   return {theme, key, classId, classArray, uid: uidRef.current};
 };
@@ -235,13 +253,11 @@ export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: Depend
   currentResolution.current = resolution;
   const {hasDynamicUnit}    = resolution;
 
-  const session = createSession();
-
   const checkForUpdates = useCallback(() => {
     let state = "";
     if (currentResolution.current) {
       for (const ruleInstance of Object.values(currentResolution.current.rules)) {
-        state += ruleInstance.rule.check(ruleInstance.options, session) ? "1" : "0";
+        state += ruleInstance.rule.check(ruleInstance.options) ? "1" : "0";
       }
     }
     if (prevState.current !== state) {
