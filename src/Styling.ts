@@ -9,6 +9,7 @@ import {finishThemeSession, startThemedSession}                                 
 import {finishRuleSession, startRuleSession, StyleRuleInstance}                               from "./rule/StyleRule";
 import {finishImportantSession, isImportantValue, startImportantSession}                      from "./Important";
 import {StyleProp}                                                                            from "./component/Styler";
+import {ChildQuery}                                                                           from "./rule/ChildRule";
 
 export const CASCADING_STYLES = ["fontSize", "fontFamily", "fontWeight", "color", "letterSpacing", "textAlign"];
 
@@ -37,12 +38,9 @@ export type StylingBuilder<S = StyleObject> = () => Styling<S>;
 
 export type Styling<S = StyleObject> = Record<number, S> & S;
 
-export interface StylingContext {
-  pseudoClasses?: string[]
-}
-
 export interface StylingSession {
-  context: StylingContext;
+  pseudoClasses?: string[];
+  childRules?: Array<StyleRuleInstance<ChildQuery>>;
 }
 
 export interface ComputeResults {
@@ -50,18 +48,14 @@ export interface ComputeResults {
   style: ComputedStyleList;
 }
 
-const DEFAULT_CONTEXT: StylingContext = {};
-
-export const createSession = (context?: StylingContext): StylingSession => {
-  return {context: context || DEFAULT_CONTEXT};
-};
+const DEFAULT_SESSION: StylingSession = {};
 
 export function computeClasses(styleClass: StyleClass[] | Falsy, styleProp?: StyleProp, session?: StylingSession): ComputeResults {
   if (!styleClass || styleClass.length === 0) {
     return {classNames: [], style: styleProp ? [styleProp] as any : []};
   }
 
-  const computedSession                   = session || createSession();
+  const computedSession                   = session || DEFAULT_SESSION;
   const classNames: string[]              = [];
   const style: ComputedStyleList          = [];
   const importantStyle: ComputedStyleList = [];
@@ -89,7 +83,7 @@ export function computeClasses(styleClass: StyleClass[] | Falsy, styleProp?: Sty
 export type ComputedStyleList = Array<Style>;
 
 export const computeStyling = (resolution: StylingResolution): StyleObject => {
-  const session                           = createSession();
+  const session                           = {};
   const style: ComputedStyleList          = [];
   const importantStyle: ComputedStyleList = [];
   internalComputedStyling(resolution, session, importantStyle, style);

@@ -1,8 +1,8 @@
 import React                    from "react";
 import {StyleClass, StyledText} from "style-composer";
 
-import {$Heading} from "./Text.style";
-import {PropsOf}  from "../../../../src/Utils";
+import {$Heading, $Text} from "./Text.style";
+import {PropsOf}         from "../../../../src/Utils";
 
 export type TextVariant = "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
@@ -20,7 +20,7 @@ const Text = (props: TextProps) => {
   }
 
   return <StyledText tag={variant && variant !== "normal" ? variant : undefined}
-                     classes={[classes, headingClass]}
+                     classes={[$Text, classes, headingClass]}
                      {...otherProps}/>;
 };
 

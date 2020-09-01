@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0
+
+### Features / Changes
+
+- add `child()` rule
+
 ## 0.3.0
 
 ### Breaking
