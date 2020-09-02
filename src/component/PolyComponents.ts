@@ -1,6 +1,13 @@
 import React                                                                        from "react";
 import * as Utils                                                                   from "../Utils";
-import {Text, TouchableHighlight, TouchableOpacity, TouchableWithoutFeedback, View} from "react-native";
+import {
+  Text,
+  TouchableHighlight,
+  TouchableNativeFeedback,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 
 export type PolyProps<P> = P & {
   tag?: keyof JSX.IntrinsicElements;
@@ -21,14 +28,7 @@ const renderPoly = (props: PolyProps<any>, element: React.ReactElement): React.R
 
 let bailPoly = false;
 
-/**
- * A HOC to allow a React Native component to change the base DOM element tag on web
- */
-export const poly  = <P>(baseComponent: React.ComponentType<P>): React.ComponentType<PolyProps<P>> => {
-  if (Utils.isNative()) {
-    return baseComponent;
-  }
-
+const extendClassComponent = (baseComponent: any) => {
   const polyClass       = class extends (baseComponent as any) {
     render() {
       if (bailPoly) {
@@ -51,13 +51,35 @@ export const poly  = <P>(baseComponent: React.ComponentType<P>): React.Component
       }
     }
   };
+  return polyClass;
+};
+
+const extendFunctionComponent = (baseComponent: any) => {
+  const renderFunc = baseComponent.render;
+  baseComponent.render = (props: any, ref: any) => {
+    return renderPoly(props, renderFunc(props, ref));
+  };
+  return baseComponent;
+};
+
+
+/**
+ * A HOC to allow a React Native component to change the base DOM element tag on web
+ */
+export const poly  = <P>(baseComponent: React.ComponentType<P>): React.ComponentType<PolyProps<P>> => {
+  if (Utils.isNative()) {
+    return baseComponent;
+  }
+
+  const polyClass = baseComponent.prototype ? extendClassComponent(baseComponent) : extendFunctionComponent(baseComponent);
   polyClass.displayName = `Poly[${baseComponent.displayName}]`;
+
   return polyClass as any;
 };
 const BasePolyView = poly(View);
 
 export const PolyView                     = poly(View);
-export const PolyTouchableNativeFeedback  = poly(TouchableWithoutFeedback);
+export const PolyTouchableNativeFeedback  = poly(TouchableNativeFeedback);
 export const PolyTouchableOpacity         = poly(TouchableOpacity);
 export const PolyTouchableWithoutFeedback = poly(TouchableWithoutFeedback);
 export const PolyTouchableHighlight       = poly(TouchableHighlight);

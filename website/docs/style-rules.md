@@ -3,7 +3,7 @@ id: style-rules
 title: Style Rules
 ---
 
-Style rules are selectors which **allow you to add optional styling to your components**.
+Style rules are selectors which **allow you to add dynamic styling to your components.**.
 
 All **rules will update automatically** and require no further component logic.
 
@@ -21,20 +21,21 @@ const $Style = composeClass("style", () => ({
 
 For example, if you wanted to change a component's `fontSize` depending on the screen dimensions you could use the `media()` rule:
 
-```jsx
-import {composeClass, media} from "style-composer";
+```jsx live
+function Card() {
+    const $Card = composeClass("card", () => ({
+        fontSize: 24,
+        color: "white",
 
-const $Card = composeClass("card", () => ({
-    fontSize: 16,
+        [media({maxWidth: 1280})]: {
+            fontSize: 14
+        }
+    }));
 
-    [media({maxWidth: 1280})]: {
-        fontSize: 14
-    }
-}));
-
-<StyledView classes={$Card}>
-    <StyledText>I am text!</StyledText>
-</StyledView>
+    return <StyledView classes={$Card}>
+        <StyledText>I am text!</StyledText>
+    </StyledView>
+}
 ```
 
 This will make sure when the screen was smaller than 1280px the text inside the view would become smaller.

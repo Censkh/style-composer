@@ -71,7 +71,8 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
         }                               = useContext(CascadingStyleContext);
   const [fontKey, forceUpdate]          = useForceUpdate();
 
-  const flatPseudoClasses       = Array.isArray(pseudoClasses) ? Utils.flatAndRemoveFalsy(pseudoClasses) : (pseudoClasses && [pseudoClasses]) || [];
+  const flatPseudoClasses       = (Array.isArray(pseudoClasses) ? Utils.flatAndRemoveFalsy(pseudoClasses) : (pseudoClasses && [pseudoClasses]) || [])
+    .map(rule => typeof rule === "string" ? rule : rule.type);
   const session: StylingSession = {
     pseudoClasses: flatPseudoClasses || [],
     childRules   : parentChildRules,

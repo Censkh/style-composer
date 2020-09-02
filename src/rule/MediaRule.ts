@@ -1,5 +1,5 @@
-import {Dimensions, I18nManager} from "react-native";
-import {createStyleRule}         from "./StyleRule";
+import {Dimensions}      from "react-native";
+import {createStyleRule} from "./StyleRule";
 
 export interface MediaQuery {
   maxWidth?: number,

@@ -11,13 +11,13 @@
     "serve": "docusaurus serve"
   },
   "dependencies": {
-    "@docusaurus/core": "^2.0.0-alpha.60",
-    "@docusaurus/preset-classic": "^2.0.0-alpha.60",
     "@mdx-js/react": "^1.5.8",
     "clsx": "^1.1.1",
-    "docusaurus-plugin-sass": "^0.1.9",
-    "react": "^16.8.4",
-    "react-dom": "^16.8.4",
+    "hyphenate-style-name": "^1.0.3",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-native": "^0.63.2",
+    "react-native-web": "^0.11.7",
     "style-composer": "file:.."
   },
   "browserslist": {
@@ -33,7 +33,12 @@
     ]
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "^2.0.0-alpha.51",
+    "@docusaurus/core": "^2.0.0-alpha.62",
+    "@docusaurus/module-type-aliases": "^2.0.0-alpha.62",
+    "docusaurus-plugin-react-native-web": "^1.0.0",
+    "@docusaurus/preset-classic": "^2.0.0-alpha.62",
+    "@docusaurus/theme-live-codeblock": "^2.0.0-alpha.62",
+    "docusaurus-plugin-sass": "git+https://github.com/slorber/docusaurus-plugin-sass.git#patch-1",
     "typescript": "^3.9.7"
   }
 }

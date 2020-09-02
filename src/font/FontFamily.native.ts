@@ -1,20 +1,30 @@
+import * as Font                                                             from "expo-font";
 import {FONT_TYPES, FONT_WEIGHTS, FontFamily, FontFamilyConfig, FontVariant} from "./Fonts";
 
 export const fontFamilyMap: Record<string, FontFamily>   = {};
 export const fontVariantMap: Record<string, FontVariant> = {};
 
+const fontListeners: Record<string, Set<() => void>> = {};
+
+const getFontCallbackList = (name: string): Set<() => void> => {
+  return fontListeners[name] || (fontListeners[name] = new Set());
+};
+
 export const addFontLoadListener = (name: string, callback: () => void): void => {
+  if (Font.isLoaded(name)) callback();
+  getFontCallbackList(name).add(callback);
 };
 
 export const removeFontLoadListener = (name: string, callback: () => void): void => {
+  getFontCallbackList(name).delete(callback);
 };
 
 export const isFontLoading = (name: string): boolean => {
-  return false;
+  return Font.isLoading(name);
 };
 
 export const isFontLoaded = (name: string): boolean => {
-  return true;
+  return Font.isLoaded(name);
 };
 
 export const isStyleComposerFont = (name: string): boolean => {
@@ -44,6 +54,22 @@ export const createFontFamily = (
   for (const type of FONT_TYPES) {
     const fontName   = `${name}__${type}`;
     fontFamily[type] = () => {
+      if (!isFontLoading(fontName) && !isFontLoaded(fontName)) {
+        const resource = config[type] as string;
+        if (resource) {
+          fontVariantMap[fontName] = {
+            weight    : parseInt(Object.keys(FONT_WEIGHTS).find(weight => FONT_WEIGHTS[weight as any] === type) as string),
+            fontFamily: fontFamily,
+            resource  : resource,
+          };
+
+          Font.loadAsync({
+            [fontName]: resource,
+          }).then(() => {
+            getFontCallbackList(fontName).forEach(callback => callback());
+          });
+        }
+      }
       return fontName;
     };
   }

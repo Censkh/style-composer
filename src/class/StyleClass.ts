@@ -10,6 +10,7 @@ import {
 import * as Utils   from "../Utils";
 import {Falsy}      from "../Utils";
 import ClassManager from "./ClassManager";
+import {PseudoRule} from "../rule/PseudoRule";
 
 export type StyleClassMeta<V extends Record<string, StyleClass> = {}> = StylingResolution & {
   id: number;
@@ -34,11 +35,16 @@ const createStyleSheet = (name: string, style: StyleObject): number => {
 
 let globalClassIdCounter = 0;
 
-export function composeClass<V extends string = never>(name: string, styling: StylingBuilder, options?: ComposeClassOptions<V>): StyleClass<Record<V, StyleClass>> {
+export const composeClass = <V extends string = never>(name: string, styling: StylingBuilder, options?: ComposeClassOptions<V>): StyleClass<Record<V, StyleClass>> => {
+  const className = (options?.parent ? options?.parent.__meta.name + "__" : "") + name;
+
+  if (process.env.NODE_ENV === "production" && ClassManager.hasClass(className)) {
+    console.error(`[style-composer] Re-declaring class '${className}', this will cause performance issues`);
+  }
+
   // we pretend variants is already full so we can add a reference to it it's self when building the variants
   const variants: V = {} as any;
 
-  const className = (options?.parent ? options?.parent.__meta.name + "__" : "") + name;
 
   const styledClass: StyleClass<any> = {
     __meta: {
@@ -71,7 +77,7 @@ export function composeClass<V extends string = never>(name: string, styling: St
   ClassManager.registerClass(styledClass);
 
   return Object.assign(styledClass, variants);
-}
+};
 
 export const registerStyleSheets = (classMeta: StyleClassMeta): void => {
   if (classMeta.sheetId) {
@@ -90,7 +96,7 @@ export const registerStyleSheets = (classMeta: StyleClassMeta): void => {
 
 export type Classes = RecursiveArray<StyleClass | Falsy> | StyleClass | Falsy;
 
-export type PseudoClasses = RecursiveArray<string | Falsy> | string | Falsy;
+export type PseudoClasses = RecursiveArray<string | PseudoRule | Falsy> | string | PseudoRule | Falsy;
 
 export const classesId = (classes: Classes): string | null => {
   if (!classes) return null;

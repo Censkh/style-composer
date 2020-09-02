@@ -6,6 +6,7 @@ import {
   PolyTouchableHighlight,
   PolyTouchableNativeFeedback,
   PolyTouchableOpacity,
+  PolyTouchableWithoutFeedback,
   PolyView,
 }                              from "./PolyComponents";
 import {classesId}             from "..";
@@ -45,8 +46,7 @@ export const StyledTextInput                = styled(TextInput);
 export const StyledButton                   = styled(Button);
 export const StyledTouchableNativeFeedback  = styled(PolyTouchableNativeFeedback);
 export const StyledTouchableOpacity         = styled(PolyTouchableOpacity);
-export const StyledTouchableWithoutFeedback = styled(TouchableWithoutFeedback);
+export const StyledTouchableWithoutFeedback = styled(PolyTouchableWithoutFeedback);
 export const StyledTouchableHighlight       = styled(PolyTouchableHighlight);
 export const StyledScrollView               = styled(ScrollView);
 export const StyledImage                    = styled(Image);
-

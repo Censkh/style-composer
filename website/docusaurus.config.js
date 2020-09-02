@@ -1,12 +1,12 @@
 module.exports = {
-  title           : "My Site",
+  title           : "Style Composer",
   tagline         : "The tagline of my site",
   url             : "https://your-docusaurus-test-site.com",
-  baseUrl         : "/",
+  baseUrl         : "/style-composer/",
   onBrokenLinks   : "throw",
   favicon         : "img/favicon.ico",
-  organizationName: "facebook", // Usually your GitHub org/user name.
-  projectName     : "docusaurus", // Usually your repo name.
+  organizationName: "Censkh", // Usually your GitHub org/user name.
+  projectName     : "style-composer", // Usually your repo name.
   themeConfig     : {
     navbar: {
       title: "My Site",
@@ -16,7 +16,7 @@ module.exports = {
       },
       items: [
         {
-          to            : "docs/",
+          to            : "docs/getting-started",
           activeBasePath: "docs",
           label         : "Docs",
           position      : "left",
@@ -74,14 +74,16 @@ module.exports = {
       copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
     },
   },
-  plugins: ["docusaurus-plugin-sass"],
+  themes          : [
+    "@docusaurus/theme-live-codeblock",
+  ],
+  plugins         : ["docusaurus-plugin-sass", "docusaurus-plugin-react-native-web"],
   presets         : [
     [
       "@docusaurus/preset-classic",
       {
         docs : {
-          // It is recommended to set document id as docs home page (`docs/` path).
-          homePageId : "getting-started",
+          path       : "docs",
           sidebarPath: require.resolve("./sidebars.js"),
           // Please change this to your repo.
           editUrl    :

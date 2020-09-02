@@ -6,7 +6,6 @@ import {Classes, PseudoClasses}   from "../class/StyleClass";
 import {CascadingStyleProvider}   from "../CascadingStyleContext";
 import {useComposedStyle}         from "../Hooks";
 import {PolyText}                 from "./PolyComponents";
-import {setupFontPreProcessor}    from "../font/FontPreProcessor";
 
 export type StyleProp = RecursiveArray<Style | undefined | null | false> | Style | undefined | null | false;
 
