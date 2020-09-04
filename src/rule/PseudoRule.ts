@@ -15,5 +15,6 @@ export const createPseudoRule = (type: string): PseudoRule => Object.assign(() =
 export const active   = createPseudoRule("active");
 export const disabled = createPseudoRule("disabled");
 export const focus    = createPseudoRule("focus");
+export const hover    = createPseudoRule("hover");
 
 export default pseudo;

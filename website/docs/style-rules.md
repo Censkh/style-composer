@@ -45,8 +45,8 @@ This will make sure when the screen was smaller than 1280px the text inside the 
 | Name                      | Usage
 | ---                       | ---
 | [media](rule-media)       | `media({maxWidth: 200})`
-| [rtl](rule-rtl)           | `rtl()`
-| [platform](rule-platform) | `platform("web")` or `platform(["web", "android"])`
+| [rtl](rule-media)           | `rtl()`
+| [platform](rule-media) | `platform("web")` or `platform(["web", "android"])`
 
 ## Rule Boolean Logic
 

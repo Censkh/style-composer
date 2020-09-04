@@ -5,6 +5,7 @@
 ### Features / Changes
 
 - add `child()` rule
+- add `hover()` pseudo rule
 
 ## 0.3.0
 
