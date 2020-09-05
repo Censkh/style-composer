@@ -1,12 +1,12 @@
 import {StyleObject}       from "./Styling";
-import React               from "react";
-import {StyleRuleInstance} from "./rule/StyleRule";
-import {ChildQuery}        from "./rule/ChildRule";
+import React        from "react";
+import {StyleRule}  from "./rule/StyleRule";
+import {ChildQuery} from "./rule/ChildRule";
 
 export interface CascadingStyleContextState {
   style: StyleObject;
   key: string;
-  childRules: Array<StyleRuleInstance<ChildQuery>>;
+  childRules: Array<StyleRule<ChildQuery>>;
 }
 
 const CascadingStyleContext = React.createContext<CascadingStyleContextState>({

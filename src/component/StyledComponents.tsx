@@ -20,8 +20,6 @@ export function styled<P>(baseComponent: React.ComponentType<P>): StyledComponen
   return React.memo(Object.assign(React.forwardRef((props: any, ref) => {
     const {children, style, pseudoClasses, classes, ...otherProps} = props;
 
-    otherProps.ref = ref;
-
     return Styler({
       classes,
       style,

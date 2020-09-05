@@ -9,8 +9,8 @@ import {
 }                   from "../Styling";
 import * as Utils   from "../Utils";
 import {Falsy}      from "../Utils";
-import ClassManager from "./ClassManager";
-import {PseudoRule} from "../rule/PseudoRule";
+import ClassManager     from "./ClassManager";
+import {PseudoRuleType} from "../rule/PseudoRule";
 
 export type StyleClassMeta<V extends Record<string, StyleClass> = {}> = StylingResolution & {
   id: number;
@@ -96,7 +96,7 @@ export const registerStyleSheets = (classMeta: StyleClassMeta): void => {
 
 export type Classes = RecursiveArray<StyleClass | Falsy> | StyleClass | Falsy;
 
-export type PseudoClasses = RecursiveArray<string | PseudoRule | Falsy> | string | PseudoRule | Falsy;
+export type PseudoClasses = RecursiveArray<string | PseudoRuleType | Falsy> | string | PseudoRuleType | Falsy;
 
 export const classesId = (classes: Classes): string | null => {
   if (!classes) return null;
@@ -118,3 +118,7 @@ export const classesId = (classes: Classes): string | null => {
 export const flattenClasses = (...classes: RecursiveArray<StyleClass | Falsy>): StyleClass[] => {
   return Utils.flatAndRemoveFalsy(classes);
 };
+
+export const getClassMeta = (clazz: StyleClass): StyleClassMeta => {
+  return clazz.__meta;
+}

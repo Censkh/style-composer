@@ -6,7 +6,7 @@ import * as Utils                                                               
 import {Falsy}                                                                                from "./Utils";
 import {DYNAMIC_UNIT_REGISTER_CHECK_VALUE, finishDynamicUnitSession, startDynamicUnitSession} from "./unit/DynamicUnit";
 import {finishThemeSession, startThemedSession}                                               from "./theme/Theming";
-import {finishRuleSession, startRuleSession, StyleRuleInstance}                               from "./rule/StyleRule";
+import {finishRuleSession, startRuleSession, StyleRule, StyleRules}                           from "./rule/StyleRule";
 import {finishImportantSession, isImportantValue, startImportantSession}                      from "./Important";
 import {StyleProp}                                                                            from "./component/Styler";
 import {ChildQuery}                                                                           from "./rule/ChildRule";
@@ -16,7 +16,7 @@ export const CASCADING_STYLES = ["fontSize", "fontFamily", "fontWeight", "color"
 export interface StylingResolution {
   sheetId: number | null;
   styling: StylingBuilder;
-  rules: Record<number, StyleRuleInstance>,
+  rules: StyleRules,
   staticStyle: StyleObject;
   staticImportantStyle: StyleObject | null;
   isSimple: boolean;
@@ -40,7 +40,7 @@ export type Styling<S = StyleObject> = Record<number, S> & S;
 
 export interface StylingSession {
   pseudoClasses?: string[];
-  childRules?: Array<StyleRuleInstance<ChildQuery>>;
+  childRules?: Array<StyleRule<ChildQuery>>;
 }
 
 export interface ComputeResults {

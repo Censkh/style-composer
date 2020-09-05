@@ -1,7 +1,7 @@
 import {DependencyList, useCallback, useContext, useEffect, useMemo, useRef, useState} from "react";
 import {
   registerRuleCallback,
-  StyleRuleInstance,
+  StyleRule,
   unregisterRuleCallback,
 }                                                                                      from "./rule/StyleRule";
 import {
@@ -59,6 +59,7 @@ export interface ComposedStyleResult {
   computedStyle: ComputedStyleList;
   flatPseudoClasses: string[],
   classNames: string[];
+  appliedClasses: StyleClass[];
 }
 
 export const useComposedStyle = (props: StylableProps, options?: { disableCascade?: boolean }): ComposedStyleResult => {
@@ -148,9 +149,9 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
   }, [style, parentCascadingStyleKey, key, fontKey, theme]);
 
   const childRules = useMemo(() => {
-    return classArray?.flatMap<StyleRuleInstance<any> | Falsy>((clazz) => {
-      return clazz.__meta.hasRules && Object.values(clazz.__meta.rules).filter(ruleInstance => ruleInstance.rule.id === child.id);
-    }).filter(Boolean) as Array<StyleRuleInstance<any>> | undefined;
+    return classArray?.flatMap<StyleRule<any> | Falsy>((clazz) => {
+      return clazz.__meta.hasRules && Object.values(clazz.__meta.rules).filter(ruleInstance => ruleInstance.type.id === child.id);
+    }).filter(Boolean) as Array<StyleRule<any>> | undefined;
   }, [classId]);
 
 
@@ -165,6 +166,7 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
     cascadingStyle   : memoCascadingStyle,
     classNames       : classNames,
     flatPseudoClasses: flatPseudoClasses,
+    appliedClasses   : classArray || [],
   };
 };
 
@@ -209,7 +211,7 @@ const useRulesEffect = (id: string, classes: StyleClass[] | Falsy, session: Styl
     if (currentClasses.current) {
       for (const clazz of currentClasses.current) {
         for (const ruleInstance of Object.values(clazz.__meta.rules)) {
-          state += ruleInstance.rule.check(ruleInstance.options, session) ? "1" : "0";
+          state += ruleInstance.type.check(ruleInstance.options, session) ? "1" : "0";
         }
         state += "-";
       }
@@ -227,8 +229,8 @@ const useRulesEffect = (id: string, classes: StyleClass[] | Falsy, session: Styl
         for (const clazz of classes) {
           if (clazz.__meta.hasRules) {
             for (const id of Object.keys(clazz.__meta.rules)) {
-              const ruleInstance = clazz.__meta.rules[id as any];
-              registerRuleCallback(ruleInstance.rule, checkForUpdates);
+              const rule = clazz.__meta.rules[id as any];
+              registerRuleCallback(rule.type, checkForUpdates);
             }
           }
         }
@@ -236,8 +238,8 @@ const useRulesEffect = (id: string, classes: StyleClass[] | Falsy, session: Styl
           for (const clazz of classes) {
             if (clazz.__meta.hasRules) {
               for (const id of Object.keys(clazz.__meta.rules)) {
-                const ruleInstance = clazz.__meta.rules[id as any];
-                unregisterRuleCallback(ruleInstance.rule, checkForUpdates);
+                const rule = clazz.__meta.rules[id as any];
+                unregisterRuleCallback(rule.type, checkForUpdates);
               }
             }
           }
@@ -261,7 +263,7 @@ export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: Depend
     let state = "";
     if (currentResolution.current) {
       for (const ruleInstance of Object.values(currentResolution.current.rules)) {
-        state += ruleInstance.rule.check(ruleInstance.options) ? "1" : "0";
+        state += ruleInstance.type.check(ruleInstance.options) ? "1" : "0";
       }
     }
     if (prevState.current !== state) {
@@ -282,13 +284,13 @@ export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: Depend
   useEffect(() => {
     if (resolution.hasRules) {
       for (const id of Object.keys(resolution.rules)) {
-        const ruleInstance = resolution.rules[id as any];
-        registerRuleCallback(ruleInstance.rule, checkForUpdates);
+        const rule = resolution.rules[id as any];
+        registerRuleCallback(rule.type, checkForUpdates);
       }
       return () => {
         for (const id of Object.keys(resolution.rules)) {
-          const ruleInstance = resolution.rules[id as any];
-          unregisterRuleCallback(ruleInstance.rule, checkForUpdates);
+          const rule = resolution.rules[id as any];
+          unregisterRuleCallback(rule.type, checkForUpdates);
         }
       };
     }

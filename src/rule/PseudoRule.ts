@@ -1,20 +1,18 @@
-import {createStyleRule, StyleRuleFunction} from "./StyleRule";
+import {createStyleRuleType, StyleRuleType} from "./StyleRule";
 
-const pseudo = createStyleRule<string>("pseudo", {
+export const createPseudoRule = (type: string): PseudoRuleType => createStyleRuleType("pseudo", {
   check(options, session) {
-    return Boolean(session?.pseudoClasses?.includes(options));
+    return Boolean(session?.pseudoClasses?.includes(type));
   },
-});
-
-export type PseudoRule = StyleRuleFunction & { type: string };
-
-export const createPseudoRule = (type: string): PseudoRule => Object.assign(() => {
-  return pseudo(type);
 }, {type});
+
+export type PseudoRuleType = StyleRuleType & { type: string };
 
 export const active   = createPseudoRule("active");
 export const disabled = createPseudoRule("disabled");
 export const focus    = createPseudoRule("focus");
 export const hover    = createPseudoRule("hover");
 
-export default pseudo;
+export const isPseudoRuleType = (ruleType: StyleRuleType<any>): ruleType is PseudoRuleType => {
+  return ruleType.id === "pseudo";
+};

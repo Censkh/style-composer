@@ -1,5 +1,5 @@
-import {Dimensions}      from "react-native";
-import {createStyleRule} from "./StyleRule";
+import {Dimensions}          from "react-native";
+import {createStyleRuleType} from "./StyleRule";
 
 export interface MediaQuery {
   maxWidth?: number,
@@ -9,7 +9,7 @@ export interface MediaQuery {
   minHeight?: number,
 }
 
-const media = createStyleRule<MediaQuery>("media", {
+const media = createStyleRuleType<MediaQuery>("media", {
   check(options: MediaQuery) {
     const screenWidth  = Math.round(Dimensions.get("window").width);
     const screenHeight = Math.round(Dimensions.get("window").height);
