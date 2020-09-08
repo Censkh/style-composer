@@ -69,6 +69,7 @@ export type StyleRuleType<O = void> = StyleRuleOptions<O> & StyleRuleFunction<O>
 
 export interface StyleRule<O = void> {
   id: number;
+  key: number;
   className: string;
   sheetId: number | null;
   options: O;
@@ -100,6 +101,8 @@ const createUpdateCallback = (rule: StyleRuleType<any>) => {
   };
 };
 
+let gid = 0;
+
 export function createStyleRuleType<O, P = {}>(id: string, options: StyleRuleOptions<O>, extraProperties?: P): StyleRuleType<O> & P {
   const ruleType: StyleRuleType<any> = Object.assign(function(options: O) {
     if (!ruleSession.running) {
@@ -110,6 +113,7 @@ export function createStyleRuleType<O, P = {}>(id: string, options: StyleRuleOpt
     if (ruleSession.registering) {
       ruleSession.instances[id] = {
         id       : id,
+        key: gid++,
         options  : options || {},
         type     : ruleType,
         className: "__rule_" + id + ruleType.id,

@@ -3,9 +3,9 @@ import {RecursiveArray, Text}       from "react-native";
 
 import {sanitizeStyleList, Style} from "../Styling";
 import {Classes, PseudoClasses}   from "../class/StyleClass";
-import {CascadingStyleProvider}   from "../CascadingStyleContext";
 import {useComposedStyle}         from "../Hooks";
 import {PolyText}                 from "./PolyComponents";
+import {CascadingValuesProvider}   from "../CascadingValuesContext";
 
 export type StyleProp = RecursiveArray<Style | undefined | null | false> | Style | undefined | null | false;
 
@@ -28,7 +28,7 @@ export interface StylerProps extends StylableProps {
 const Styler = (props: StylerProps) => {
   const {children, _baseComponent, ref} = props;
 
-  const {computedStyle, classNames, cascadingStyle, flatPseudoClasses} = useComposedStyle(props, {disableCascade: _baseComponent !== Text && _baseComponent !== PolyText});
+  const {computedStyle, classNames, cascadingContextValue, flatPseudoClasses} = useComposedStyle(props, {disableCascade: _baseComponent !== Text && _baseComponent !== PolyText});
 
   const internalRef = useRef<any>();
 
@@ -50,10 +50,10 @@ const Styler = (props: StylerProps) => {
     ref                : handleRef,
   } as any);
 
-  return cascadingStyle ?
-    <CascadingStyleProvider value={cascadingStyle}>
+  return cascadingContextValue ?
+    <CascadingValuesProvider value={cascadingContextValue}>
       {content}
-    </CascadingStyleProvider> : content as any;
+    </CascadingValuesProvider> : content as any;
 };
 
 export default Object.assign(Styler, {displayName: "Styler"});

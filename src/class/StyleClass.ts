@@ -13,7 +13,7 @@ import ClassManager     from "./ClassManager";
 import {PseudoRuleType} from "../rule/PseudoRule";
 
 export type StyleClassMeta<V extends Record<string, StyleClass> = {}> = StylingResolution & {
-  id: number;
+  key: number;
   name: string;
   className: string;
   parent: StyleClass | null;
@@ -48,7 +48,7 @@ export const composeClass = <V extends string = never>(name: string, styling: St
 
   const styledClass: StyleClass<any> = {
     __meta: {
-      id            : globalClassIdCounter++,
+      key            : globalClassIdCounter++,
       name          : name,
       parent        : options?.parent || null,
       className     : className,
@@ -103,7 +103,7 @@ export const classesId = (classes: Classes): string | null => {
   if (Array.isArray(classes)) {
     const classArray = Utils.flatAndRemoveFalsy(classes).reduce((classes, clazz) => {
       if (clazz) {
-        classes.push(clazz.__meta.id.toString());
+        classes.push(clazz.__meta.key.toString());
       }
       return classes;
     }, [] as string[]);

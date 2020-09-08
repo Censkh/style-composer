@@ -4,6 +4,7 @@ module.exports = {
       "getting-started",
       "usage",
       "style-rules",
+      "child-rule",
       "pseudo-classes",
       "dynamic-units",
       "use-composed-style",

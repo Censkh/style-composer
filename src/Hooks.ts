@@ -29,7 +29,7 @@ import {
   StylingSession,
 }                                                                                      from "./Styling";
 import {StylableProps}                                                                 from "./component/Styler";
-import CascadingStyleContext, {CascadingStyleContextState}                             from "./CascadingStyleContext";
+import CascadingValuesContext, {CascadingValuesContextState}                           from "./CascadingValuesContext";
 import {
   addFontLoadListener,
   getFontFamily,
@@ -37,7 +37,7 @@ import {
   isStyleComposerFont,
   removeFontLoadListener,
 }                                                                                      from "./font/FontFamily";
-import child                                                                           from "./rule/ChildRule";
+import child, {ChildQuery}                                                             from "./rule/ChildRule";
 import {setupFontPreProcessor}                                                         from "./font/FontPreProcessor";
 
 export const useForceUpdate = (): [number, () => void] => {
@@ -55,7 +55,7 @@ export interface StylingInternals {
 }
 
 export interface ComposedStyleResult {
-  cascadingStyle: CascadingStyleContextState | null;
+  cascadingContextValue: CascadingValuesContextState | null;
   computedStyle: ComputedStyleList;
   flatPseudoClasses: string[],
   classNames: string[];
@@ -67,29 +67,33 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
   const fontListeners                   = useRef<string[]>([]);
   const {
           style     : parentCascadingStyle,
-          key       : parentCascadingStyleKey,
+          key       : parentCascadingValuesKey,
           childRules: parentChildRules,
-        }                               = useContext(CascadingStyleContext);
+        }                               = useContext(CascadingValuesContext);
   const [fontKey, forceUpdate]          = useForceUpdate();
 
   const flatPseudoClasses       = (Array.isArray(pseudoClasses) ? Utils.flatAndRemoveFalsy(pseudoClasses) : (pseudoClasses && [pseudoClasses]) || [])
     .map(rule => typeof rule === "string" ? rule : rule.type);
   const session: StylingSession = {
     pseudoClasses: flatPseudoClasses || [],
-    childRules   : parentChildRules,
+    childRules: parentChildRules,
   };
 
-  const {theme, classId, key, classArray} = useStylingInternals(classes, session);
+  const {theme, key, classArray} = useStylingInternals(classes, session);
 
-  const applicableChildRules = classArray && parentChildRules.filter(rule => Utils.arrayify(rule.options).some(clazz => classArray?.includes(clazz)));
+  const applicableChildRules = classArray && parentChildRules.filter(rule => {
+    const options = Utils.arrayify(rule.options);
+    return classArray?.some(clazz => options.includes(clazz) || options.find(other => other.__meta.className === clazz.__meta.parent?.__meta.className));
+  });
 
   const needsCascade = !options?.disableCascade;
 
   const {
           computedStyle,
           cascadingStyle,
-          cascadingStyleKey,
+          cascadingValuesKey,
           classNames,
+          ownChildRules,
         } = useMemo(() => {
     const classResults = computeClasses(classArray, style, session);
 
@@ -138,35 +142,36 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
       }
     }
 
+    const ownChildRules      = classArray?.flatMap<StyleRule<ChildQuery> | Falsy>((clazz) => {
+        return clazz.__meta.hasRules && Object.values(clazz.__meta.rules).filter(rule => rule.type.id === child.id);
+      }).filter(Boolean) as Array<StyleRule<ChildQuery>> | undefined;
+    const childRulesKey      = ownChildRules?.map(rule => rule.key).join(",");
+    const cascadingValuesKey = [cascadingStyleKey || "null", childRulesKey || "null"].join("===");
 
     return {
-      classNames       : classResults.classNames,
-      computedStyle    : computedStyle,
-      computedStyleFlat: computedStyleFlat,
-      cascadingStyle   : cascadingStyle,
-      cascadingStyleKey: cascadingStyleKey,
+      classNames        : classResults.classNames,
+      computedStyle     : computedStyle,
+      computedStyleFlat : computedStyleFlat,
+      cascadingStyle    : cascadingStyle,
+      cascadingValuesKey: cascadingValuesKey,
+      ownChildRules     : ownChildRules,
     };
-  }, [style, parentCascadingStyleKey, key, fontKey, theme]);
-
-  const childRules = useMemo(() => {
-    return classArray?.flatMap<StyleRule<any> | Falsy>((clazz) => {
-      return clazz.__meta.hasRules && Object.values(clazz.__meta.rules).filter(ruleInstance => ruleInstance.type.id === child.id);
-    }).filter(Boolean) as Array<StyleRule<any>> | undefined;
-  }, [classId]);
+  }, [style, parentCascadingValuesKey, key, fontKey, theme]);
 
 
-  const memoCascadingStyle = useMemo<CascadingStyleContextState | null>(() => cascadingStyle && {
-    style     : cascadingStyle,
-    key       : cascadingStyleKey,
-    childRules: childRules && childRules.length > 0 ? [...childRules, ...parentChildRules] : parentChildRules,
-  }, [cascadingStyleKey]);
+  const hasCascade            = Boolean(cascadingStyle || (ownChildRules && ownChildRules.length > 0));
+  const cascadingContextValue = useMemo<CascadingValuesContextState | null>(() => (hasCascade && {
+    style     : cascadingStyle || parentCascadingStyle,
+    key       : cascadingValuesKey,
+    childRules: ownChildRules && ownChildRules.length > 0 ? [...ownChildRules, ...parentChildRules] : parentChildRules,
+  }) || null, [cascadingValuesKey]);
 
   return {
-    computedStyle    : computedStyle as ComputedStyleList,
-    cascadingStyle   : memoCascadingStyle,
-    classNames       : classNames,
-    flatPseudoClasses: flatPseudoClasses,
-    appliedClasses   : classArray || [],
+    computedStyle        : computedStyle as ComputedStyleList,
+    cascadingContextValue: cascadingContextValue,
+    classNames           : classNames,
+    flatPseudoClasses    : flatPseudoClasses,
+    appliedClasses       : classArray || [],
   };
 };
 

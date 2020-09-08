@@ -1,6 +1,6 @@
 {
   "name": "style-composer",
-  "version": "0.4.0-alpha4",
+  "version": "0.4.0-alpha5",
   "main": "cjs/index.js",
   "types": "esm/index.d.ts",
   "module": "esm/index.js",
@@ -8,6 +8,7 @@
     "example:start": "cd example && npm run start",
     "example:dev": "cd example && npm run dev",
     "website:dev": "cd website && npm run start",
+    "website:deploy": "cd website && npm run deploy",
     "lint": "eslint --ext .tsx,.ts src",
     "lint:fix": "eslint --fix --ext .tsx,.ts src",
     "cleanup": "rimraf esm && rimraf cjs",
