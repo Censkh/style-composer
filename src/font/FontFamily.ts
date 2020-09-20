@@ -49,15 +49,9 @@ export const createFontFamily = (
       if (!isFontLoading(fontName)) {
         const resource = config[type] as string;
         if (resource) {
-          // @ts-ignore
-          const styleElement: HTMLStyleElement = styleMap[fontName] = (document).createElement("style");
-          // @ts-ignore
-          styleElement.innerText               = `@font-face{
-          font-family: '${fontName}';
-          font-display: swap;
-          src: url(${resource})
-        }`;
-          // @ts-ignore
+          const styleElement     = styleMap[fontName] = (document).createElement("style");
+          styleElement.innerText = `@font-face{font-family: '${fontName}';font-display: swap;src: url(${resource})}`;
+          styleElement.setAttribute("data-font-family", fontName);
           document.head.appendChild(styleElement);
         }
       }

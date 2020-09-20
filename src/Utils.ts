@@ -6,8 +6,6 @@ export type PropsOf<C extends React.ComponentType> = C extends React.ComponentTy
 export type Falsy = false | null | undefined | "" | 0;
 
 export const getGlobal = (): any => {
-  // eslint-disable-next-line
-  // @ts-ignore
   return typeof global !== "undefined" ? global : window;
 };
 
@@ -16,8 +14,6 @@ export const getDocument = (): any => {
 };
 
 export const isNative = (): boolean => {
-  // eslint-disable-next-line
-  // @ts-ignore
   return typeof document === "undefined";
 };
 
