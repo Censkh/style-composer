@@ -3,6 +3,8 @@ import {FONT_TYPES, FONT_WEIGHTS, FontFamily, FontFamilyConfig, FontVariant} fro
 export const fontFamilyMap: Record<string, FontFamily>   = {};
 export const fontVariantMap: Record<string, FontVariant> = {};
 
+const styleMap: Record<string, HTMLStyleElement> = {};
+
 export const addFontLoadListener = (name: string, callback: () => void): void => {
 };
 
@@ -10,11 +12,11 @@ export const removeFontLoadListener = (name: string, callback: () => void): void
 };
 
 export const isFontLoading = (name: string): boolean => {
-  return false;
+  return Boolean(styleMap[name]);
 };
 
 export const isFontLoaded = (name: string): boolean => {
-  return true;
+  return Boolean(styleMap[name]);
 };
 
 export const isStyleComposerFont = (name: string): boolean => {
@@ -44,6 +46,21 @@ export const createFontFamily = (
   for (const type of FONT_TYPES) {
     const fontName   = `${name}__${type}`;
     fontFamily[type] = () => {
+      if (!isFontLoading(fontName)) {
+        const resource = config[type] as string;
+        if (resource) {
+          // @ts-ignore
+          const styleElement: HTMLStyleElement = styleMap[fontName] = (document).createElement("style");
+          // @ts-ignore
+          styleElement.innerText               = `@font-face{
+          font-family: '${fontName}';
+          font-display: swap;
+          src: url(${resource})
+        }`;
+          // @ts-ignore
+          document.head.appendChild(styleElement);
+        }
+      }
       return fontName;
     };
   }
