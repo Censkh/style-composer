@@ -3,7 +3,9 @@ import {RecursiveArray} from "react-native";
 
 export type OmitEx<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
 
-export type PropsOf<C extends React.ComponentType<any>> = C extends React.ComponentType<infer P> ? P : never;
+export type PropsOf<C extends React.ComponentType<any> | keyof JSX.IntrinsicElements> = C extends React.ComponentType<infer P> ? P : (
+  C extends keyof JSX.IntrinsicElements ? JSX.IntrinsicElements[C] : {  }
+);
 
 export type Falsy = false | null | undefined | "" | 0;
 

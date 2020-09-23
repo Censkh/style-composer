@@ -8,6 +8,7 @@
 - add `hover()` pseudo rule
 - add prop types for in-built components
 - add `StyledAnimated`
+- add `autoFlattens` rule and now flatten style list by default
 
 ## 0.3.0
 

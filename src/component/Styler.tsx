@@ -1,11 +1,13 @@
-import React, {useCallback, useRef} from "react";
-import {RecursiveArray, Text}       from "react-native";
+import React, {useCallback, useRef}                 from "react";
+import {RecursiveArray, Text, StyleSheet, Platform} from "react-native";
 
 import {sanitizeStyleList, Style} from "../Styling";
 import {Classes, PseudoClasses}   from "../class/StyleClass";
 import {useComposedStyle}         from "../Hooks";
 import {PolyText}                 from "./PolyComponents";
-import {CascadingValuesProvider}   from "../CascadingValuesContext";
+import {CascadingValuesProvider}  from "../CascadingValuesContext";
+import {StyledOptions}            from "./StyledComponents";
+import {isNative}                 from "../Utils";
 
 export type StyleProp = RecursiveArray<Style | undefined | null | false> | Style | undefined | null | false;
 
@@ -23,10 +25,11 @@ export interface StylerProps extends StylableProps {
   children?: StylerChildren,
   _baseComponent: React.ElementType;
   ref?: React.Ref<any>;
+  options?: StyledOptions;
 }
 
 const Styler = (props: StylerProps) => {
-  const {children, _baseComponent, ref} = props;
+  const {children, _baseComponent, ref, options} = props;
 
   const {computedStyle, classNames, cascadingContextValue, flatPseudoClasses} = useComposedStyle(props, {disableCascade: _baseComponent !== Text && _baseComponent !== PolyText});
 
@@ -43,8 +46,11 @@ const Styler = (props: StylerProps) => {
     }
   }, [ref]);
 
+  const sanitizedStyleList = sanitizeStyleList(children, computedStyle as any);
+  const flatStyle = isNative() || options?.autoFlattens ? sanitizedStyleList : StyleSheet.flatten(sanitizedStyleList);
+
   const content = !children || typeof children === "string" ? children : React.cloneElement(children, {
-    style              : sanitizeStyleList(children, computedStyle as any),
+    style              : flatStyle,
     "data-class"       : classNames?.join(" "),
     "data-pseudo-class": flatPseudoClasses.join(" "),
     ref                : handleRef,

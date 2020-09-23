@@ -199,21 +199,24 @@ export function sanitizeStyleValue<T extends string | number>(value: T): T {
  */
 export const sanitizeStylingToStaticStyle = (styling: Styling | StyleObject): { style: StyleObject, importantStyle: StyleObject | null } => {
   let importantStyle: StyleObject | null = null;
-  return {
-    style         : Object.keys(styling).reduce((style: any, key: any) => {
-      const value = (styling as any)[key];
-      if (typeof key === "string" && (!isDynamicValue(value) || isImportantValue(value))) {
-        const sanitizedValue = sanitizeStyleValue(value);
-        if (isImportantValue(value)) {
-          if (!importantStyle) {
-            importantStyle = {};
-          }
-          (importantStyle as any)[key] = sanitizedValue;
+
+  const style = Object.keys(styling).reduce((style: any, key: any) => {
+    const value = (styling as any)[key];
+    if (typeof key === "string" && (!isDynamicValue(value) || isImportantValue(value))) {
+      const sanitizedValue = sanitizeStyleValue(value);
+      if (isImportantValue(value)) {
+        if (!importantStyle) {
+          importantStyle = {};
         }
-        style[key] = sanitizedValue;
+        (importantStyle as any)[key] = sanitizedValue;
       }
-      return style;
-    }, {} as StyleObject),
+      style[key] = sanitizedValue;
+    }
+    return style;
+  }, {} as StyleObject);
+
+  return {
+    style         : style,
     importantStyle: importantStyle,
   };
 };
