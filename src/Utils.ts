@@ -1,6 +1,8 @@
 import React            from "react";
 import {RecursiveArray} from "react-native";
 
+export type OmitEx<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
+
 export type PropsOf<C extends React.ComponentType<any>> = C extends React.ComponentType<infer P> ? P : never;
 
 export type Falsy = false | null | undefined | "" | 0;

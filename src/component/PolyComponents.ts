@@ -1,5 +1,5 @@
-import React                                                                        from "react";
-import * as Utils                                                                   from "../Utils";
+import React      from "react";
+import * as Utils from "../Utils";
 import {
   Text,
   TouchableHighlight,
@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
-} from "react-native";
+}                 from "react-native";
 
 export type PolyProps<P> = P & {
   tag?: keyof JSX.IntrinsicElements;
@@ -29,7 +29,7 @@ const renderPoly = (props: PolyProps<any>, element: React.ReactElement): React.R
 let bailPoly = false;
 
 const extendClassComponent = (baseComponent: any) => {
-  const polyClass       = class extends (baseComponent as any) {
+  const polyClass = class extends (baseComponent as any) {
     render() {
       if (bailPoly) {
         return super.render();
@@ -55,7 +55,7 @@ const extendClassComponent = (baseComponent: any) => {
 };
 
 const extendFunctionComponent = (baseComponent: any) => {
-  const renderFunc = baseComponent.render;
+  const renderFunc     = baseComponent.render;
   baseComponent.render = (props: any, ref: any) => {
     return renderPoly(props, renderFunc(props, ref));
   };
@@ -71,7 +71,7 @@ export const poly  = <P>(baseComponent: React.ComponentType<P>): React.Component
     return baseComponent;
   }
 
-  const polyClass = baseComponent.prototype ? extendClassComponent(baseComponent) : extendFunctionComponent(baseComponent);
+  const polyClass       = baseComponent.prototype ? extendClassComponent(baseComponent) : extendFunctionComponent(baseComponent);
   polyClass.displayName = `Poly[${baseComponent.displayName}]`;
 
   return polyClass as any;
