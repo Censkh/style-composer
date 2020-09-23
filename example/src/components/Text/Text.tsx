@@ -1,12 +1,11 @@
 import React                    from "react";
-import {StyleClass, StyledText} from "style-composer";
+import {StyleClass, StyledText, StyledTextProps} from "style-composer";
 
 import {$Heading, $Text} from "./Text.style";
-import {PropsOf}         from "../../../../src/Utils";
 
 export type TextVariant = "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
-export interface TextProps extends PropsOf<typeof StyledText> {
+export interface TextProps extends StyledTextProps {
   children: React.ReactNode;
   variant?: TextVariant;
 }

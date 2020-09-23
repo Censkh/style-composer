@@ -1,5 +1,14 @@
-import React                                                          from "react";
-import {Animated, Button, Image, SafeAreaView, ScrollView, TextInput} from "react-native";
+import React from "react";
+import {
+  Animated,
+  Button,
+  Image,
+  NativeSyntheticEvent,
+  SafeAreaView,
+  ScrollView,
+  TextInput,
+  TextLayoutEventData,
+}            from "react-native";
 
 import {
   PolyText,
@@ -51,7 +60,9 @@ export const StyledImage                    = styled(Image);
 
 export type StyledSafeAreaViewProps = PropsOf<typeof StyledSafeAreaView>;
 export type StyledViewProps = PropsOf<typeof StyledView>;
-export type StyledTextProps = PropsOf<typeof StyledText>;
+export type StyledTextProps =
+  PropsOf<typeof StyledText>
+  & { onTextLayout?: (event: NativeSyntheticEvent<TextLayoutEventData>) => void; }
 export type StyledTextInputProps = PropsOf<typeof StyledTextInput>;
 export type StyledButtonProps = PropsOf<typeof StyledButton>;
 export type StyledTouchableNativeFeedbackProps = PropsOf<typeof StyledTouchableNativeFeedback>;
