@@ -1,7 +1,7 @@
 import React            from "react";
 import {RecursiveArray} from "react-native";
 
-export type PropsOf<C extends React.ComponentType> = C extends React.ComponentType<infer P> ? P : never;
+export type PropsOf<C extends React.ComponentType<any>> = C extends React.ComponentType<infer P> ? P : never;
 
 export type Falsy = false | null | undefined | "" | 0;
 

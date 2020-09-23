@@ -1,5 +1,5 @@
-import React                                                                          from "react";
-import {Button, Image, SafeAreaView, ScrollView, TextInput, TouchableWithoutFeedback} from "react-native";
+import React                                                          from "react";
+import {Animated, Button, Image, SafeAreaView, ScrollView, TextInput} from "react-native";
 
 import {
   PolyText,
@@ -10,11 +10,11 @@ import {
   PolyView,
 }                              from "./PolyComponents";
 import {classesId}             from "..";
-import {shallowEqual}          from "../Utils";
+import {PropsOf, shallowEqual} from "../Utils";
 import Styler, {StylableProps} from "./Styler";
 
 // we use (P & {style?: never}) to prevent ts from merging the two style properties together
-export type StyledComponent<P> = React.ComponentType<(P & { style?: unknown }) & StylableProps>;
+export type StyledComponent<P> = React.ComponentType<Omit<P, "style"> & StylableProps>;
 
 export function styled<P>(baseComponent: React.ComponentType<P>): StyledComponent<P> {
   return React.memo(Object.assign(React.forwardRef((props: any, ref) => {
@@ -48,3 +48,22 @@ export const StyledTouchableWithoutFeedback = styled(PolyTouchableWithoutFeedbac
 export const StyledTouchableHighlight       = styled(PolyTouchableHighlight);
 export const StyledScrollView               = styled(ScrollView);
 export const StyledImage                    = styled(Image);
+
+export type StyledSafeAreaViewProps = PropsOf<typeof StyledSafeAreaView>;
+export type StyledViewProps = PropsOf<typeof StyledView>;
+export type StyledTextProps = PropsOf<typeof StyledText>;
+export type StyledTextInputProps = PropsOf<typeof StyledTextInput>;
+export type StyledButtonProps = PropsOf<typeof StyledButton>;
+export type StyledTouchableNativeFeedbackProps = PropsOf<typeof StyledTouchableNativeFeedback>;
+export type StyledTouchableOpacityProps = PropsOf<typeof StyledTouchableOpacity>;
+export type StyledTouchableWithoutFeedbackProps = PropsOf<typeof StyledTouchableWithoutFeedback>;
+export type StyledTouchableHighlightProps = PropsOf<typeof StyledTouchableHighlight>;
+export type StyledScrollViewProps = PropsOf<typeof StyledScrollView>;
+export type StyledImageProps = PropsOf<typeof StyledImage>;
+
+export const StyledAnimated = {
+  View      : styled(Animated.View),
+  Text      : styled(Animated.Text),
+  ScrollView: styled(Animated.ScrollView),
+  Image     : styled(Animated.Image),
+};
