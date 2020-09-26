@@ -10,6 +10,11 @@
 - add `StyledAnimated`
 - add `autoFlattens` rule and now flatten style list by default
 
+### Fix
+
+- fix text rendering on rnw 13
+- fix data props on rnw 13
+
 ## 0.3.0
 
 ### Breaking

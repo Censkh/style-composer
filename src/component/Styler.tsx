@@ -49,10 +49,16 @@ const Styler = (props: StylerProps) => {
   const sanitizedStyleList = sanitizeStyleList(children, computedStyle as any);
   const flatStyle = isNative() || options?.autoFlattens ? sanitizedStyleList : StyleSheet.flatten(sanitizedStyleList);
 
+  const dataSet = {
+    "class": classNames?.join(" "),
+    "pseudo-class": flatPseudoClasses.join(" "),
+  };
+
   const content = !children || typeof children === "string" ? children : React.cloneElement(children, {
     style              : flatStyle,
-    "data-class"       : classNames?.join(" "),
-    "data-pseudo-class": flatPseudoClasses.join(" "),
+    "data-class"       : dataSet["class"],
+    "data-pseudo-class": dataSet["pseudo-class"],
+    dataSet: dataSet,
     ref                : handleRef,
   } as any);
 

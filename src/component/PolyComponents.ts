@@ -55,9 +55,26 @@ const extendClassComponent = (baseComponent: any) => {
 };
 
 const extendFunctionComponent = (baseComponent: any) => {
-  const renderFunc     = baseComponent.render;
+  const renderFunc                         = baseComponent.render;
+  let isProviderBased: boolean | undefined = undefined;
+
   baseComponent.render = (props: any, ref: any) => {
-    return renderPoly(props, renderFunc(props, ref));
+    const children = renderFunc(props, ref);
+    if (isProviderBased === undefined) {
+      isProviderBased = Boolean(children.type.$$typeof?.toString().includes("react.provider"));
+    }
+
+    if (isProviderBased) {
+      return {
+        ...children,
+        props: {
+          ...children.props,
+          children: renderPoly(props, children.props.children),
+        },
+      };
+    }
+
+    return renderPoly(props, children);
   };
   return baseComponent;
 };
@@ -66,10 +83,11 @@ const extendFunctionComponent = (baseComponent: any) => {
 /**
  * A HOC to allow a React Native component to change the base DOM element tag on web
  */
-export const poly  = <P>(baseComponent: React.ComponentType<P>): React.ComponentType<PolyProps<P>> => {
-  if (Utils.isNative()) {
+export const poly  = <P>(baseComponent: React.ComponentType<P> & { isPoly?: boolean }): React.ComponentType<PolyProps<P>> => {
+  if (Utils.isNative() || baseComponent.isPoly) {
     return baseComponent;
   }
+  baseComponent.isPoly = true;
 
   const polyClass       = baseComponent.prototype ? extendClassComponent(baseComponent) : extendFunctionComponent(baseComponent);
   polyClass.displayName = `Poly[${baseComponent.displayName}]`;
