@@ -1,5 +1,6 @@
-import {Dimensions, ScaledSize} from "react-native";
-import {isSsr}                  from "./Utils";
+import {Dimensions, ScaledSize}   from "react-native";
+import {isNative, isSsr, PropsOf} from "./Utils";
+import React                      from "react";
 
 export type DeviceType = "mobile" | "desktop";
 
@@ -18,11 +19,14 @@ const SSR_DIMENSIONS: Record<DeviceType, ScaledSize> = {
   },
 };
 
+const HEAD_ELEMENT_DATA_ATTRIBUTE_NAME = "data-sc-element-key";
+
 export type ScreenSizeChangeListener = () => void;
 
 class StyleEnvironment {
 
-  private deviceType: DeviceType = "desktop";
+  private serverSideHeadElements: Record<string, React.ReactElement | null> = {};
+  private deviceType: DeviceType                                  = "desktop";
 
   setDeviceType(deviceType: DeviceType): void {
     this.deviceType = deviceType;
@@ -53,6 +57,36 @@ class StyleEnvironment {
 
   removeScreenSizeChangeListener(listener: ScreenSizeChangeListener): void {
     Dimensions.removeEventListener("change", listener);
+  }
+
+  updateHeadElement<T extends keyof JSX.IntrinsicElements>(key: string, type: T, content: string, props: any): void {
+    if (isNative()) return undefined;
+
+    const computedProps = Object.assign({}, props, {[HEAD_ELEMENT_DATA_ATTRIBUTE_NAME]: key});
+
+    if (isSsr()) {
+      const element = this.serverSideHeadElements[key];
+      if (!element) {
+        this.serverSideHeadElements[key] = React.createElement(type, computedProps, content);
+      } else {
+        this.serverSideHeadElements[key] = React.cloneElement(element, computedProps, content);
+      }
+    } else {
+      let element = document.head.querySelector(`[${HEAD_ELEMENT_DATA_ATTRIBUTE_NAME}*="${key}"]`);
+      if (!element) {
+        element = document.createElement(type);
+        document.head.appendChild(element);
+      }
+
+      (element as any).innerText = content;
+      for (const propName in props) {
+        element.setAttribute(propName, (props as any)[propName]);
+      }
+    }
+  }
+
+  getServerSideHeadElements(): React.ReactElement {
+    return React.createElement(React.Fragment, {}, Object.values(this.serverSideHeadElements));
   }
 
 }

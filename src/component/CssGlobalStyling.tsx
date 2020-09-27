@@ -1,5 +1,4 @@
-import * as Utils        from "../Utils";
-import {useLayoutEffect} from "react";
+import StyleEnvironment from "../StyleEnvironment";
 
 export interface CssGlobalStylingProps {
   name: string;
@@ -7,11 +6,8 @@ export interface CssGlobalStylingProps {
 }
 
 const CssGlobalStyling = (props: CssGlobalStylingProps): null => {
-  if (Utils.isNative()) return null;
   const {name, children} = props;
-  useLayoutEffect(() => {
-    Utils.setStyleSheet(`css-global-styling[${name}]`, children);
-  }, [children]);
+  StyleEnvironment.updateHeadElement(`css-global-styling(${name})`, "style", children, {"data-style-sheet": name});
   return null;
 };
 

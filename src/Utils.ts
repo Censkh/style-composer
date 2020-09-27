@@ -13,7 +13,7 @@ export const getGlobal = (): any => {
   return typeof global !== "undefined" ? global : window;
 };
 
-export const getDocument = (): any => {
+export const getDocument = (): Document => {
   return getGlobal().document;
 };
 
@@ -31,21 +31,6 @@ export const isBrowser = (): boolean => {
 
 export const isNative = (): boolean => {
   return !isWeb();
-};
-
-export const setStyleSheet = (name: string, content: string): void => {
-  if (!isNative()) {
-    const document = getDocument();
-    const id       = `stylesheet-${name}`;
-    let style: any = document.getElementById(id);
-    if (!style) {
-      style    = document.createElement("style");
-      style.id = `stylesheet-${name}`;
-      style.setAttribute("data-name", name);
-      document.head.appendChild(style);
-    }
-    style.innerHTML = content;
-  }
 };
 
 export const flatAndRemoveFalsy = <T>(array: RecursiveArray<T | Falsy>): Array<T> => {

@@ -1,10 +1,10 @@
 import {FONT_TYPES, FONT_WEIGHTS, FontFamily, FontFamilyConfig, FontVariant} from "./Fonts";
-import {isBrowser}                                                           from "../Utils";
+import {StyleEnvironment}                                                    from "../index";
 
 export const fontFamilyMap: Record<string, FontFamily>   = {};
 export const fontVariantMap: Record<string, FontVariant> = {};
 
-const styleMap: Record<string, HTMLStyleElement> = {};
+const loadingMap: Record<string, boolean> = {};
 
 export const addFontLoadListener = (name: string, callback: () => void): void => {
 };
@@ -13,11 +13,11 @@ export const removeFontLoadListener = (name: string, callback: () => void): void
 };
 
 export const isFontLoading = (name: string): boolean => {
-  return Boolean(styleMap[name]);
+  return Boolean(loadingMap[name]);
 };
 
 export const isFontLoaded = (name: string): boolean => {
-  return Boolean(styleMap[name]);
+  return Boolean(loadingMap[name]);
 };
 
 export const isStyleComposerFont = (name: string): boolean => {
@@ -47,13 +47,12 @@ export const createFontFamily = (
   for (const type of FONT_TYPES) {
     const fontName   = `${name}__${type}`;
     fontFamily[type] = () => {
-      if (isBrowser() && !isFontLoading(fontName)) {
+      if (!isFontLoading(fontName)) {
         const resource = config[type] as string;
         if (resource) {
-          const styleElement     = styleMap[fontName] = (document).createElement("style");
-          styleElement.innerText = `@font-face{font-family: '${fontName}';font-display: swap;src: url(${resource})}`;
-          styleElement.setAttribute("data-font-family", fontName);
-          document.head.appendChild(styleElement);
+          const css = `@font-face{font-family: '${fontName}';font-display: swap;src: url(${resource})}`;
+          StyleEnvironment.updateHeadElement(`font-family(${fontName})`, "style", css, {"data-font-family": fontName});
+          loadingMap[fontName] = true;
         }
       }
       return fontName;
