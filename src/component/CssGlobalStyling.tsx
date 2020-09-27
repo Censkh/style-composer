@@ -7,7 +7,7 @@ export interface CssGlobalStylingProps {
 
 const CssGlobalStyling = (props: CssGlobalStylingProps): null => {
   const {name, children} = props;
-  StyleEnvironment.updateHeadElement(`css-global-styling(${name})`, "style", children, {"data-style-sheet": name});
+  StyleEnvironment.updateHeadElement(`css-global-styling(${name})`, "style", {"data-style-sheet": name}, children);
   return null;
 };
 

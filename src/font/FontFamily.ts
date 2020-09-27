@@ -50,8 +50,16 @@ export const createFontFamily = (
       if (!isFontLoading(fontName)) {
         const resource = config[type] as string;
         if (resource) {
-          const css = `@font-face{font-family: '${fontName}';font-display: swap;src: url(${resource})}`;
-          StyleEnvironment.updateHeadElement(`font-family(${fontName})`, "style", css, {"data-font-family": fontName});
+          const fileType = resource.split(".")[1];
+          const css      = `@font-face{font-family: '${fontName}';font-display: swap;src: url(${resource})}`;
+          StyleEnvironment.updateHeadElement(`font-family-style(${fontName})`, "style", {"data-font-family": fontName}, css);
+          StyleEnvironment.updateHeadElement(`font-family-preload(${fontName})`, "link", {
+            "rel"        : "preload",
+            "href"       : resource,
+            "as"         : "font",
+            "type"       : `font/${fileType}`,
+            "crossorigin": "anonymous",
+          });
           loadingMap[fontName] = true;
         }
       }

@@ -59,7 +59,7 @@ class StyleEnvironment {
     Dimensions.removeEventListener("change", listener);
   }
 
-  updateHeadElement<T extends keyof JSX.IntrinsicElements>(key: string, type: T, content: string, props: any): void {
+  updateHeadElement<T extends keyof JSX.IntrinsicElements>(key: string, type: T, props: any, content?: string): void {
     if (isNative()) return undefined;
 
     const computedProps = Object.assign({}, props, {[HEAD_ELEMENT_DATA_ATTRIBUTE_NAME]: key});
@@ -78,7 +78,9 @@ class StyleEnvironment {
         document.head.appendChild(element);
       }
 
-      (element as any).innerText = content;
+      if (content) {
+        (element as any).innerText = content;
+      }
       for (const propName in props) {
         element.setAttribute(propName, (props as any)[propName]);
       }
