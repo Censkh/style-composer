@@ -6,9 +6,9 @@ import {
   StyleObject,
   StylingBuilder,
   StylingResolution,
-}                   from "../Styling";
-import * as Utils   from "../Utils";
-import {Falsy}      from "../Utils";
+}                       from "../Styling";
+import * as Utils       from "../Utils";
+import {Falsy}          from "../Utils";
 import ClassManager     from "./ClassManager";
 import {PseudoRuleType} from "../rule/PseudoRule";
 
@@ -48,7 +48,7 @@ export const composeClass = <V extends string = never>(name: string, styling: St
 
   const styledClass: StyleClass<any> = {
     __meta: {
-      key            : globalClassIdCounter++,
+      key           : globalClassIdCounter++,
       name          : name,
       parent        : options?.parent || null,
       className     : className,
@@ -121,4 +121,4 @@ export const flattenClasses = (...classes: RecursiveArray<StyleClass | Falsy>): 
 
 export const getClassMeta = (clazz: StyleClass): StyleClassMeta => {
   return clazz.__meta;
-}
+};

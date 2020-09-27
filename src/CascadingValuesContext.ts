@@ -1,7 +1,7 @@
-import {StyleObject}       from "./Styling";
-import React        from "react";
-import {StyleRule}  from "./rule/StyleRule";
-import {ChildQuery} from "./rule/ChildRule";
+import {StyleObject} from "./Styling";
+import React         from "react";
+import {StyleRule}   from "./rule/StyleRule";
+import {ChildQuery}  from "./rule/ChildRule";
 
 export interface CascadingValuesContextState {
   style: StyleObject;
@@ -10,8 +10,8 @@ export interface CascadingValuesContextState {
 }
 
 const CascadingValuesContext = React.createContext<CascadingValuesContextState>({
-  style        : {},
-  key          : "",
+  style     : {},
+  key       : "",
   childRules: [],
 });
 Object.assign(CascadingValuesContext, {displayName: "CascadingValues"});

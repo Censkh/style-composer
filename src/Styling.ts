@@ -80,6 +80,14 @@ export function computeClasses(styleClass: StyleClass[] | Falsy, styleProp?: Sty
   return {classNames: classNames, style: style};
 }
 
+const extractDynamicPropsToStyle = (styling: Styling<any>, dynamicProps: string[]): StyleObject => {
+  const dynamicStyle: Style = {};
+  for (const dynamicProp of dynamicProps) {
+    (dynamicStyle as any)[dynamicProp] = styling[dynamicProp];
+  }
+  return dynamicStyle;
+};
+
 export type ComputedStyleList = Array<Style>;
 
 export const computeStyling = (resolution: StylingResolution): StyleObject => {
@@ -124,11 +132,7 @@ const internalComputedStyling = (resolution: StylingResolution, session: Styling
   outStyle.push((sheetId || style) as any);
 
   if (hasDynamicProps) {
-    const dynamicStyle: Style = {};
-    for (const dynamicProp of dynamicProps[0]) {
-      (dynamicStyle as any)[dynamicProp] = style[dynamicProp];
-    }
-    outStyle.push(dynamicStyle);
+    outStyle.push(extractDynamicPropsToStyle(style, dynamicProps[0]));
   }
 
   if (hasImportant) {
@@ -149,11 +153,7 @@ const internalComputedStyling = (resolution: StylingResolution, session: Styling
         // add dynamic props for rule
         const ruleDynamicProps = dynamicProps[ruleInstance.id];
         if (hasDynamicProps && ruleDynamicProps) {
-          const ruleDynamicStyle: Style = {};
-          for (const dynamicProp of ruleDynamicProps) {
-            (ruleDynamicStyle as any)[dynamicProp] = (ruleStyle as any)[dynamicProp];
-          }
-          outStyle.push(ruleDynamicStyle);
+          outStyle.push(extractDynamicPropsToStyle(ruleStyle, ruleDynamicProps));
         }
 
         // add important props for rule
@@ -242,13 +242,13 @@ export const resolveStyling = (styling: StylingBuilder): StylingResolution => {
 
   // if we have themed / dynamic units values in this style, work out which properties they are
   if (hasDynamicProps) {
-    extractDynamicProps(dynamicProps, 0, resolvedStyling);
+    resolveDynamicProps(dynamicProps, 0, resolvedStyling);
   }
 
   const importantProps: Record<number, string[]> | null = {0: []};
   // if we have important values, extract which ones they are
   if (hasImportant) {
-    extractImportantProps(importantProps, 0, resolvedStyling);
+    resolveImportantProps(importantProps, 0, resolvedStyling);
   }
 
   const {style, importantStyle} = sanitizeStylingToStaticStyle(resolvedStyling);
@@ -289,25 +289,25 @@ export const resolveStyling = (styling: StylingBuilder): StylingResolution => {
  * ```
  * whilst startThemingSession() is active
  */
-const extractDynamicProps = (dynamicProps: Record<number, string[]>, currentScope: number, styling: Styling) => {
+const resolveDynamicProps = (dynamicProps: Record<number, string[]>, currentScope: number, styling: Styling) => {
   for (const key of Object.keys(styling)) {
     const value = (styling as any)[key];
     if (typeof value === "object") {
-      extractDynamicProps(dynamicProps, parseInt(key), value);
+      resolveDynamicProps(dynamicProps, parseInt(key), value);
     } else if (isDynamicValue(value)) {
       (dynamicProps[currentScope] || (dynamicProps[currentScope] = [])).push(key);
     }
   }
 };
 
-const extractImportantProps = (importantProps: Record<number, string[]>, currentScope: number, styling: Styling) => {
+const resolveImportantProps = (importantProps: Record<number, string[]>, currentScope: number, styling: Styling) => {
   for (const key of Object.keys(styling)) {
     const value = (styling as any)[key];
     if (isImportantValue(value)) {
       (styling as any)[key] = sanitizeStyleValue(value);
       (importantProps[currentScope] || (importantProps[currentScope] = [])).push(key);
     } else if (typeof value === "object") {
-      extractImportantProps(importantProps, parseInt(key), value);
+      resolveImportantProps(importantProps, parseInt(key), value);
     }
   }
 };

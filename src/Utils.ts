@@ -1,11 +1,11 @@
-import React            from "react";
-import {RecursiveArray} from "react-native";
+import React                      from "react";
+import {Platform, RecursiveArray} from "react-native";
 
 export type OmitEx<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
 
 export type PropsOf<C extends React.ComponentType<any> | keyof JSX.IntrinsicElements> = C extends React.ComponentType<infer P> ? P : (
-  C extends keyof JSX.IntrinsicElements ? JSX.IntrinsicElements[C] : {  }
-);
+  C extends keyof JSX.IntrinsicElements ? JSX.IntrinsicElements[C] : {}
+  );
 
 export type Falsy = false | null | undefined | "" | 0;
 
@@ -17,8 +17,20 @@ export const getDocument = (): any => {
   return getGlobal().document;
 };
 
+export const isSsr = (): boolean => {
+  return isWeb() && !isBrowser();
+};
+
+export const isWeb = (): boolean => {
+  return Platform.OS === "web" || isBrowser();
+};
+
+export const isBrowser = (): boolean => {
+  return typeof document !== "undefined";
+};
+
 export const isNative = (): boolean => {
-  return typeof document === "undefined";
+  return !isWeb();
 };
 
 export const setStyleSheet = (name: string, content: string): void => {

@@ -21,17 +21,17 @@ export const finishDynamicUnitSession = (): boolean => {
 };
 
 export interface DynamicUnit {
-  (): number;
+  (value?: number): number | string;
 
   key: string;
 }
 
-export const createDynamicUnit = (key: string, func: () => number): DynamicUnit => {
-  return Object.assign(() => {
+export const createDynamicUnit = (key: string, func: (value?: number) => number | string): DynamicUnit => {
+  return Object.assign((value?: number) => {
     if (dynamicUnitSession.running) {
       dynamicUnitSession.called = true;
       return DYNAMIC_UNIT_REGISTER_CHECK_VALUE;
     }
-    return func();
+    return func(value);
   }, {key});
 };

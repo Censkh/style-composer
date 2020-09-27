@@ -23,8 +23,8 @@ interface AppInternalProps {
 }
 
 const Title = () => {
-  const {width}                       = useComposedValues(() => ({
-    width                   : vw() + "px",
+  const {width}                       = useComposedValues<{width: string | number}>(() => ({
+    width                   : vw(),
     [media({maxWidth: 800})]: {
       width: "small",
     },

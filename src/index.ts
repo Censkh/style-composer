@@ -5,6 +5,8 @@ export {useComposedValues, useComposedStyle}                        from "./Hook
 export {default as CascadingValuesContext, CascadingValuesProvider} from "./CascadingValuesContext";
 export {default as important}                                       from "./Important";
 
+export {default as StyleEnvironment} from "./StyleEnvironment";
+
 export *                             from "./component/Styler";
 export {default as CssGlobalStyling} from "./component/CssGlobalStyling";
 export *                             from "./component/StyledComponents";

@@ -2,8 +2,13 @@
 
 ## 0.4.0
 
+### Breaking
+
+- dynamic units have a new calling convention
+
 ### Features / Changes
 
+- SSR support
 - add `child()` rule
 - add `hover()` pseudo rule
 - add prop types for in-built components

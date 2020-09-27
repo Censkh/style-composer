@@ -1,5 +1,5 @@
-import React, {useCallback, useRef}                 from "react";
-import {RecursiveArray, Text, StyleSheet, Platform} from "react-native";
+import React, {useCallback, useRef}       from "react";
+import {RecursiveArray, StyleSheet, Text} from "react-native";
 
 import {sanitizeStyleList, Style} from "../Styling";
 import {Classes, PseudoClasses}   from "../class/StyleClass";
@@ -47,10 +47,10 @@ const Styler = (props: StylerProps) => {
   }, [ref]);
 
   const sanitizedStyleList = sanitizeStyleList(children, computedStyle as any);
-  const flatStyle = isNative() || options?.autoFlattens ? sanitizedStyleList : StyleSheet.flatten(sanitizedStyleList);
+  const flatStyle          = isNative() || options?.autoFlattens ? sanitizedStyleList : StyleSheet.flatten(sanitizedStyleList);
 
   const dataSet = {
-    "class": classNames?.join(" "),
+    "class"       : classNames?.join(" "),
     "pseudo-class": flatPseudoClasses.join(" "),
   };
 
@@ -58,7 +58,7 @@ const Styler = (props: StylerProps) => {
     style              : flatStyle,
     "data-class"       : dataSet["class"],
     "data-pseudo-class": dataSet["pseudo-class"],
-    dataSet: dataSet,
+    dataSet            : dataSet,
     ref                : handleRef,
   } as any);
 

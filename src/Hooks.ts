@@ -11,12 +11,9 @@ import {
   StyleClass,
 }                                                                                      from "./class/StyleClass";
 import * as Utils                                                                      from "./Utils";
-import {Falsy}                                                                         from "./Utils";
+import {Falsy, isWeb}                                                                  from "./Utils";
 import {ThemeValues, useTheming}                                                       from "./theme";
-import {
-  Dimensions,
-  StyleSheet,
-}                                                                                      from "react-native";
+import {StyleSheet}                                                                    from "react-native";
 import {
   computeClasses,
   ComputedStyleList,
@@ -39,6 +36,7 @@ import {
 }                                                                                      from "./font/FontFamily";
 import child, {ChildQuery}                                                             from "./rule/ChildRule";
 import {setupFontPreProcessor}                                                         from "./font/FontPreProcessor";
+import StyleEnvironment                                                                from "./StyleEnvironment";
 
 export const useForceUpdate = (): [number, () => void] => {
   const [state, setState] = useState(0);
@@ -76,7 +74,7 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
     .map(rule => typeof rule === "string" ? rule : rule.type);
   const session: StylingSession = {
     pseudoClasses: flatPseudoClasses || [],
-    childRules: parentChildRules,
+    childRules   : parentChildRules,
   };
 
   const {theme, key, classArray} = useStylingInternals(classes, session);
@@ -143,8 +141,8 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
     }
 
     const ownChildRules      = classArray?.flatMap<StyleRule<ChildQuery> | Falsy>((clazz) => {
-        return clazz.__meta.hasRules && Object.values(clazz.__meta.rules).filter(rule => rule.type.id === child.id);
-      }).filter(Boolean) as Array<StyleRule<ChildQuery>> | undefined;
+      return clazz.__meta.hasRules && Object.values(clazz.__meta.rules).filter(rule => rule.type.id === child.id);
+    }).filter(Boolean) as Array<StyleRule<ChildQuery>> | undefined;
     const childRulesKey      = ownChildRules?.map(rule => rule.key).join(",");
     const cascadingValuesKey = [cascadingStyleKey || "null", childRulesKey || "null"].join("===");
 
@@ -191,10 +189,10 @@ export const useStylingInternals = (classes: Classes | undefined, session: Styli
   const theme                         = useTheming();
 
   useEffect(() => {
-    if (hasDynamicUnit) {
-      Dimensions.addEventListener("change", forceUpdate);
+    if (hasDynamicUnit && !isWeb()) {
+      StyleEnvironment.addScreenSizeChangeListener(forceUpdate);
       return () => {
-        Dimensions.removeEventListener("change", forceUpdate);
+        StyleEnvironment.removeScreenSizeChangeListener(forceUpdate);
       };
     }
   }, [hasDynamicUnit]);
@@ -278,10 +276,10 @@ export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: Depend
   }, []);
 
   useEffect(() => {
-    if (hasDynamicUnit) {
-      Dimensions.addEventListener("change", forceUpdate);
+    if (hasDynamicUnit && !isWeb()) {
+      StyleEnvironment.addScreenSizeChangeListener(forceUpdate);
       return () => {
-        Dimensions.removeEventListener("change", forceUpdate);
+        StyleEnvironment.removeScreenSizeChangeListener(forceUpdate);
       };
     }
   }, [hasDynamicUnit]);

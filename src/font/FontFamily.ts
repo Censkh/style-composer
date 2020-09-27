@@ -1,4 +1,5 @@
 import {FONT_TYPES, FONT_WEIGHTS, FontFamily, FontFamilyConfig, FontVariant} from "./Fonts";
+import {isBrowser}                                                           from "../Utils";
 
 export const fontFamilyMap: Record<string, FontFamily>   = {};
 export const fontVariantMap: Record<string, FontVariant> = {};
@@ -46,7 +47,7 @@ export const createFontFamily = (
   for (const type of FONT_TYPES) {
     const fontName   = `${name}__${type}`;
     fontFamily[type] = () => {
-      if (!isFontLoading(fontName)) {
+      if (isBrowser() && !isFontLoading(fontName)) {
         const resource = config[type] as string;
         if (resource) {
           const styleElement     = styleMap[fontName] = (document).createElement("style");

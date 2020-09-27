@@ -294,7 +294,7 @@ import {vw, composeClass} from "style-composer";
 // vw and vh resolve to pixel values eg. a screen size of 1920x1080 vh would resolve to the value 1080
 
 const $Card = composeClass("card", () => ({
-    width: vw() * 0.5,
+    width: vw(50),
 
     [media({maxWidth: 500})]: {
         width: 320,

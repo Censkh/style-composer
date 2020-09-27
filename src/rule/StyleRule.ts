@@ -113,7 +113,7 @@ export function createStyleRuleType<O, P = {}>(id: string, options: StyleRuleOpt
     if (ruleSession.registering) {
       ruleSession.instances[id] = {
         id       : id,
-        key: gid++,
+        key      : gid++,
         options  : options || {},
         type     : ruleType,
         className: "__rule_" + id + ruleType.id,
