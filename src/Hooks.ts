@@ -156,7 +156,6 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
     };
   }, [style, parentCascadingValuesKey, key, fontKey, theme]);
 
-
   const hasCascade            = Boolean(cascadingStyle || (ownChildRules && ownChildRules.length > 0));
   const cascadingContextValue = useMemo<CascadingValuesContextState | null>(() => (hasCascade && {
     style     : cascadingStyle || parentCascadingStyle,

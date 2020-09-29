@@ -112,7 +112,7 @@ export const classesId = (classes: Classes): string | null => {
     }
     return classArray.sort().join(",");
   }
-  return classes.__meta.className;
+  return classes.__meta.key.toString();
 };
 
 export const flattenClasses = (...classes: RecursiveArray<StyleClass | Falsy>): StyleClass[] => {

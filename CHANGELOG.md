@@ -9,6 +9,7 @@
 ### Features / Changes
 
 - SSR support
+- add `FontFamily` fallbacks for web
 - add `child()` rule
 - add `hover()` pseudo rule
 - add prop types for in-built components

@@ -1,3 +1,7 @@
+export interface FontFamilyOptions {
+  fallbacks: string[],
+}
+
 export interface FontFamilyConfig {
   black?: string;
   blackItalic?: string;
@@ -23,6 +27,7 @@ export type FontFamily = {
   (): string;
   name: string;
   weight: (weight: string) => string;
+  options: FontFamilyOptions;
 } & Record<keyof FontFamilyConfig, () => string>;
 
 export const FONT_WEIGHTS: Record<number, keyof FontFamilyConfig> = {

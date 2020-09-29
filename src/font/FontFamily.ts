@@ -1,5 +1,6 @@
-import {FONT_TYPES, FONT_WEIGHTS, FontFamily, FontFamilyConfig, FontVariant} from "./Fonts";
-import {StyleEnvironment}                                                    from "../index";
+import {FONT_TYPES, FONT_WEIGHTS, FontFamily, FontFamilyConfig, FontFamilyOptions, FontVariant} from "./Fonts";
+import {StyleEnvironment}                                                                       from "../index";
+import {isWeb}                                                                                  from "../Utils";
 
 export const fontFamilyMap: Record<string, FontFamily>   = {};
 export const fontVariantMap: Record<string, FontVariant> = {};
@@ -28,9 +29,11 @@ export const getFontFamily = (name: string): FontFamily | undefined => {
   return fontFamilyMap[name];
 };
 
+
 export const createFontFamily = (
   name: string,
   config: FontFamilyConfig,
+  options?: FontFamilyOptions,
 ): FontFamily => {
   const fontFamily: any = Object.assign(() => fontFamily.regular(), {
     weight: (weight: string) => {
@@ -39,6 +42,8 @@ export const createFontFamily = (
       }
       return fontFamily[weight]();
     },
+
+    options: options || {},
   });
   Object.defineProperty(fontFamily, "name", {
     value: name,
@@ -46,6 +51,8 @@ export const createFontFamily = (
 
   for (const type of FONT_TYPES) {
     const fontName   = `${name}__${type}`;
+    const styleValue = isWeb() ? [fontName, ...options?.fallbacks || []].join(",") : fontName;
+
     fontFamily[type] = () => {
       if (!isFontLoading(fontName)) {
         const resource = config[type] as string;
@@ -63,7 +70,8 @@ export const createFontFamily = (
           loadingMap[fontName] = true;
         }
       }
-      return fontName;
+
+      return styleValue;
     };
   }
 
