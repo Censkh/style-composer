@@ -1,7 +1,8 @@
-import React                                                           from "react";
-import {Animated, Button, Image, SafeAreaView, ScrollView, TextInput} from "react-native";
+import React                                                                     from "react";
+import {Animated, Button, Image, Pressable, SafeAreaView, ScrollView, TextInput} from "react-native";
 
 import {
+  PolyPressable,
   PolyText,
   PolyTouchableHighlight,
   PolyTouchableNativeFeedback,
@@ -53,6 +54,7 @@ export const StyledTouchableWithoutFeedback: StyledComponent<PropsOf<typeof Poly
 export const StyledTouchableHighlight: StyledComponent<PropsOf<typeof PolyTouchableHighlight>>             = styled(PolyTouchableHighlight, {autoFlattens: true});
 export const StyledScrollView: StyledComponent<PropsOf<typeof ScrollView>>                                 = styled(ScrollView, {autoFlattens: true});
 export const StyledImage: StyledComponent<PropsOf<typeof Image>>                                           = styled(Image, {autoFlattens: true});
+export const StyledPressable: StyledComponent<PropsOf<typeof Pressable>>                                   = styled(PolyPressable, {autoFlattens: true});
 
 export type StyledSafeAreaViewProps = PropsOf<typeof StyledSafeAreaView>;
 export type StyledViewProps = PropsOf<typeof StyledView>;
@@ -65,6 +67,7 @@ export type StyledTouchableWithoutFeedbackProps = PropsOf<typeof StyledTouchable
 export type StyledTouchableHighlightProps = PropsOf<typeof StyledTouchableHighlight>;
 export type StyledScrollViewProps = PropsOf<typeof StyledScrollView>;
 export type StyledImageProps = PropsOf<typeof StyledImage>;
+export type StyledPressableProps = PropsOf<typeof StyledPressable>;
 
 export const StyledAnimated = {
   View      : styled(Animated.View, {autoFlattens: true}),

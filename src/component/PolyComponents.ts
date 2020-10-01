@@ -1,6 +1,7 @@
 import React      from "react";
 import * as Utils from "../Utils";
 import {
+  Pressable,
   Text,
   TouchableHighlight,
   TouchableNativeFeedback,
@@ -102,3 +103,4 @@ export const PolyTouchableOpacity         = poly(TouchableOpacity);
 export const PolyTouchableWithoutFeedback = poly(TouchableWithoutFeedback);
 export const PolyTouchableHighlight       = poly(TouchableHighlight);
 export const PolyText                     = poly(Text);
+export const PolyPressable                = poly(Pressable);

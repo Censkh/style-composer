@@ -6,8 +6,8 @@ export type DeviceType = "mobile" | "desktop";
 
 const SSR_DIMENSIONS: Record<DeviceType, ScaledSize> = {
   "mobile" : {
-    width    : 750,
-    height   : 1334,
+    width    : 600,
+    height   : 1200,
     scale    : 1,
     fontScale: 1,
   },
@@ -62,7 +62,7 @@ class StyleEnvironment {
   updateHeadElement<T extends keyof JSX.IntrinsicElements>(key: string, type: T, props: any, content?: string): void {
     if (isNative()) return undefined;
 
-    const computedProps = Object.assign({}, props, {[HEAD_ELEMENT_DATA_ATTRIBUTE_NAME]: key});
+    const computedProps = Object.assign({}, props, {[HEAD_ELEMENT_DATA_ATTRIBUTE_NAME]: key, key});
 
     if (isSsr()) {
       const element = this.serverSideHeadElements[key];
