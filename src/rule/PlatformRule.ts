@@ -4,8 +4,9 @@ import {Platform, PlatformOSType} from "react-native";
 export type PlatformQuery = PlatformOSType[] | PlatformOSType;
 
 const platform = createStyleRuleType<PlatformQuery>("platform", {
-  check(query: PlatformQuery) {
-    return Array.isArray(query) ? query.includes(Platform.OS) : query === Platform.OS;
+  check(instance) {
+    const {options} = instance;
+    return Array.isArray(options) ? options.includes(Platform.OS) : options === Platform.OS;
   },
 
   register() {

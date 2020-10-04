@@ -1,4 +1,4 @@
-import {StylingSession} from "../Styling";
+import {StyleScope, StylingResolution, StylingSession} from "../Styling";
 
 export type StyleRules = Record<number, StyleRule<any>>;
 
@@ -7,14 +7,16 @@ const ruleSession = {
   registering: false,
   running    : false,
   instances  : {} as StyleRules,
+  resolution : undefined as (StylingResolution | undefined),
   session    : undefined as (StylingSession | undefined),
 };
 
-export const startRuleSession = (registering?: boolean, session?: StylingSession): void => {
+export const startRuleSession = (registering?: boolean, resolution?: StylingResolution, session?: StylingSession): void => {
   ruleSession.id          = 1;
   ruleSession.registering = Boolean(registering);
   ruleSession.session     = session;
   ruleSession.running     = true;
+  ruleSession.resolution  = resolution;
   ruleSession.instances   = {};
 };
 
@@ -24,35 +26,48 @@ export const finishRuleSession = (): StyleRules => {
   return ruleSession.instances;
 };
 
-export type StyleRuleResult = number & { __ruleId: number };
+export type StyleRuleResult = number & { __ruleResult: { resultId: number; ids: number[] } };
 
-const createRuleResult = (ruleId: number, result: boolean): StyleRuleResult => {
-  return Object.assign(result ? ruleId : 0, {__ruleId: ruleId});
+const createRuleResult = (ruleIds: number[], result: boolean): StyleRuleResult => {
+  const resultId = Math.max(...ruleIds);
+  return Object.assign(result ? resultId : 0, {__ruleResult: {resultId, ids: ruleIds}});
+};
+
+export const isRuleResult = (result: any): result is StyleRuleResult => {
+  return typeof result === "object" && "__ruleResult" in result;
 };
 
 export const isResultSuccess = (result: StyleRuleResult): boolean => result != 0;
 
 export const not = (rule: StyleRuleResult): StyleRuleResult => {
-  return createRuleResult(rule.__ruleId, !isResultSuccess(rule));
+  return createRuleResult(rule.__ruleResult.ids, !isResultSuccess(rule));
 };
 
 export const and = (...rules: StyleRuleResult[]): StyleRuleResult => {
-  const ruleId = Math.max(...rules.map(result => result.__ruleId));
+  const ids = rules.flatMap(rule => rule.__ruleResult.ids);
 
-  if (ruleSession.registering) return createRuleResult(ruleId, true);
+  if (ruleSession.registering) {
+    const result                                                      = createRuleResult(ids, true);
+    ruleSession.instances[result.__ruleResult.resultId].compoundRules = result.__ruleResult.ids;
+    return result;
+  }
 
-  return createRuleResult(ruleId, rules.every(isResultSuccess));
+  return createRuleResult(ids, rules.every(isResultSuccess));
 };
 
 export const or = (...rules: StyleRuleResult[]): StyleRuleResult => {
-  const ruleId = Math.max(...rules.map(result => result.__ruleId));
+  const ids = rules.flatMap(rule => rule.__ruleResult.ids);
 
-  if (ruleSession.registering) return createRuleResult(ruleId, true);
-  return createRuleResult(ruleId, rules.some(isResultSuccess));
+  if (ruleSession.registering) {
+    const result                                                      = createRuleResult(ids, true);
+    ruleSession.instances[result.__ruleResult.resultId].compoundRules = result.__ruleResult.ids;
+    return result;
+  }
+  return createRuleResult(ids, rules.some(isResultSuccess));
 };
 
 export interface StyleRuleOptions<O = void> {
-  check: (options: O, session?: StylingSession) => boolean;
+  check: (instance: StyleRule<O>, session: StylingSession) => boolean;
 
   register?: (update: () => void) => void;
 
@@ -68,6 +83,8 @@ export type StyleRuleType<O = void> = StyleRuleOptions<O> & StyleRuleFunction<O>
 }
 
 export interface StyleRule<O = void> {
+  scope: StyleScope | null;
+  compoundRules: number[];
   id: number;
   key: number;
   className: string;
@@ -112,19 +129,23 @@ export function createStyleRuleType<O, P = {}>(id: string, options: StyleRuleOpt
     ruleSession.id += 1;
     if (ruleSession.registering) {
       ruleSession.instances[id] = {
-        id       : id,
-        key      : gid++,
-        options  : options || {},
-        type     : ruleType,
-        className: "__rule_" + id + ruleType.id,
-        sheetId  : null,
+        compoundRules: [],
+        scope: null,
+        id           : id,
+        key          : gid++,
+        options      : options || {},
+        type         : ruleType,
+        className    : "__rule_" + id + ruleType.id,
+        sheetId      : null,
       };
 
-      return createRuleResult(id, true);
+      return createRuleResult([id], true);
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return createRuleResult(id, ruleType.check(options, ruleSession.session!));
+    // eslint-disable-next-line
+    const instance = ruleSession.resolution!.rootScope.rules[id];
+    // eslint-disable-next-line
+    return createRuleResult([id], ruleType.check(instance, ruleSession.session!));
   }, options || {}, {...extraProperties, id: id});
   Object.defineProperty(ruleType, "name", {value: id});
 

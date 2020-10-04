@@ -21,6 +21,10 @@ export interface StyledOptions {
 }
 
 export const styled = <P>(baseComponent: React.ComponentType<P>, options?: StyledOptions): StyledComponent<P> => {
+  if (!baseComponent) {
+    return baseComponent;
+  }
+
   return React.memo(Object.assign(React.forwardRef((props: any, ref) => {
     const {children, style, pseudoClasses, classes, ...otherProps} = props;
 

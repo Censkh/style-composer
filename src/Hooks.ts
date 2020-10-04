@@ -24,7 +24,7 @@ import {
   StylingBuilder,
   StylingResolution,
   StylingSession,
-}                                                                                      from "./Styling";
+} from "./Styling";
 import {StylableProps}                                                                 from "./component/Styler";
 import CascadingValuesContext, {CascadingValuesContextState}                           from "./CascadingValuesContext";
 import {
@@ -73,13 +73,13 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
   const flatPseudoClasses       = (Array.isArray(pseudoClasses) ? Utils.flatAndRemoveFalsy(pseudoClasses) : (pseudoClasses && [pseudoClasses]) || [])
     .map(rule => typeof rule === "string" ? rule : rule.type);
   const session: StylingSession = {
-    pseudoClasses: flatPseudoClasses || [],
-    childRules   : parentChildRules,
+    pseudoClasses       : flatPseudoClasses || [],
+    applicableChildRules: [],
   };
 
   const {theme, key, classArray} = useStylingInternals(classes, session);
 
-  const applicableChildRules = classArray && parentChildRules.filter(rule => {
+  session.applicableChildRules = classArray && parentChildRules && parentChildRules.filter((rule) => {
     const options = Utils.arrayify(rule.options);
     return classArray?.some(clazz => options.includes(clazz) || options.find(other => other.__meta.className === clazz.__meta.parent?.__meta.className));
   });
@@ -101,7 +101,7 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
     if (ownStyleFlat?.fontWeight) {
       const currentFontFamily = ownStyleFlat.fontFamily || parentCascadingStyle.fontFamily;
       if (currentFontFamily) {
-        const styleComposerFontFamily = getFontFamily(currentFontFamily.split("__")[0]);
+        const styleComposerFontFamily = getFontFamily(currentFontFamily.split(/(__|,)/g)[0]);
         if (styleComposerFontFamily) {
           const variant = styleComposerFontFamily.weight(ownStyleFlat?.fontWeight);
           if (variant && currentFontFamily !== variant) {
@@ -112,9 +112,7 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
       }
     }
 
-    const childRuleStyle = applicableChildRules?.map(rule => rule.sheetId);
-
-    const computedStyle     = needsCascade ? [parentCascadingStyle, childRuleStyle, ownStyle] : [ownStyle];
+    const computedStyle     = needsCascade ? [parentCascadingStyle, ownStyle] : [ownStyle];
     const computedStyleFlat = StyleSheet.flatten(computedStyle) as StyleObject;
 
     const [cascadingStyle, cascadingStyleKey] = extractCascadingStyle(ownStyleFlat, parentCascadingStyle);
@@ -141,7 +139,7 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
     }
 
     const ownChildRules      = classArray?.flatMap<StyleRule<ChildQuery> | Falsy>((clazz) => {
-      return clazz.__meta.hasRules && Object.values(clazz.__meta.rules).filter(rule => rule.type.id === child.id);
+      return clazz.__meta.hasAnyRules && Object.values(clazz.__meta.rootScope.rules).filter(rule => rule.type.id === child.id);
     }).filter(Boolean) as Array<StyleRule<ChildQuery>> | undefined;
     const childRulesKey      = ownChildRules?.map(rule => rule.key).join(",");
     const cascadingValuesKey = [cascadingStyleKey || "null", childRulesKey || "null"].join("===");
@@ -178,11 +176,10 @@ export const useStylingInternals = (classes: Classes | undefined, session: Styli
   const {classArray, classId, hasDynamicUnit} = useMemo(() => {
     const classArray: StyleClass[] | undefined = classes && flattenClasses(classes) || undefined;
     const classId                              = classesId(classArray);
-    const hasDynamicUnit                       = classArray?.some(clazz => clazz.__meta.hasDynamicUnit);
+    const hasDynamicUnit                       = classArray?.some(clazz => clazz.__meta.hasAnyDynamicProps);
 
     return {classArray, classId, hasDynamicUnit};
   }, [classes]);
-
 
   const [forceUpdateKey, forceUpdate] = useRulesEffect(uidRef.current, classArray, session, classId);
   const theme                         = useTheming();
@@ -212,8 +209,8 @@ const useRulesEffect = (id: string, classes: StyleClass[] | Falsy, session: Styl
     let state = "";
     if (currentClasses.current) {
       for (const clazz of currentClasses.current) {
-        for (const ruleInstance of Object.values(clazz.__meta.rules)) {
-          state += ruleInstance.type.check(ruleInstance.options, session) ? "1" : "0";
+        for (const rule of Object.values(clazz.__meta.rootScope.rules)) {
+          state += rule.type.check(rule, session) ? "1" : "0";
         }
         state += "-";
       }
@@ -226,21 +223,21 @@ const useRulesEffect = (id: string, classes: StyleClass[] | Falsy, session: Styl
 
   useEffect(() => {
     if (classes) {
-      const hasRules = classes.some(clazz => clazz.__meta.hasRules);
+      const hasRules = classes.some(clazz => clazz.__meta.hasAnyRules);
       if (hasRules) {
         for (const clazz of classes) {
-          if (clazz.__meta.hasRules) {
-            for (const id of Object.keys(clazz.__meta.rules)) {
-              const rule = clazz.__meta.rules[id as any];
+          if (clazz.__meta.hasAnyRules) {
+            for (const id of Object.keys(clazz.__meta.rootScope.rules)) {
+              const rule = clazz.__meta.rootScope.rules[id as any];
               registerRuleCallback(rule.type, checkForUpdates);
             }
           }
         }
         return () => {
           for (const clazz of classes) {
-            if (clazz.__meta.hasRules) {
-              for (const id of Object.keys(clazz.__meta.rules)) {
-                const rule = clazz.__meta.rules[id as any];
+            if (clazz.__meta.hasAnyRules) {
+              for (const id of Object.keys(clazz.__meta.rootScope.rules)) {
+                const rule = clazz.__meta.rootScope.rules[id as any];
                 unregisterRuleCallback(rule.type, checkForUpdates);
               }
             }
@@ -252,20 +249,23 @@ const useRulesEffect = (id: string, classes: StyleClass[] | Falsy, session: Styl
   return [key, forceUpdate];
 };
 
+let composedId = 0;
+
 export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: DependencyList): S => {
   const [key, forceUpdate] = useForceUpdate();
 
   const prevState           = useRef("");
   const currentResolution   = useRef<StylingResolution>();
-  const resolution          = useMemo(() => resolveStyling(styling), depList);
+  const id                  = useRef((composedId++).toString());
+  const resolution          = useMemo(() => resolveStyling(`__composed_${id}`, styling), depList);
   currentResolution.current = resolution;
-  const {hasDynamicUnit}    = resolution;
+  const {hasAnyDynamicProps} = resolution;
 
   const checkForUpdates = useCallback(() => {
     let state = "";
     if (currentResolution.current) {
-      for (const ruleInstance of Object.values(currentResolution.current.rules)) {
-        state += ruleInstance.type.check(ruleInstance.options) ? "1" : "0";
+      for (const ruleInstance of Object.values(currentResolution.current.rootScope.rules)) {
+        state += ruleInstance.type.check(ruleInstance, {}) ? "1" : "0";
       }
     }
     if (prevState.current !== state) {
@@ -275,23 +275,23 @@ export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: Depend
   }, []);
 
   useEffect(() => {
-    if (hasDynamicUnit && !isWeb()) {
+    if (hasAnyDynamicProps && !isWeb()) {
       StyleEnvironment.addScreenSizeChangeListener(forceUpdate);
       return () => {
         StyleEnvironment.removeScreenSizeChangeListener(forceUpdate);
       };
     }
-  }, [hasDynamicUnit]);
+  }, [hasAnyDynamicProps]);
 
   useEffect(() => {
-    if (resolution.hasRules) {
-      for (const id of Object.keys(resolution.rules)) {
-        const rule = resolution.rules[id as any];
+    if (resolution.hasAnyRules) {
+      for (const id of Object.keys(resolution.rootScope.rules)) {
+        const rule = resolution.rootScope.rules[id as any];
         registerRuleCallback(rule.type, checkForUpdates);
       }
       return () => {
-        for (const id of Object.keys(resolution.rules)) {
-          const rule = resolution.rules[id as any];
+        for (const id of Object.keys(resolution.rootScope.rules)) {
+          const rule = resolution.rootScope.rules[id as any];
           unregisterRuleCallback(rule.type, checkForUpdates);
         }
       };

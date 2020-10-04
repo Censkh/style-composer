@@ -1,7 +1,7 @@
 import {createStyleRuleType, StyleRuleType} from "./StyleRule";
 
 export const createPseudoRule = (type: string): PseudoRuleType => createStyleRuleType("pseudo", {
-  check(options, session) {
+  check(instance, session) {
     return Boolean(session?.pseudoClasses?.includes(type));
   },
 }, {type});

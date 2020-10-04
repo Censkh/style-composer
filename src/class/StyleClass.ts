@@ -1,16 +1,10 @@
 import {RecursiveArray, StyleSheet} from "react-native";
 
-import {
-  resolveStyling,
-  sanitizeStylingToStaticStyle,
-  StyleObject,
-  StylingBuilder,
-  StylingResolution,
-}                       from "../Styling";
-import * as Utils       from "../Utils";
-import {Falsy}          from "../Utils";
-import ClassManager     from "./ClassManager";
-import {PseudoRuleType} from "../rule/PseudoRule";
+import {resolveStyling, StyleObject, StyleScope, StylingBuilder, StylingResolution} from "../Styling";
+import * as Utils                                                                   from "../Utils";
+import {Falsy}                                                                      from "../Utils";
+import ClassManager                                                                 from "./ClassManager";
+import {PseudoRuleType}                                                             from "../rule/PseudoRule";
 
 export type StyleClassMeta<V extends Record<string, StyleClass> = {}> = StylingResolution & {
   key: number;
@@ -35,7 +29,7 @@ const createStyleSheet = (name: string, style: StyleObject): number => {
 
 let globalClassIdCounter = 0;
 
-export const composeClass = <V extends string = never>(name: string, styling: StylingBuilder, options?: ComposeClassOptions<V>): StyleClass<Record<V, StyleClass>> => {
+export const composeClass = <V extends string = never>(name: string, stylingBuilder: StylingBuilder, options?: ComposeClassOptions<V>): StyleClass<Record<V, StyleClass>> => {
   const className = (options?.parent ? options?.parent.__meta.name + "__" : "") + name;
 
   if (process.env.NODE_ENV === "production" && ClassManager.hasClass(className)) {
@@ -45,7 +39,6 @@ export const composeClass = <V extends string = never>(name: string, styling: St
   // we pretend variants is already full so we can add a reference to it it's self when building the variants
   const variants: V = {} as any;
 
-
   const styledClass: StyleClass<any> = {
     __meta: {
       key           : globalClassIdCounter++,
@@ -53,14 +46,7 @@ export const composeClass = <V extends string = never>(name: string, styling: St
       parent        : options?.parent || null,
       className     : className,
       variants      : variants,
-      rules         : null as any,
-      hasRules      : false,
-      hasThemed     : false,
-      hasDynamicUnit: false,
-      isSimple      : false,
-      staticStyle   : null,
-      styling       : styling,
-      dynamicProps  : {},
+      stylingBuilder: stylingBuilder,
     },
   };
   const classMeta: StyleClassMeta    = styledClass.__meta;
@@ -72,25 +58,19 @@ export const composeClass = <V extends string = never>(name: string, styling: St
     });
   }
 
-  Object.assign(classMeta, resolveStyling(classMeta.styling));
+  Object.assign(classMeta, resolveStyling(className, classMeta.stylingBuilder));
 
   ClassManager.registerClass(styledClass);
 
   return Object.assign(styledClass, variants);
 };
 
-export const registerStyleSheets = (classMeta: StyleClassMeta): void => {
-  if (classMeta.sheetId) {
-    return;
-  }
-  classMeta.sheetId = createStyleSheet(classMeta.className, classMeta.staticStyle);
-  if (classMeta.hasRules) {
-    for (const rule of Object.values(classMeta.rules)) {
-      const ruleStyling = classMeta.resolvedStyling[rule.id];
-      if (ruleStyling) {
-        rule.sheetId = createStyleSheet(rule.className, sanitizeStylingToStaticStyle(ruleStyling).style);
-      }
-    }
+export const registerStyleSheets = (scope: StyleScope): void => {
+  if (scope.sheetId) return;
+  scope.sheetId = createStyleSheet(scope.className, scope.staticStyle);
+  for (const key in scope.scopes) {
+    const childScope = scope.scopes[key];
+    registerStyleSheets(childScope);
   }
 };
 

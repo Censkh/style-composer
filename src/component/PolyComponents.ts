@@ -85,6 +85,10 @@ const extendFunctionComponent = (baseComponent: any) => {
  * A HOC to allow a React Native component to change the base DOM element tag on web
  */
 export const poly  = <P>(baseComponent: React.ComponentType<P> & { isPoly?: boolean }): React.ComponentType<PolyProps<P>> => {
+  if (!baseComponent) {
+    return baseComponent;
+  }
+
   if (Utils.isNative() || baseComponent.isPoly) {
     return baseComponent;
   }

@@ -55,9 +55,9 @@ const App = React.memo((props: AppInternalProps) => {
           </Card>)}
         </ScrollView>
         <Card classes={$ChildRuleTest}>
-          <Text>asda</Text>
+          <Text style={{fontSize: 8}}>asda</Text>
         </Card>
-        <Button title={"hi"} disabled={true} style={{backgroundColor: "red"}} classes={[$BigMargin]} onPress={() => {
+        <Button title={"hi"} disabled={true} style={{backgroundColor: "yellow"}} classes={[$BigMargin]} onPress={() => {
           console.log("hi");
         }}/>
         <Text>Open up App.tsx to start working on your app!</Text>

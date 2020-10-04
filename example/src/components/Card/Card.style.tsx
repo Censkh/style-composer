@@ -1,4 +1,4 @@
-import {and, child, composeClass, media, platform} from "style-composer";
+import {and, important, child, composeClass, media, platform} from "style-composer";
 import {$Text}                                     from "../Text/Text.style";
 
 export const pixel3 = () => and(
@@ -33,7 +33,7 @@ export const $ChildRuleTest = composeClass("child-rule-test", () => ({
   backgroundColor: "grey",
 
   [child($Text)]: {
-    fontSize: 24,
+    fontSize: important(24),
   },
 
 }));

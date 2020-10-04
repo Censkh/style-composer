@@ -13,10 +13,10 @@ import {ChildQuery}                                                             
 
 export const CASCADING_STYLES = ["fontSize", "fontFamily", "fontWeight", "color", "letterSpacing", "textAlign"];
 
-export interface StylingResolution {
+export interface StyleScope {
+  id: number;
+  className: string;
   sheetId: number | null;
-  styling: StylingBuilder;
-  rules: StyleRules,
   staticStyle: StyleObject;
   staticImportantStyle: StyleObject | null;
   isSimple: boolean;
@@ -24,10 +24,21 @@ export interface StylingResolution {
   hasThemed: boolean;
   hasDynamicUnit: boolean;
   hasDynamicProps: boolean;
-  dynamicProps: Record<number, string[]>;
+  dynamicProps: string[];
   hasImportant: boolean;
-  importantProps: Record<number, string[]>;
+  importantProps: string[];
   resolvedStyling: Styling;
+  rules: StyleRules,
+  scopes: Record<number, StyleScope>;
+}
+
+export interface StylingResolution {
+  stylingBuilder: StylingBuilder;
+  rootScope: StyleScope;
+  hasAnyRules: boolean;
+  hasAnyThemed: boolean;
+  hasAnyDynamicProps: boolean;
+  hasAnyImportant: boolean;
 }
 
 export type StyleObject = ViewStyle & TextStyle & ImageStyle;
@@ -40,7 +51,7 @@ export type Styling<S = StyleObject> = Record<number, S> & S;
 
 export interface StylingSession {
   pseudoClasses?: string[];
-  childRules?: Array<StyleRule<ChildQuery>>;
+  applicableChildRules?: Array<StyleRule<ChildQuery>>;
 }
 
 export interface ComputeResults {
@@ -60,12 +71,16 @@ export function computeClasses(styleClass: StyleClass[] | Falsy, styleProp?: Sty
   const style: ComputedStyleList          = [];
   const importantStyle: ComputedStyleList = [];
 
+  if (computedSession.applicableChildRules?.length) {
+    for (const childRule of computedSession.applicableChildRules) {
+      computeScopeStyle(childRule.scope!, style, importantStyle, classNames);
+    }
+  }
+
   for (const clazz of styleClass) {
     if (clazz.__meta.parent) {
-      classNames.push(clazz.__meta.parent.__meta.className);
       internalComputedStyling(clazz.__meta.parent.__meta, computedSession, style, importantStyle, classNames);
     }
-    classNames.push(clazz.__meta.className);
     internalComputedStyling(clazz.__meta, computedSession, style, importantStyle, classNames);
   }
 
@@ -100,22 +115,42 @@ export const computeStyling = (resolution: StylingResolution): StyleObject => {
 
 const internalComputedStyling = (resolution: StylingResolution, session: StylingSession, outStyle: ComputedStyleList, outImportantStyle: ComputedStyleList, outClassNames?: string[]): void => {
   if ("className" in resolution) {
-    registerStyleSheets(resolution);
+    registerStyleSheets((resolution as any).rootScope);
   }
 
   const {
-          staticStyle,
-          staticImportantStyle,
-          hasRules,
-          sheetId,
-          isSimple,
-          rules,
-          styling,
-          hasDynamicProps,
-          dynamicProps,
-          hasImportant,
-          importantProps,
+          rootScope,
+          stylingBuilder,
         } = resolution;
+
+  if (rootScope.isSimple) {
+    const {sheetId, staticStyle, className, staticImportantStyle} = rootScope;
+    if (outClassNames) {
+      outClassNames.push(className);
+    }
+    outStyle.push((sheetId || staticStyle) as any);
+    if (staticImportantStyle) {
+      outImportantStyle.push(staticImportantStyle);
+    }
+    return;
+  }
+
+  startRuleSession(false, resolution, session);
+  const styling = stylingBuilder();
+  finishRuleSession();
+  rootScope.resolvedStyling = styling;
+
+  computeScopeStyle(rootScope, outStyle, outImportantStyle, outClassNames);
+
+  // when rules are evalled they return 0 instead of false
+  (styling as any)[0] = undefined;
+};
+
+const computeScopeStyle = (scope: StyleScope, outStyle: ComputedStyleList, outImportantStyle: ComputedStyleList, outClassNames?: string[]): void => {
+  const {sheetId, resolvedStyling, isSimple, className, staticStyle, staticImportantStyle, rules, hasDynamicProps, hasImportant, hasRules, importantProps, dynamicProps} = scope;
+  if (outClassNames) {
+    outClassNames.push(className);
+  }
 
   if (isSimple) {
     outStyle.push((sheetId || staticStyle) as any);
@@ -125,57 +160,32 @@ const internalComputedStyling = (resolution: StylingResolution, session: Styling
     return;
   }
 
-  startRuleSession(false, session);
-  const style: any = styling();
-  finishRuleSession();
-
-  outStyle.push((sheetId || style) as any);
+  outStyle.push((sheetId || resolvedStyling) as any);
 
   if (hasDynamicProps) {
-    outStyle.push(extractDynamicPropsToStyle(style, dynamicProps[0]));
+    outStyle.push(extractDynamicPropsToStyle(resolvedStyling, dynamicProps));
   }
 
   if (hasImportant) {
     const importantStyle: Style = {};
-    for (const importantProp of importantProps[0]) {
-      (importantStyle as any)[importantProp] = sanitizeStyleValue(style[importantProp]);
+    for (const importantProp of importantProps) {
+      (importantStyle as any)[importantProp] = sanitizeStyleValue((resolvedStyling as any)[importantProp]);
     }
     outImportantStyle.push(importantStyle);
   }
 
   if (hasRules) {
     for (const ruleInstance of Object.values(rules)) {
-      const ruleStyle                 = (style as any)[ruleInstance.id] as Style;
-      (style as any)[ruleInstance.id] = undefined;
-      if (ruleStyle) {
-        outStyle.push((ruleInstance.sheetId || ruleStyle) as any);
-
-        // add dynamic props for rule
-        const ruleDynamicProps = dynamicProps[ruleInstance.id];
-        if (hasDynamicProps && ruleDynamicProps) {
-          outStyle.push(extractDynamicPropsToStyle(ruleStyle, ruleDynamicProps));
-        }
-
-        // add important props for rule
-        const ruleImportantProps = importantProps[ruleInstance.id];
-        if (hasImportant && ruleImportantProps) {
-          const ruleImportantStyle: Style = {};
-          for (const importantProp of ruleImportantProps) {
-            (ruleImportantStyle as any)[importantProp] = (ruleStyle as any)[importantProp];
-          }
-          outImportantStyle.push(ruleImportantStyle);
-        }
-
-        if (outClassNames) {
-          outClassNames.push(ruleInstance.className);
-        }
+      const ruleStyling = resolvedStyling[ruleInstance.id];
+      if (ruleStyling) {
+        const ruleScope = scope.scopes[ruleInstance.id];
+        computeScopeStyle(ruleScope, outStyle, outImportantStyle, outClassNames);
+        delete (resolvedStyling as any)[ruleInstance.id];
       }
     }
-    // when rules are evalled they return 0 instead of false
-    style[0] = undefined;
   }
+  delete (resolvedStyling as any)[0];
 };
-
 
 export const sanitizeStyleList = (node: React.ReactNode, style: RecursiveArray<Style | Falsy>): Style[] => {
   if (process.env.NODE_ENV === "development") {
@@ -191,7 +201,7 @@ export const sanitizeStyleList = (node: React.ReactNode, style: RecursiveArray<S
 };
 
 export function sanitizeStyleValue<T extends string | number>(value: T): T {
-  return (typeof value === "number" ? Number(value) : String(value)) as any;
+  return (typeof value === "number" || value instanceof Number ? Number(value) : String(value)) as any;
 }
 
 /**
@@ -202,7 +212,7 @@ export const sanitizeStylingToStaticStyle = (styling: Styling | StyleObject): { 
 
   const style = Object.keys(styling).reduce((style: any, key: any) => {
     const value = (styling as any)[key];
-    if (typeof key === "string" && (!isDynamicValue(value) || isImportantValue(value))) {
+    if (isNaN(key) && (!isDynamicValue(value) || isImportantValue(value))) {
       const sanitizedValue = sanitizeStyleValue(value);
       if (isImportantValue(value)) {
         if (!importantStyle) {
@@ -221,101 +231,92 @@ export const sanitizeStylingToStaticStyle = (styling: Styling | StyleObject): { 
   };
 };
 
-export const resolveStyling = (styling: StylingBuilder): StylingResolution => {
+export const resolveStyling = (className: string, stylingBuilder: StylingBuilder): StylingResolution => {
   startDynamicUnitSession();
   startThemedSession();
   startRuleSession(true);
   startImportantSession();
 
-  const resolvedStyling = styling();
+  const resolvedStyling = stylingBuilder();
 
-  const rules          = finishRuleSession();
-  const hasThemed      = finishThemeSession();
-  const hasDynamicUnit = finishDynamicUnitSession();
-  const hasImportant   = finishImportantSession();
+  const rules             = finishRuleSession();
+  const hasAnyThemed      = finishThemeSession();
+  const hasAnyDynamicUnit = finishDynamicUnitSession();
+  const hasAnyImportant   = finishImportantSession();
 
-  const hasRules = Object.keys(rules).length > 0;
-  const isSimple = !hasRules && !hasThemed && !hasDynamicUnit;
+  const hasAnyRules = Object.keys(rules).length > 0;
+  const hasAnyDynamicProps = Boolean(hasAnyThemed || hasAnyDynamicUnit);
 
-  const dynamicProps: Record<number, string[]> | null = {0: []};
-  const hasDynamicProps                               = hasThemed || hasDynamicUnit;
-
-  // if we have themed / dynamic units values in this style, work out which properties they are
-  if (hasDynamicProps) {
-    resolveDynamicProps(dynamicProps, 0, resolvedStyling);
-  }
-
-  const importantProps: Record<number, string[]> | null = {0: []};
-  // if we have important values, extract which ones they are
-  if (hasImportant) {
-    resolveImportantProps(importantProps, 0, resolvedStyling);
-  }
-
-  const {style, importantStyle} = sanitizeStylingToStaticStyle(resolvedStyling);
+  const rootScope = resolveScope(0, className, resolvedStyling, rules, hasAnyThemed, hasAnyDynamicProps, hasAnyImportant);
 
   return {
-    sheetId             : null,
-    rules               : rules,
-    staticStyle         : style,
-    staticImportantStyle: importantStyle,
-    hasImportant        : hasImportant,
-    importantProps      : importantProps,
-    dynamicProps        : dynamicProps,
-    styling             : styling,
-    hasDynamicProps     : hasDynamicProps,
-    hasDynamicUnit      : hasDynamicUnit,
-    hasRules            : hasRules,
-    hasThemed           : hasThemed,
-    isSimple            : isSimple,
-    resolvedStyling     : resolvedStyling,
+    rootScope,
+    stylingBuilder,
+    hasAnyRules,
+    hasAnyDynamicProps,
+    hasAnyImportant,
+    hasAnyThemed,
   };
 };
 
-/**
- * When the theme session run, theme property functions will return themselves instead of the current theme
- * value and using this method we collect which style rules are themed.
- *
- * Eg.
- * ```
- * () => ({
- *   color: theming.mainColor(),
- * })
- * ```
- * will return an object with:
- * ```
- * {
- *   color: theming.mainColor
- * }
- * ```
- * whilst startThemingSession() is active
- */
-const resolveDynamicProps = (dynamicProps: Record<number, string[]>, currentScope: number, styling: Styling) => {
-  for (const key of Object.keys(styling)) {
-    const value = (styling as any)[key];
-    if (typeof value === "object") {
-      resolveDynamicProps(dynamicProps, parseInt(key), value);
-    } else if (isDynamicValue(value)) {
-      (dynamicProps[currentScope] || (dynamicProps[currentScope] = [])).push(key);
-    }
-  }
-};
+const resolveScope = (id: number, className: string, styling: Styling, rules: StyleRules, hasAnyThemed: boolean, hasAnyDynamicProps: boolean, hasAnyImportant: boolean): StyleScope => {
+  const dynamicProps                       = [];
+  const importantProps                     = [];
+  const scopes: Record<number, StyleScope> = {};
+  const scopeRules: StyleRules             = {};
 
-const resolveImportantProps = (importantProps: Record<number, string[]>, currentScope: number, styling: Styling) => {
   for (const key of Object.keys(styling)) {
     const value = (styling as any)[key];
-    if (isImportantValue(value)) {
-      (styling as any)[key] = sanitizeStyleValue(value);
-      (importantProps[currentScope] || (importantProps[currentScope] = [])).push(key);
-    } else if (typeof value === "object") {
-      resolveImportantProps(importantProps, parseInt(key), value);
+
+    if (hasAnyDynamicProps && isDynamicValue(value)) {
+      dynamicProps.push(key);
+    } else if (hasAnyImportant && isImportantValue(value)) {
+      importantProps.push(key);
+    } else if (typeof value === "object" && !isNaN(key as any)) {
+      const ruleId       = Number(key);
+      const rule         = rules[ruleId];
+      scopeRules[ruleId] = rule;
+      for (const compoundRuleId of rule.compoundRules) {
+        scopeRules[compoundRuleId] = rules[compoundRuleId];
+      }
+      const scope = scopes[ruleId] = resolveScope(ruleId, rule.className, value, rules, hasAnyThemed, hasAnyDynamicProps, hasAnyImportant);
+      rule.scope = scope;
     }
   }
+
+  const {style, importantStyle} = sanitizeStylingToStaticStyle(styling);
+
+  const hasThemed = hasAnyThemed;
+  const hasRules  = Object.keys(scopeRules).length > 0;
+
+  const hasDynamicUnit = dynamicProps.length > 0;
+
+  const hasDynamicProps = hasThemed || hasDynamicUnit;
+
+  const isSimple = !hasRules && !hasDynamicUnit && !hasThemed;
+
+  return {
+    id                  : id,
+    className           : className,
+    sheetId             : null,
+    staticStyle         : style,
+    staticImportantStyle: importantStyle,
+    dynamicProps        : dynamicProps,
+    hasDynamicProps     : hasDynamicProps,
+    importantProps      : importantProps,
+    hasImportant        : importantProps.length > 0,
+    rules               : scopeRules,
+    hasDynamicUnit      : hasDynamicUnit,
+    hasRules            : hasRules,
+    hasThemed           : hasThemed,
+    scopes              : scopes,
+    isSimple            : isSimple,
+    resolvedStyling     : styling,
+  };
 };
 
 export const isDynamicValue = (value: any): boolean => {
-  return typeof value === "object" ||
-    typeof value === "function" ||
-    value === DYNAMIC_UNIT_REGISTER_CHECK_VALUE ||
+  return typeof value === "function" || value === DYNAMIC_UNIT_REGISTER_CHECK_VALUE ||
     (typeof value === "string" && value.includes(DYNAMIC_UNIT_REGISTER_CHECK_VALUE.toString()));
 };
 

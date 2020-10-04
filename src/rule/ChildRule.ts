@@ -4,7 +4,7 @@ import type {StyleClass}     from "../class/StyleClass";
 export type ChildQuery = StyleClass | StyleClass[];
 
 const child = createStyleRuleType<ChildQuery>("child", {
-  check(options: ChildQuery) {
+  check(instance, session) {
     return false;
   },
 

@@ -1,6 +1,6 @@
-import {Dimensions, ScaledSize}   from "react-native";
-import {isNative, isSsr, PropsOf} from "./Utils";
-import React                      from "react";
+import {Dimensions, ScaledSize} from "react-native";
+import {isNative, isSsr}        from "./Utils";
+import React                    from "react";
 
 export type DeviceType = "mobile" | "desktop";
 
@@ -26,7 +26,10 @@ export type ScreenSizeChangeListener = () => void;
 class StyleEnvironment {
 
   private serverSideHeadElements: Record<string, React.ReactElement | null> = {};
-  private deviceType: DeviceType                                  = "desktop";
+  private deviceType: DeviceType                                            = "desktop";
+
+  constructor() {
+  }
 
   setDeviceType(deviceType: DeviceType): void {
     this.deviceType = deviceType;
