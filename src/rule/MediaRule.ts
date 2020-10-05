@@ -11,7 +11,7 @@ export interface MediaQuery {
 
 const media = createStyleRuleType<MediaQuery>("media", {
   check(instance) {
-    const {options} = instance;
+    const {options}    = instance;
     const screenWidth  = Math.round(StyleEnvironment.getScreenWidth());
     const screenHeight = Math.round(StyleEnvironment.getScreenHeight());
 

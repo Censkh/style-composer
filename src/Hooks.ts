@@ -24,7 +24,7 @@ import {
   StylingBuilder,
   StylingResolution,
   StylingSession,
-} from "./Styling";
+}                                                                                      from "./Styling";
 import {StylableProps}                                                                 from "./component/Styler";
 import CascadingValuesContext, {CascadingValuesContextState}                           from "./CascadingValuesContext";
 import {
@@ -254,11 +254,11 @@ let composedId = 0;
 export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: DependencyList): S => {
   const [key, forceUpdate] = useForceUpdate();
 
-  const prevState           = useRef("");
-  const currentResolution   = useRef<StylingResolution>();
-  const id                  = useRef((composedId++).toString());
-  const resolution          = useMemo(() => resolveStyling(`__composed_${id}`, styling), depList);
-  currentResolution.current = resolution;
+  const prevState            = useRef("");
+  const currentResolution    = useRef<StylingResolution>();
+  const id                   = useRef((composedId++).toString());
+  const resolution           = useMemo(() => resolveStyling(`__composed_${id}`, styling), depList);
+  currentResolution.current  = resolution;
   const {hasAnyDynamicProps} = resolution;
 
   const checkForUpdates = useCallback(() => {

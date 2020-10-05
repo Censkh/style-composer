@@ -1,14 +1,6 @@
 import React      from "react";
-import * as Utils from "../Utils";
-import {
-  Pressable,
-  Text,
-  TouchableHighlight,
-  TouchableNativeFeedback,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-}                 from "react-native";
+import {View}     from "react-native";
+import * as Utils from "../../Utils";
 
 export type PolyProps<P> = P & {
   tag?: keyof JSX.IntrinsicElements;
@@ -84,7 +76,7 @@ const extendFunctionComponent = (baseComponent: any) => {
 /**
  * A HOC to allow a React Native component to change the base DOM element tag on web
  */
-export const poly  = <P>(baseComponent: React.ComponentType<P> & { isPoly?: boolean }): React.ComponentType<PolyProps<P>> => {
+export const poly = <P>(baseComponent: React.ComponentType<P> & { isPoly?: boolean }): React.ComponentType<PolyProps<P>> => {
   if (!baseComponent) {
     return baseComponent;
   }
@@ -99,12 +91,5 @@ export const poly  = <P>(baseComponent: React.ComponentType<P> & { isPoly?: bool
 
   return polyClass as any;
 };
-const BasePolyView = poly(View);
 
-export const PolyView                     = poly(View);
-export const PolyTouchableNativeFeedback  = poly(TouchableNativeFeedback);
-export const PolyTouchableOpacity         = poly(TouchableOpacity);
-export const PolyTouchableWithoutFeedback = poly(TouchableWithoutFeedback);
-export const PolyTouchableHighlight       = poly(TouchableHighlight);
-export const PolyText                     = poly(Text);
-export const PolyPressable                = poly(Pressable);
+const BasePolyView = poly(View);

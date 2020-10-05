@@ -7,10 +7,7 @@ export {default as important}                                       from "./Impo
 
 export {default as StyleEnvironment} from "./StyleEnvironment";
 
-export *                             from "./component/Styler";
-export {default as CssGlobalStyling} from "./component/CssGlobalStyling";
-export *                             from "./component/StyledComponents";
-export *                             from "./component/PolyComponents";
+export * from "./component";
 
 export * from "./class/StyleClass";
 

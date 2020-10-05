@@ -4,10 +4,10 @@ import {RecursiveArray, StyleSheet, Text} from "react-native";
 import {sanitizeStyleList, Style} from "../Styling";
 import {Classes, PseudoClasses}   from "../class/StyleClass";
 import {useComposedStyle}         from "../Hooks";
-import {PolyText}                 from "./PolyComponents";
 import {CascadingValuesProvider}  from "../CascadingValuesContext";
-import {StyledOptions}            from "./StyledComponents";
 import {isNative}                 from "../Utils";
+import {StyledOptions}            from "./styled/StyledComponent";
+import PolyText                   from "./poly/native/PolyText";
 
 export type StyleProp = RecursiveArray<Style | undefined | null | false> | Style | undefined | null | false;
 
@@ -49,10 +49,10 @@ const Styler = (props: StylerProps) => {
   const sanitizedStyleList = sanitizeStyleList(children, computedStyle as any);
   const flatStyle          = isNative() || options?.autoFlattens ? sanitizedStyleList : StyleSheet.flatten(sanitizedStyleList);
 
-  const dataSet = {
+  const dataSet = process.env.NODE_ENV === "development" ? {
     "class"       : classNames?.join(" "),
     "pseudo-class": flatPseudoClasses.join(" "),
-  };
+  } : {};
 
   const content = !children || typeof children === "string" ? children : React.cloneElement(children, {
     style              : flatStyle,

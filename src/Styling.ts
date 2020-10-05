@@ -114,9 +114,7 @@ export const computeStyling = (resolution: StylingResolution): StyleObject => {
 };
 
 const internalComputedStyling = (resolution: StylingResolution, session: StylingSession, outStyle: ComputedStyleList, outImportantStyle: ComputedStyleList, outClassNames?: string[]): void => {
-  if ("className" in resolution) {
-    registerStyleSheets((resolution as any).rootScope);
-  }
+  registerStyleSheets((resolution as any).rootScope);
 
   const {
           rootScope,
@@ -244,7 +242,7 @@ export const resolveStyling = (className: string, stylingBuilder: StylingBuilder
   const hasAnyDynamicUnit = finishDynamicUnitSession();
   const hasAnyImportant   = finishImportantSession();
 
-  const hasAnyRules = Object.keys(rules).length > 0;
+  const hasAnyRules        = Object.keys(rules).length > 0;
   const hasAnyDynamicProps = Boolean(hasAnyThemed || hasAnyDynamicUnit);
 
   const rootScope = resolveScope(0, className, resolvedStyling, rules, hasAnyThemed, hasAnyDynamicProps, hasAnyImportant);
@@ -280,7 +278,7 @@ const resolveScope = (id: number, className: string, styling: Styling, rules: St
         scopeRules[compoundRuleId] = rules[compoundRuleId];
       }
       const scope = scopes[ruleId] = resolveScope(ruleId, rule.className, value, rules, hasAnyThemed, hasAnyDynamicProps, hasAnyImportant);
-      rule.scope = scope;
+      rule.scope  = scope;
     }
   }
 

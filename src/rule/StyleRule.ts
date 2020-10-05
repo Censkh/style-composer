@@ -130,7 +130,7 @@ export function createStyleRuleType<O, P = {}>(id: string, options: StyleRuleOpt
     if (ruleSession.registering) {
       ruleSession.instances[id] = {
         compoundRules: [],
-        scope: null,
+        scope        : null,
         id           : id,
         key          : gid++,
         options      : options || {},
