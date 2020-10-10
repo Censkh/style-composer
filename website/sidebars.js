@@ -1,16 +1,20 @@
 module.exports = {
   someSidebar: {
     "Style Composer": [
-      "getting-started",
       "usage",
-      "style-rules",
-      "child-rule",
+      "cascading",
+      "rule-order-and-important",
+      "style-selectors",
+      "child-selector",
       "pseudo-classes",
       "dynamic-units",
-      "use-composed-style",
-      "use-composed-value"
+      "theming",
+      "web-support",
+      "ssr"
     ],
-    "Rules"         : [
-      "rule-media"],
+    "Hooks": [
+      "use-composed-style",
+      "use-composed-value",
+    ]
   },
 };

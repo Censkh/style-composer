@@ -4,7 +4,7 @@ import {resolveStyling, StyleObject, StyleScope, StylingBuilder, StylingResoluti
 import * as Utils                                                                   from "../Utils";
 import {Falsy}                                                                      from "../Utils";
 import ClassManager                                                                 from "./ClassManager";
-import {PseudoRuleType}                                                             from "../rule/PseudoRule";
+import {PseudoSelectorType}                                                         from "../selector/PseudoSelector";
 
 export type StyleClassMeta<V extends Record<string, StyleClass> = {}> = StylingResolution & {
   key: number;
@@ -76,7 +76,7 @@ export const registerStyleSheets = (scope: StyleScope): void => {
 
 export type Classes = RecursiveArray<StyleClass | Falsy> | StyleClass | Falsy;
 
-export type PseudoClasses = RecursiveArray<string | PseudoRuleType | Falsy> | string | PseudoRuleType | Falsy;
+export type PseudoClasses = RecursiveArray<string | PseudoSelectorType | Falsy> | string | PseudoSelectorType | Falsy;
 
 export const classesId = (classes: Classes): string | null => {
   if (!classes) return null;

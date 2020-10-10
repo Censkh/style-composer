@@ -3,7 +3,7 @@ id: pseudo-classes
 title: Pseudo Classes
 ---
 
-Pseudo classes are styling flags that allow you to **add optional styling** to your classes. **Each pseudo class is also a rule** to select any element that has been given that pseudo class. For example, when a button is pressed.
+Pseudo classes are styling flags that allow you to **add optional styling** to your classes. **Each pseudo class is also a selector** to select any element that has been given that pseudo class. For example, when a button is pressed.
 
 There are two parts to using pseudo classes:
 
@@ -36,11 +36,12 @@ export const $FieldGroup = composeClass("field-group", () => ({
 }));
 ```
 
-## In-built Rules
+## In-built Selectors
 
 - active
 - disabled
 - focus
+- hover
 
 ## Demo
 
@@ -75,12 +76,12 @@ function Button({classes, children}) {
 
 ## Creating your own
 
-If you wished to add your own pseudo class rules for your app you can do so like this:
+If you wished to add your own pseudo class selectors for your app you can do so like this:
 
 ```js
-import {createPseudoRule} from "style-composer";
+import {createPseudoSelector} from "style-composer";
 
-export const hover = createPseudoRule("hover");
+export const selected = createPseudoSelector("selected");
 ```
 
 This will now work just the same as the in-built pseudo classes

@@ -1,15 +1,15 @@
-import React, {Profiler, useCallback, useEffect, useState}                             from "react";
-import {media, StyledText, StyledView, ThemeFor, ThemeProvider, useComposedValues, vw} from "style-composer";
-import {CheckBox, ScrollView}                                                          from "react-native";
+import React, {useState}                                                   from "react";
+import {media, StyledText, ThemeFor, ThemeProvider, useComposedValues, vw} from "style-composer";
+import {CheckBox, ScrollView}                                              from "react-native";
 
-import Card                    from "../example/src/components/Card/Card";
-import {$Card, $ChildRuleTest} from "../example/src/components/Card/Card.style";
-import Container               from "./src/components/Container/Container";
-import Text         from "./src/components/Text/Text";
-import Button       from "./src/components/Button/Button";
-import {$BigMargin} from "./src/components/Button/Button.style";
-import {THEMING}    from "./src/ThemeConsts";
-import {$Heading}   from "./src/components/Text/Text.style";
+import Card                        from "../example/src/components/Card/Card";
+import {$Card, $ChildSelectorTest} from "../example/src/components/Card/Card.style";
+import Container                   from "./src/components/Container/Container";
+import Text                        from "./src/components/Text/Text";
+import Button                      from "./src/components/Button/Button";
+import {$BigMargin}                from "./src/components/Button/Button.style";
+import {THEMING}                   from "./src/ThemeConsts";
+import {$Heading}                  from "./src/components/Text/Text.style";
 
 const LIGHT_THEME: ThemeFor<typeof THEMING> = {};
 const DARK_THEME: ThemeFor<typeof THEMING>  = {
@@ -23,7 +23,7 @@ interface AppInternalProps {
 }
 
 const Title = () => {
-  const {width}                       = useComposedValues<{width: string | number}>(() => ({
+  const {width} = useComposedValues<{ width: string | number }>(() => ({
     width                   : vw(),
     [media({maxWidth: 800})]: {
       width: "small",
@@ -33,7 +33,7 @@ const Title = () => {
     },
   }), []);
 
-  return         <StyledText tag={"h2"} classes={$Heading.h2}>Page width: {width}</StyledText>;
+  return <StyledText tag={"h2"} classes={$Heading.h2}>Page width: {width}</StyledText>;
 };
 
 const App = React.memo((props: AppInternalProps) => {
@@ -43,7 +43,7 @@ const App = React.memo((props: AppInternalProps) => {
 
 
   return (
-    <ThemeProvider plan={THEMING} value={themeToggle ? DARK_THEME : LIGHT_THEME}>
+    <ThemeProvider schema={THEMING} value={themeToggle ? DARK_THEME : LIGHT_THEME}>
       <Container>
         <Title/>
         <Button title={"Profile"} onPress={onProfilePress}/>
@@ -54,7 +54,7 @@ const App = React.memo((props: AppInternalProps) => {
             <Text>hello</Text>
           </Card>)}
         </ScrollView>
-        <Card classes={$ChildRuleTest}>
+        <Card classes={$ChildSelectorTest}>
           <Text style={{fontSize: 8}}>asda</Text>
         </Card>
         <Button title={"hi"} disabled={true} style={{backgroundColor: "yellow"}} classes={[$BigMargin]} onPress={() => {

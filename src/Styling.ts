@@ -6,10 +6,15 @@ import * as Utils                                                               
 import {Falsy}                                                                                from "./Utils";
 import {DYNAMIC_UNIT_REGISTER_CHECK_VALUE, finishDynamicUnitSession, startDynamicUnitSession} from "./unit/DynamicUnit";
 import {finishThemeSession, startThemedSession}                                               from "./theme/Theming";
-import {finishRuleSession, startRuleSession, StyleRule, StyleRules}                           from "./rule/StyleRule";
+import {
+  finishSelectorSession,
+  startSelectorSession,
+  StyleSelector,
+  StyleSelectors,
+}                                                                                             from "./selector/StyleSelector";
 import {finishImportantSession, isImportantValue, startImportantSession}                      from "./Important";
 import {StyleProp}                                                                            from "./component/Styler";
-import {ChildQuery}                                                                           from "./rule/ChildRule";
+import {ChildQuery}                                                                           from "./selector/ChildSelector";
 
 export const CASCADING_STYLES = ["fontSize", "fontFamily", "fontWeight", "color", "letterSpacing", "textAlign"];
 
@@ -20,7 +25,7 @@ export interface StyleScope {
   staticStyle: StyleObject;
   staticImportantStyle: StyleObject | null;
   isSimple: boolean;
-  hasRules: boolean;
+  hasSelectors: boolean;
   hasThemed: boolean;
   hasDynamicUnit: boolean;
   hasDynamicProps: boolean;
@@ -28,14 +33,14 @@ export interface StyleScope {
   hasImportant: boolean;
   importantProps: string[];
   resolvedStyling: Styling;
-  rules: StyleRules,
+  selectors: StyleSelectors,
   scopes: Record<number, StyleScope>;
 }
 
 export interface StylingResolution {
   stylingBuilder: StylingBuilder;
   rootScope: StyleScope;
-  hasAnyRules: boolean;
+  hasAnySelectors: boolean;
   hasAnyThemed: boolean;
   hasAnyDynamicProps: boolean;
   hasAnyImportant: boolean;
@@ -51,7 +56,7 @@ export type Styling<S = StyleObject> = Record<number, S> & S;
 
 export interface StylingSession {
   pseudoClasses?: string[];
-  applicableChildRules?: Array<StyleRule<ChildQuery>>;
+  applicableChildSelectors?: Array<StyleSelector<ChildQuery>>;
 }
 
 export interface ComputeResults {
@@ -71,9 +76,9 @@ export function computeClasses(styleClass: StyleClass[] | Falsy, styleProp?: Sty
   const style: ComputedStyleList          = [];
   const importantStyle: ComputedStyleList = [];
 
-  if (computedSession.applicableChildRules?.length) {
-    for (const childRule of computedSession.applicableChildRules) {
-      computeScopeStyle(childRule.scope!, style, importantStyle, classNames);
+  if (computedSession.applicableChildSelectors?.length) {
+    for (const childSelector of computedSession.applicableChildSelectors) {
+      computeScopeStyle(childSelector.scope!, style, importantStyle, classNames);
     }
   }
 
@@ -133,19 +138,25 @@ const internalComputedStyling = (resolution: StylingResolution, session: Styling
     return;
   }
 
-  startRuleSession(false, resolution, session);
+  startSelectorSession(false, resolution, session);
   const styling = stylingBuilder();
-  finishRuleSession();
+  finishSelectorSession();
   rootScope.resolvedStyling = styling;
+  for (const scopeId in rootScope.scopes) {
+    const resolvedScopeStyling = styling[scopeId];
+    if (resolvedScopeStyling) {
+      (rootScope.scopes as any)[scopeId].resolvedStyling = resolvedScopeStyling;
+    }
+  }
 
   computeScopeStyle(rootScope, outStyle, outImportantStyle, outClassNames);
 
-  // when rules are evalled they return 0 instead of false
+  // when selectors are evalled they return 0 instead of false
   (styling as any)[0] = undefined;
 };
 
 const computeScopeStyle = (scope: StyleScope, outStyle: ComputedStyleList, outImportantStyle: ComputedStyleList, outClassNames?: string[]): void => {
-  const {sheetId, resolvedStyling, isSimple, className, staticStyle, staticImportantStyle, rules, hasDynamicProps, hasImportant, hasRules, importantProps, dynamicProps} = scope;
+  const {sheetId, resolvedStyling, isSimple, className, staticStyle, staticImportantStyle, selectors, hasDynamicProps, hasImportant, hasSelectors, importantProps, dynamicProps} = scope;
   if (outClassNames) {
     outClassNames.push(className);
   }
@@ -172,13 +183,13 @@ const computeScopeStyle = (scope: StyleScope, outStyle: ComputedStyleList, outIm
     outImportantStyle.push(importantStyle);
   }
 
-  if (hasRules) {
-    for (const ruleInstance of Object.values(rules)) {
-      const ruleStyling = resolvedStyling[ruleInstance.id];
-      if (ruleStyling) {
-        const ruleScope = scope.scopes[ruleInstance.id];
-        computeScopeStyle(ruleScope, outStyle, outImportantStyle, outClassNames);
-        delete (resolvedStyling as any)[ruleInstance.id];
+  if (hasSelectors) {
+    for (const selectorInstance of Object.values(selectors)) {
+      const selectorStyling = resolvedStyling[selectorInstance.id];
+      if (selectorStyling) {
+        const selectorScope = scope.scopes[selectorInstance.id];
+        computeScopeStyle(selectorScope, outStyle, outImportantStyle, outClassNames);
+        delete (resolvedStyling as any)[selectorInstance.id];
       }
     }
   }
@@ -199,11 +210,17 @@ export const sanitizeStyleList = (node: React.ReactNode, style: RecursiveArray<S
 };
 
 export function sanitizeStyleValue<T extends string | number>(value: T): T {
-  return (typeof value === "number" || value instanceof Number ? Number(value) : String(value)) as any;
+  if (typeof value === "number" || value instanceof Number) {
+    return Number(value) as T;
+  }
+  if (typeof value === "string" || value instanceof String) {
+    return String(value) as T;
+  }
+  return value;
 }
 
 /**
- * Removes any theme or query rules from the styling object, leaving only actual style rules
+ * Removes any theme or query selectors from the styling object, leaving only actual style selectors
  */
 export const sanitizeStylingToStaticStyle = (styling: Styling | StyleObject): { style: StyleObject, importantStyle: StyleObject | null } => {
   let importantStyle: StyleObject | null = null;
@@ -232,36 +249,36 @@ export const sanitizeStylingToStaticStyle = (styling: Styling | StyleObject): { 
 export const resolveStyling = (className: string, stylingBuilder: StylingBuilder): StylingResolution => {
   startDynamicUnitSession();
   startThemedSession();
-  startRuleSession(true);
+  startSelectorSession(true);
   startImportantSession();
 
   const resolvedStyling = stylingBuilder();
 
-  const rules             = finishRuleSession();
+  const selectors         = finishSelectorSession();
   const hasAnyThemed      = finishThemeSession();
   const hasAnyDynamicUnit = finishDynamicUnitSession();
   const hasAnyImportant   = finishImportantSession();
 
-  const hasAnyRules        = Object.keys(rules).length > 0;
+  const hasAnySelectors    = Object.keys(selectors).length > 0;
   const hasAnyDynamicProps = Boolean(hasAnyThemed || hasAnyDynamicUnit);
 
-  const rootScope = resolveScope(0, className, resolvedStyling, rules, hasAnyThemed, hasAnyDynamicProps, hasAnyImportant);
+  const rootScope = resolveScope(0, className, resolvedStyling, selectors, hasAnyThemed, hasAnyDynamicProps, hasAnyImportant);
 
   return {
     rootScope,
     stylingBuilder,
-    hasAnyRules,
+    hasAnySelectors: hasAnySelectors,
     hasAnyDynamicProps,
     hasAnyImportant,
     hasAnyThemed,
   };
 };
 
-const resolveScope = (id: number, className: string, styling: Styling, rules: StyleRules, hasAnyThemed: boolean, hasAnyDynamicProps: boolean, hasAnyImportant: boolean): StyleScope => {
+const resolveScope = (id: number, className: string, styling: Styling, selectors: StyleSelectors, hasAnyThemed: boolean, hasAnyDynamicProps: boolean, hasAnyImportant: boolean): StyleScope => {
   const dynamicProps                       = [];
   const importantProps                     = [];
   const scopes: Record<number, StyleScope> = {};
-  const scopeRules: StyleRules             = {};
+  const scopeSelectors: StyleSelectors     = {};
 
   for (const key of Object.keys(styling)) {
     const value = (styling as any)[key];
@@ -271,27 +288,27 @@ const resolveScope = (id: number, className: string, styling: Styling, rules: St
     } else if (hasAnyImportant && isImportantValue(value)) {
       importantProps.push(key);
     } else if (typeof value === "object" && !isNaN(key as any)) {
-      const ruleId       = Number(key);
-      const rule         = rules[ruleId];
-      scopeRules[ruleId] = rule;
-      for (const compoundRuleId of rule.compoundRules) {
-        scopeRules[compoundRuleId] = rules[compoundRuleId];
+      const selectorId           = Number(key);
+      const selector             = selectors[selectorId];
+      scopeSelectors[selectorId] = selector;
+      for (const compoundSelectorId of selector.compoundSelectors) {
+        scopeSelectors[compoundSelectorId] = selectors[compoundSelectorId];
       }
-      const scope = scopes[ruleId] = resolveScope(ruleId, rule.className, value, rules, hasAnyThemed, hasAnyDynamicProps, hasAnyImportant);
-      rule.scope  = scope;
+      const scope    = scopes[selectorId] = resolveScope(selectorId, selector.className, value, selectors, hasAnyThemed, hasAnyDynamicProps, hasAnyImportant);
+      selector.scope = scope;
     }
   }
 
   const {style, importantStyle} = sanitizeStylingToStaticStyle(styling);
 
-  const hasThemed = hasAnyThemed;
-  const hasRules  = Object.keys(scopeRules).length > 0;
+  const hasThemed    = hasAnyThemed;
+  const hasSelectors = Object.keys(scopeSelectors).length > 0;
 
   const hasDynamicUnit = dynamicProps.length > 0;
 
   const hasDynamicProps = hasThemed || hasDynamicUnit;
 
-  const isSimple = !hasRules && !hasDynamicUnit && !hasThemed;
+  const isSimple = !hasSelectors && !hasDynamicUnit && !hasThemed;
 
   return {
     id                  : id,
@@ -303,9 +320,9 @@ const resolveScope = (id: number, className: string, styling: Styling, rules: St
     hasDynamicProps     : hasDynamicProps,
     importantProps      : importantProps,
     hasImportant        : importantProps.length > 0,
-    rules               : scopeRules,
+    selectors           : scopeSelectors,
     hasDynamicUnit      : hasDynamicUnit,
-    hasRules            : hasRules,
+    hasSelectors        : hasSelectors,
     hasThemed           : hasThemed,
     scopes              : scopes,
     isSimple            : isSimple,

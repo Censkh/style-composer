@@ -1,9 +1,9 @@
-import {and, composeClass, createPseudoRule, important, not} from "style-composer";
+import {and, composeClass, createPseudoSelector, important, not} from "style-composer";
 
-export const active   = createPseudoRule("active");
-export const disabled = createPseudoRule("disabled");
-export const hover    = createPseudoRule("hover");
-export const focus    = createPseudoRule("focus");
+export const active   = createPseudoSelector("active");
+export const disabled = createPseudoSelector("disabled");
+export const hover    = createPseudoSelector("hover");
+export const focus    = createPseudoSelector("focus");
 
 // replace with style lib when we have
 export const $Button = composeClass("Button", () => ({

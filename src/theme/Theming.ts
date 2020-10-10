@@ -23,17 +23,17 @@ export const finishThemeSession = (): boolean => {
 
 let currentTheme: any = {};
 
-export type ThemeValues = Record<string, string | number>;
+export type Theme = Record<string, string | number>;
 
-const ThemeContext = React.createContext<ThemeValues>(currentTheme);
+const ThemeContext = React.createContext<Theme>(currentTheme);
 
-export interface ThemeProviderProps<T extends ThemeValues> {
+export interface ThemeProviderProps<T extends Theme> {
   children: React.ReactNode;
   value: Partial<T>;
-  plan: ThemePlan<T>
+  schema: ThemeSchema<T>
 }
 
-export function ThemeProvider<T extends ThemeValues>(props: ThemeProviderProps<T>): JSX.Element {
+export function ThemeProvider<T extends Theme>(props: ThemeProviderProps<T>): JSX.Element {
   return React.createElement(ThemeContext.Provider, props as any);
 }
 
@@ -45,23 +45,23 @@ export interface ThemeProperty<T = any> {
   toString: () => string;
 }
 
-export const useTheming = (): ThemeValues => {
+export const useTheming = (): Theme => {
   const theme  = useContext(ThemeContext);
   currentTheme = theme;
   return theme;
 };
 
-export type ThemeFor<T extends ThemePlan<any>> = T extends ThemePlan<infer P> ? Partial<P> : never;
+export type ThemeFor<T extends ThemeSchema<any>> = T extends ThemeSchema<infer P> ? Partial<P> : never;
 
-export type ThemePlan<T extends ThemeValues> = {
+export type ThemeSchema<T extends Theme> = {
   [K in keyof T]: ThemeProperty<T[K]>
 };
 
-export function themePlan<T extends ThemeValues>(themePlanInfo: T): ThemePlan<T> {
-  const plan: ThemePlan<any> = {};
-  for (const key of Object.keys(themePlanInfo)) {
-    const defaultValue            = themePlanInfo[key];
-    const property: ThemeProperty = plan[key] = Object.assign(function(this: ThemeProperty<T>) {
+export function createThemeSchema<T extends Theme>(defaultTheme: T): ThemeSchema<T> {
+  const schema: ThemeSchema<any> = {};
+  for (const key of Object.keys(defaultTheme)) {
+    const defaultValue            = defaultTheme[key];
+    const property: ThemeProperty = schema[key] = Object.assign(function(this: ThemeProperty<T>) {
       themedSession.called = true;
       if (themedSession.running) return property;
       return currentTheme[key] || defaultValue;
@@ -71,5 +71,5 @@ export function themePlan<T extends ThemeValues>(themePlanInfo: T): ThemePlan<T>
       toString: () => key,
     });
   }
-  return plan;
+  return schema;
 }

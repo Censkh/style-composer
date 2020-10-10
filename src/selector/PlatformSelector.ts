@@ -1,9 +1,9 @@
-import {createStyleRuleType}      from "./StyleRule";
+import {createStyleSelectorType}  from "./StyleSelector";
 import {Platform, PlatformOSType} from "react-native";
 
 export type PlatformQuery = PlatformOSType[] | PlatformOSType;
 
-const platform = createStyleRuleType<PlatformQuery>("platform", {
+const platform = createStyleSelectorType<PlatformQuery>("platform", {
   check(instance) {
     const {options} = instance;
     return Array.isArray(options) ? options.includes(Platform.OS) : options === Platform.OS;

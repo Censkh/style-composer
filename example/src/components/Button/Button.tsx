@@ -6,10 +6,10 @@ import {StylableProps, StyledTouchableOpacity} from "style-composer";
 
 import {
   $Button,
-  active as activeRule,
-  disabled as disabledRule,
-  focus as focusRule,
-  hover as hoverRule,
+  active as activeSelector,
+  disabled as disabledSelector,
+  focus as focusSelector,
+  hover as hoverSelector,
 }                           from "./Button.style";
 import Text                 from "../Text/Text";
 import {useFocus, useHover} from "react-native-web-hooks";
@@ -34,7 +34,7 @@ const Button = (props: ButtonProps) => {
   const focus = useFocus(ref);
   const hover = useHover(ref);
 
-  const ownPseudoClasses = [disabled && disabledRule.type, active && activeRule.type, focus && focusRule.type, hover && hoverRule.type];
+  const ownPseudoClasses = [disabled && disabledSelector.type, active && activeSelector.type, focus && focusSelector.type, hover && hoverSelector.type];
 
   return <StyledTouchableOpacity tag={"button"}
     // @ts-ignore

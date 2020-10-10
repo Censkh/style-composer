@@ -29,7 +29,7 @@ export const $Card = composeClass("card", () => ({
   },
 });
 
-export const $ChildRuleTest = composeClass("child-rule-test", () => ({
+export const $ChildSelectorTest = composeClass("child-selector-test", () => ({
   backgroundColor: "grey",
 
   [child($Text)]: {

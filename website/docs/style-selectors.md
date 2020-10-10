@@ -1,25 +1,25 @@
 ---
-id: style-rules
-title: Style Rules
+id: style-selectors
+title: Style Selectors & Media Queries
 ---
 
-Style rules are selectors which **allow you to add dynamic styling to your components.**.
+Style selectors are selectors which **allow you to add dynamic styling to your components.**.
 
-All **rules will update automatically** and require no further component logic.
+All **selectors will update automatically** and require no further component logic.
 
 They are used in your class style and are defined in this pattern:
 
 ```jsx {3,4,5}
 const $Style = composeClass("style", () => ({
 
-    [rule(options)]: {
+    [selector(options)]: {
         ...optionalStyling
     }
 
 }));
 ```
 
-For example, if you wanted to change a component's `fontSize` depending on the screen dimensions you could use the `media()` rule:
+For example, if you wanted to change a component's `fontSize` depending on the screen dimensions you could use the `media()` selector:
 
 ```jsx live
 function Card() {
@@ -40,15 +40,15 @@ function Card() {
 
 This will make sure when the screen was smaller than 1280px the text inside the view would become smaller.
 
-## Built-in Rules
+## Built-in Selectors
 
 | Name                      | Usage
 | ---                       | ---
-| [media](rule-media)       | `media({maxWidth: 200})`
-| [rtl](rule-media)           | `rtl()`
-| [platform](rule-media) | `platform("web")` or `platform(["web", "android"])`
+| [media](selector-media)       | `media({maxWidth: 200})`
+| [rtl](selector-media)           | `rtl()`
+| [platform](selector-media) | `platform("web")` or `platform(["web", "android"])`
 
-## Rule Boolean Logic
+## Selector Boolean Logic
 
 Style composer supplies methods to use boolean logic.
 

@@ -1,5 +1,5 @@
-import {createStyleRuleType} from "./StyleRule";
-import StyleEnvironment      from "../StyleEnvironment";
+import {createStyleSelectorType} from "./StyleSelector";
+import StyleEnvironment          from "../StyleEnvironment";
 
 export interface MediaQuery {
   maxWidth?: number,
@@ -9,7 +9,7 @@ export interface MediaQuery {
   minHeight?: number,
 }
 
-const media = createStyleRuleType<MediaQuery>("media", {
+const media = createStyleSelectorType<MediaQuery>("media", {
   check(instance) {
     const {options}    = instance;
     const screenWidth  = Math.round(StyleEnvironment.getScreenWidth());

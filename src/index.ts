@@ -15,4 +15,4 @@ export {createFontFamily} from "./font/FontFamily";
 
 export * from "./theme";
 export * from "./unit";
-export * from "./rule";
+export * from "./selector";

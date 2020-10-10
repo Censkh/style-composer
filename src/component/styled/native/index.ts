@@ -11,4 +11,4 @@ export * from "./StyledScrollView";
 export * from "./StyledImage";
 export * from "./StyledPressable";
 
-export {default as StyledAnimated} from "./StyledAnimated";
+export * from "./StyledAnimated";

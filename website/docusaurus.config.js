@@ -9,14 +9,14 @@ module.exports = {
   projectName     : "style-composer", // Usually your repo name.
   themeConfig     : {
     navbar: {
-      title: "My Site",
+      title: "Style Composer",
       logo : {
         alt: "My Site Logo",
         src: "img/logo.svg",
       },
       items: [
         {
-          to            : "docs/getting-started",
+          to            : "docs/usage",
           activeBasePath: "docs",
           label         : "Docs",
           position      : "left",
@@ -35,8 +35,8 @@ module.exports = {
           title: "Docs",
           items: [
             {
-              label: "Getting Started",
-              to   : "docs/getting-started",
+              label: "Usage",
+              to   : "docs/usage",
             },
           ],
         },
