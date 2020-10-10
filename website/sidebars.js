@@ -3,6 +3,7 @@ module.exports = {
     "Style Composer": [
       "usage",
       "cascading",
+      "variants",
       "rule-order-and-important",
       "style-selectors",
       "child-selector",
@@ -10,7 +11,8 @@ module.exports = {
       "dynamic-units",
       "theming",
       "web-support",
-      "ssr"
+      "ssr",
+      "fonts",
     ],
     "Hooks": [
       "use-composed-style",

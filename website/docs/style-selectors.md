@@ -50,12 +50,22 @@ This will make sure when the screen was smaller than 1280px the text inside the 
 
 ## Selector Boolean Logic
 
-Style composer supplies methods to use boolean logic.
+Style composer supplies methods to use boolean logic with selectors. For example:
 
-### and()
+```jsx
+export const pixel3 = () => and(
+  platform("android"),
+  media({maxWidth: 412}),
+  media({minWidth: 410}),
+);
 
+export const $Card = composeClass("card", () => ({
+    margin: 5,
+
+    [pixel3()]: {
+        marginTop: 22
+    }
+}));
 ```
 
-```
-
-## Writing your own
+You can use `and`, `or` and `not`.

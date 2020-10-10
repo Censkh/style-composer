@@ -6,143 +6,22 @@ Straightforward and powerful cross platform styling for React Native supporting 
 
 **Note:** this package is in early development, use with caution
 
+- [Documentation](https://censkh.github.io/style-composer/docs)
+
 ## Features
 
-- Cascading styles
+- [Cascading styles](https://censkh.github.io/style-composer/docs/cascading)
 - Native & web support
-- [`!important` like feature](#important-values)
-- [Media queries](#media-queries)
-- [Class variants](#variants)
-- [Theming](#theming)
-- [Dynamic Units (vw, vh)](#dynamic-units)
+- [`!important` like feature](https://censkh.github.io/style-composer/docs/rule-order-and-important)
+- [Media queries](https://censkh.github.io/style-composer/docs/style-selectors)
+- [Class variants](https://censkh.github.io/style-composer/docs/variants)
+- [Theming](https://censkh.github.io/style-composer/docs/theming)
+- [Dynamic Units (vw, vh)](https://censkh.github.io/style-composer/docs/dynamic-units)
 
-### Variants
+## Why?
 
-A lot of the time you will need slight variations of the same class. Here is an example:
+The inbuilt styling system for React Native isn't powerful enough to allow for universal styling without the need to add component level logic to adapt to platform or screen size changes.
 
-```typescript jsx
-import {composeClass} from "style-composer";
+For example, currently with RN's inbuilt StyleSheets it is not possible to have media queries or themes without component logic.
 
-const REM = 14;
-
-export const $Heading = composeClass("Heading", () => ({
-  marginBottom: 0.5 * REM,
-}), {
-  variants: {
-
-    "h1": () => ({
-      fontSize: 2.5 * REM,
-    }),
-
-    "h2": () => ({
-      fontSize  : 2 * REM,
-      fontWeight: "bold",
-    }),
-
-    "h3": () => ({
-      fontSize: 1.75 * REM,
-    }),
-
-    "h4": () => ({
-      fontSize: 1.5 * REM,
-    }),
-
-    "h5": () => ({
-      fontSize: 1.25 * REM,
-    }),
-
-  },
-});
-```
-
-You can then use those classes with:
-
-```typescript jsx
-<StyledText classes={$Heading.h3}>I am a h3!</StyledText>
-```
-
-### Media Queries
-
-```typescript jsx
-import {media, composeClass} from "style-composer";
-
-export const $Card = composeClass("card", () => ({
-    padding: 10,
-    fontSize: 20,
-
-    // when screen is smaller than 500px, apply these selectors
-    [media({maxWidth: 500})]: {
-        padding: 5,
-        fontSize: 14
-    }
-}));
-```
-
-You can also use other queries in combination with operator selectors to create compound queries:
-
-```typescript jsx
-import {media, platform, and, composeClass} from "style-composer";
-
-export const pixel3 = () => and(
-  platform("android"),
-  media({maxWidth: 412}),
-  media({minWidth: 410})
-);
-
-export const $Card = composeClass("card", () => ({
-    padding: 10,
-    fontSize: 20,
-
-    // only apply this styling on the pixel 3
-    [pixel3()]: {
-        padding: 5,
-        fontSize: 14
-    }
-}));
-```
-
-<!--
-### Fonts
-
-[Example font](./example/assets/fonts/raleway/index.ts)
-
-You can dynamically load fonts in your app. First create your font family object:
-
-```typescript jsx
-import {createFontFamily} from "style-composer";
-
-const raleway = createFontFamily("raleway", {
-  bold            : require("./Raleway-Bold.ttf"),
-  boldItalic      : require("./Raleway-BoldItalic.ttf"),
-  regular         : require("./Raleway-Regular.ttf"),
-  regularItalic   : require("./Raleway-Italic.ttf"),
-});
-
-export default raleway;
-```
-
-Then use it in your styles:
-
-```typescript jsx
-export const $AppContainer = composeClass("app-container", () => ({
-    fontFamily: raleway(),
-}));
-```
-
-This also supports cascading that font family child elements further in the tree.
-
-Fonts created using this method can now interact with the `fontWeight` style as well to dynamically load different weights of your font:
-
-```typescript jsx
-const $Bold = composeClass("bold", () => ({
-    fontWeight: "700",
-    // fontWeight: "bold"
-}));
-
-<StyledView classes={[$Bold]}>
-    <StyledText>I am going to be brave and bold!</StyledText>
-</StyledView>
-```
-
--->
-
+To solve this `style-composer` builds on-top of this system to provide many features it can't.

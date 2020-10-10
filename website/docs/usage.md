@@ -3,21 +3,6 @@ id: usage
 title: Usage
 ---
 
-## Why?
-
-The inbuilt styling system for React Native isn't powerful enough to allow for universal styling without the need to add component level logic to adapt to platform or screen size changes.
-
-For example, currently with RN's inbuilt StyleSheets it is not possible to have media queries or themes without component logic.
-
-To solve this `style-composer` builds on-top of this system to provide many features it can't:
-
-- [Cascading styles](cascading)
-- [`!important` like feature](rule-order-and-important)
-- [Media queries](style-selectors)
-- [Class variants](variants)
-- [Theming](theming)
-- [Dynamic Units (vw, vh)](dynamic-units)
-
 ## Usage
 
 In a styling file you define your classes, which hold 'scopes' of style rules that can be applied to components:
