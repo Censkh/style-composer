@@ -44,9 +44,9 @@ This will make sure when the screen was smaller than 1280px the text inside the 
 
 | Name                      | Usage
 | ---                       | ---
-| [media](selector-media)       | `media({maxWidth: 200})`
-| [rtl](selector-media)           | `rtl()`
-| [platform](selector-media) | `platform("web")` or `platform(["web", "android"])`
+| media                     | `media({maxWidth: 200})`
+| rtl                       | `rtl()`
+| platform                  | `platform("web")` or `platform(["web", "android"])`
 
 ## Selector Boolean Logic
 
