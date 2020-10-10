@@ -12,7 +12,7 @@ For example, currently with RN's inbuilt StyleSheets it is not possible to have 
 To solve this `style-composer` builds on-top of this system to provide many features it can't:
 
 - [Cascading styles](cascading)
-- [`!important` like feature](important-values)
+- [`!important` like feature](rule-order-and-important)
 - [Media queries](style-selectors)
 - [Class variants](variants)
 - [Theming](theming)
