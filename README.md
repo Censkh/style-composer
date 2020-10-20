@@ -6,15 +6,15 @@ Straightforward and powerful cross platform styling for React Native supporting 
 
 **Note:** this package is in early development, use with caution
 
-- [Documentation](https://censkh.github.io/style-composer/docs)
+- [Documentation](https://censkh.github.io/style-composer/docs/usage)
 
 ## Features
 
-- [Cascading styles](https://censkh.github.io/style-composer/docs/cascading)
-- Native & web support
+- [Cascading Styles](https://censkh.github.io/style-composer/docs/cascading)
+- Native & Web Support
 - [`!important` like feature](https://censkh.github.io/style-composer/docs/rule-order-and-important)
-- [Media queries](https://censkh.github.io/style-composer/docs/style-selectors)
-- [Class variants](https://censkh.github.io/style-composer/docs/variants)
+- [Media Queries](https://censkh.github.io/style-composer/docs/style-selectors)
+- [Class Variants](https://censkh.github.io/style-composer/docs/variants)
 - [Theming](https://censkh.github.io/style-composer/docs/theming)
 - [Dynamic Units (vw, vh)](https://censkh.github.io/style-composer/docs/dynamic-units)
 

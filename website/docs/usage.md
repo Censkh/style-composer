@@ -1,6 +1,7 @@
 ---
 id: usage
 title: Usage
+slug: /
 ---
 
 ## Usage

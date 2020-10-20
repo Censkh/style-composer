@@ -17,7 +17,8 @@
     "react-dom": "^16.13.1",
     "react-native": "^0.63.2",
     "react-native-web": "^0.14.0",
-    "style-composer": "file:.."
+    "style-composer": "file:..",
+    "use-onclickoutside": "^0.3.1"
   },
   "browserslist": {
     "production": [
@@ -32,12 +33,12 @@
     ]
   },
   "devDependencies": {
-    "@docusaurus/core": "^2.0.0-alpha.62",
-    "@docusaurus/module-type-aliases": "^2.0.0-alpha.62",
+    "@docusaurus/core": "^2.0.0-alpha.66",
+    "@docusaurus/module-type-aliases": "^2.0.0-alpha.66",
+    "@docusaurus/preset-classic": "^2.0.0-alpha.66",
+    "@docusaurus/theme-live-codeblock": "^2.0.0-alpha.66",
     "docusaurus-plugin-react-native-web": "^1.0.0",
-    "@docusaurus/preset-classic": "^2.0.0-alpha.62",
-    "@docusaurus/theme-live-codeblock": "^2.0.0-alpha.62",
     "docusaurus-plugin-sass": "git+https://github.com/slorber/docusaurus-plugin-sass.git#patch-1",
-    "typescript": "^3.9.7"
+    "typescript": "^4.0.3"
   }
 }

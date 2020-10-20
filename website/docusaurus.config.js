@@ -10,14 +10,14 @@ module.exports = {
   themeConfig     : {
     navbar: {
       title: "Style Composer",
-      logo : {
+      /*logo : {
         alt: "My Site Logo",
         src: "img/logo.svg",
-      },
+      },*/
       items: [
         {
-          to            : "docs/usage",
-          activeBasePath: "docs",
+          to            : "/",
+          activeBasePath: "/",
           label         : "Docs",
           position      : "left",
         },
@@ -36,11 +36,11 @@ module.exports = {
           items: [
             {
               label: "Usage",
-              to   : "docs/usage",
+              to   : "/",
             },
           ],
         },
-        {
+        /*{
           title: "Community",
           items: [
             {
@@ -56,7 +56,7 @@ module.exports = {
               href : "https://twitter.com/docusaurus",
             },
           ],
-        },
+        },*/
         {
           title: "More",
           items: [
@@ -67,7 +67,7 @@ module.exports = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      //copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
     },
   },
   themes          : [
@@ -78,8 +78,10 @@ module.exports = {
     [
       "@docusaurus/preset-classic",
       {
+        pages: false,
         docs : {
           path       : "docs",
+          routeBasePath: "/",
           sidebarPath: require.resolve("./sidebars.js"),
           // Please change this to your repo.
           editUrl    :
