@@ -2,7 +2,8 @@
   "compilerOptions": {
     "lib": [
       "ES6",
-      "ESNext"
+      "ESNext",
+      "DOM"
     ],
     "moduleResolution": "node",
     "module": "ES2015",
@@ -11,6 +12,7 @@
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "jsx": "react",
+    "skipLibCheck": true,
     "allowJs": true
   },
   "include": [

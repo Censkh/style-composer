@@ -1,12 +1,13 @@
-import React                  from "react";
-import {RecursiveArray, Text} from "react-native";
+import React, {useCallback, useRef}       from "react";
+import {RecursiveArray, StyleSheet, Text} from "react-native";
 
 import {sanitizeStyleList, Style} from "../Styling";
 import {Classes, PseudoClasses}   from "../class/StyleClass";
-import {CascadingStyleProvider}   from "../CascadingStyleContext";
 import {useComposedStyle}         from "../Hooks";
-import {PolyText}                 from "./PolyComponents";
-import {setupFontPreProcessor}    from "../font/FontPreProcessor";
+import {CascadingValuesProvider}  from "../CascadingValuesContext";
+import {isNative}                 from "../Utils";
+import {StyledOptions}            from "./styled/StyledComponent";
+import PolyText                   from "./poly/native/PolyText";
 
 export type StyleProp = RecursiveArray<Style | undefined | null | false> | Style | undefined | null | false;
 
@@ -23,25 +24,48 @@ export type StylerChildren =
 export interface StylerProps extends StylableProps {
   children?: StylerChildren,
   _baseComponent: React.ElementType;
+  ref?: React.Ref<any>;
+  options?: StyledOptions;
 }
 
-setupFontPreProcessor();
-
 const Styler = (props: StylerProps) => {
-  const {children, _baseComponent} = props;
+  const {children, _baseComponent, ref, options} = props;
 
-  const {computedStyle, classNames, cascadingStyle, flatPseudoClasses} = useComposedStyle(props, {disableCascade: _baseComponent !== Text && _baseComponent !== PolyText});
+  const {computedStyle, classNames, cascadingContextValue, flatPseudoClasses} = useComposedStyle(props, {disableCascade: _baseComponent !== Text && _baseComponent !== PolyText});
+
+  const internalRef = useRef<any>();
+
+  const handleRef = useCallback((element: any) => {
+    internalRef.current = element;
+    if (ref) {
+      if (typeof ref === "function") {
+        ref(element);
+      } else {
+        (ref as any).current = element;
+      }
+    }
+  }, [ref]);
+
+  const sanitizedStyleList = sanitizeStyleList(children, computedStyle as any);
+  const flatStyle          = isNative() || options?.autoFlattens ? sanitizedStyleList : StyleSheet.flatten(sanitizedStyleList);
+
+  const dataSet = process.env.NODE_ENV === "development" ? {
+    "class"       : classNames?.join(" "),
+    "pseudo-class": flatPseudoClasses.join(" "),
+  } : {};
 
   const content = !children || typeof children === "string" ? children : React.cloneElement(children, {
-    style              : sanitizeStyleList(children, computedStyle as any),
-    "data-class"       : classNames?.join(" "),
-    "data-pseudo-class": flatPseudoClasses.join(" "),
+    style              : flatStyle,
+    "data-class"       : dataSet["class"],
+    "data-pseudo-class": dataSet["pseudo-class"],
+    dataSet            : dataSet,
+    ref                : handleRef,
   } as any);
 
-  return cascadingStyle ?
-    <CascadingStyleProvider value={cascadingStyle}>
+  return cascadingContextValue ?
+    <CascadingValuesProvider value={cascadingContextValue}>
       {content}
-    </CascadingStyleProvider> : content as any;
+    </CascadingValuesProvider> : content as any;
 };
 
 export default Object.assign(Styler, {displayName: "Styler"});

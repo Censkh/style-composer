@@ -20,18 +20,18 @@ export const finishDynamicUnitSession = (): boolean => {
   return dynamicUnitSession.called;
 };
 
-export interface DynamicUnit {
-  (): number;
+export interface DynamicUnit<O, R extends number | string> {
+  (value?: O): R;
 
   key: string;
 }
 
-export const createDynamicUnit = (key: string, func: () => number): DynamicUnit => {
-  return Object.assign(() => {
+export const createDynamicUnit = <O, R extends number | string>(key: string, func: (value?: O) => R): DynamicUnit<O, R> => {
+  return Object.assign((value?: O) => {
     if (dynamicUnitSession.running) {
       dynamicUnitSession.called = true;
-      return DYNAMIC_UNIT_REGISTER_CHECK_VALUE;
+      return DYNAMIC_UNIT_REGISTER_CHECK_VALUE as any;
     }
-    return func();
+    return func(value);
   }, {key});
 };

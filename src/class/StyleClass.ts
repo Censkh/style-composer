@@ -1,18 +1,13 @@
 import {RecursiveArray, StyleSheet} from "react-native";
 
-import {
-  resolveStyling,
-  sanitizeStylingToStaticStyle,
-  StyleObject,
-  StylingBuilder,
-  StylingResolution,
-}                   from "../Styling";
-import * as Utils   from "../Utils";
-import {Falsy}      from "../Utils";
-import ClassManager from "./ClassManager";
+import {resolveStyling, StyleObject, StyleScope, StylingBuilder, StylingResolution} from "../Styling";
+import * as Utils                                                                   from "../Utils";
+import {Falsy}                                                                      from "../Utils";
+import ClassManager                                                                 from "./ClassManager";
+import {PseudoSelectorType}                                                         from "../selector/PseudoSelector";
 
 export type StyleClassMeta<V extends Record<string, StyleClass> = {}> = StylingResolution & {
-  id: number;
+  key: number;
   name: string;
   className: string;
   parent: StyleClass | null;
@@ -34,27 +29,24 @@ const createStyleSheet = (name: string, style: StyleObject): number => {
 
 let globalClassIdCounter = 0;
 
-export function composeClass<V extends string = never>(name: string, styling: StylingBuilder, options?: ComposeClassOptions<V>): StyleClass<Record<V, StyleClass>> {
+export const composeClass = <V extends string = never>(name: string, stylingBuilder: StylingBuilder, options?: ComposeClassOptions<V>): StyleClass<Record<V, StyleClass>> => {
+  const className = (options?.parent ? options?.parent.__meta.name + "__" : "") + name;
+
+  if (process.env.NODE_ENV === "production" && ClassManager.hasClass(className)) {
+    console.error(`[style-composer] Re-declaring class '${className}', this will cause performance issues`);
+  }
+
   // we pretend variants is already full so we can add a reference to it it's self when building the variants
   const variants: V = {} as any;
 
-  const className = (options?.parent ? options?.parent.__meta.name + "__" : "") + name;
-
   const styledClass: StyleClass<any> = {
     __meta: {
-      id            : globalClassIdCounter++,
+      key           : globalClassIdCounter++,
       name          : name,
       parent        : options?.parent || null,
       className     : className,
       variants      : variants,
-      rules         : null as any,
-      hasRules      : false,
-      hasThemed     : false,
-      hasDynamicUnit: false,
-      isSimple      : false,
-      staticStyle   : null,
-      styling       : styling,
-      dynamicProps  : {},
+      stylingBuilder: stylingBuilder,
     },
   };
   const classMeta: StyleClassMeta    = styledClass.__meta;
@@ -66,38 +58,32 @@ export function composeClass<V extends string = never>(name: string, styling: St
     });
   }
 
-  Object.assign(classMeta, resolveStyling(classMeta.styling));
+  Object.assign(classMeta, resolveStyling(className, classMeta.stylingBuilder));
 
   ClassManager.registerClass(styledClass);
 
   return Object.assign(styledClass, variants);
-}
+};
 
-export const registerStyleSheets = (classMeta: StyleClassMeta): void => {
-  if (classMeta.sheetId) {
-    return;
-  }
-  classMeta.sheetId = createStyleSheet(classMeta.className, classMeta.staticStyle);
-  if (classMeta.hasRules) {
-    for (const rule of Object.values(classMeta.rules)) {
-      const ruleStyling = classMeta.resolvedStyling[rule.id];
-      if (ruleStyling) {
-        rule.sheetId = createStyleSheet(rule.className, sanitizeStylingToStaticStyle(ruleStyling).style);
-      }
-    }
+export const registerStyleSheets = (scope: StyleScope): void => {
+  if (scope.sheetId) return;
+  scope.sheetId = createStyleSheet(scope.className, scope.staticStyle);
+  for (const key in scope.scopes) {
+    const childScope = scope.scopes[key];
+    registerStyleSheets(childScope);
   }
 };
 
 export type Classes = RecursiveArray<StyleClass | Falsy> | StyleClass | Falsy;
 
-export type PseudoClasses = RecursiveArray<string | Falsy> | string | Falsy;
+export type PseudoClasses = RecursiveArray<string | PseudoSelectorType | Falsy> | string | PseudoSelectorType | Falsy;
 
 export const classesId = (classes: Classes): string | null => {
   if (!classes) return null;
   if (Array.isArray(classes)) {
     const classArray = Utils.flatAndRemoveFalsy(classes).reduce((classes, clazz) => {
       if (clazz) {
-        classes.push(clazz.__meta.id.toString());
+        classes.push(clazz.__meta.key.toString());
       }
       return classes;
     }, [] as string[]);
@@ -106,9 +92,13 @@ export const classesId = (classes: Classes): string | null => {
     }
     return classArray.sort().join(",");
   }
-  return classes.__meta.className;
+  return classes.__meta.key.toString();
 };
 
 export const flattenClasses = (...classes: RecursiveArray<StyleClass | Falsy>): StyleClass[] => {
   return Utils.flatAndRemoveFalsy(classes);
+};
+
+export const getClassMeta = (clazz: StyleClass): StyleClassMeta => {
+  return clazz.__meta;
 };

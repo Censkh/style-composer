@@ -10,9 +10,9 @@ export const $Container = composeClass("Container", () => ({
   justifyContent : "center",
   fontFamily     : raleway(),
   fontWeight     : "400",
-  width          : vw() * 0.9,
+  width          : vw(90),
 
   [media({minWidth: 768})]: {
-    width: vw() * 0.45,
+    width: vw(45),
   },
 }));

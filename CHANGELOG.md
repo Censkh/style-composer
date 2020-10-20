@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.4.0
+
+### Breaking
+
+- `themePlan()` -> `createThemeSchema()`
+- style rules become style selectors to prevent confusion between rules and rules
+- dynamic units have a new calling convention
+
+### Features / Changes
+
+- massive internal re-write to prep for selectors within selectors
+- SSR support
+- add `FontFamily` fallbacks for web
+- add `child()` selector
+- add `hover()` pseudo selector
+- add prop types for in-built components
+- add `StyledAnimated`
+- add `autoFlattens` selector and now flatten style list by default
+
+### Fix
+
+- fix text rendering on rnw 13
+- fix data props on rnw 13
+
 ## 0.3.0
 
 ### Breaking
@@ -11,11 +35,11 @@
 
 - added pseudo classes :D
 - inbuilt pseudo classes `hover`, `disabled` and `active`
-- allow `important()` inside rules
+- allow `important()` inside selectors
 - refs are now forwarded to base component
-- add `not()` rule
+- add `not()` selector
 - add `StyledScrollView` and `StyledImage`
-- add `rtl()` rule
+- add `rtl()` selector
 
 ### Fix
 

@@ -1,8 +1,8 @@
 export {
-  ThemePlan,
+  ThemeSchema,
   ThemeProperty,
-  ThemeValues,
-  themePlan,
+  Theme,
+  createThemeSchema,
   ThemedSession,
   ThemeFor,
   ThemeProvider,

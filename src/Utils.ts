@@ -1,39 +1,36 @@
-import React            from "react";
-import {RecursiveArray} from "react-native";
+import React                      from "react";
+import {Platform, RecursiveArray} from "react-native";
 
-export type PropsOf<C extends React.ComponentType> = C extends React.ComponentType<infer P> ? P : never;
+export type OmitEx<T, K extends keyof any> = Pick<T, Exclude<keyof T, K>>;
+
+export type PropsOf<C extends React.ComponentType<any> | keyof JSX.IntrinsicElements> = C extends React.ComponentType<infer P> ? P : (
+  C extends keyof JSX.IntrinsicElements ? JSX.IntrinsicElements[C] : {}
+  );
 
 export type Falsy = false | null | undefined | "" | 0;
 
 export const getGlobal = (): any => {
-  // eslint-disable-next-line
-  // @ts-ignore
   return typeof global !== "undefined" ? global : window;
 };
 
-export const getDocument = (): any => {
+export const getDocument = (): Document => {
   return getGlobal().document;
 };
 
-export const isNative = (): boolean => {
-  // eslint-disable-next-line
-  // @ts-ignore
-  return typeof document === "undefined";
+export const isSsr = (): boolean => {
+  return isWeb() && !isBrowser();
 };
 
-export const setStyleSheet = (name: string, content: string): void => {
-  if (!isNative()) {
-    const document = getDocument();
-    const id       = `stylesheet-${name}`;
-    let style: any = document.getElementById(id);
-    if (!style) {
-      style    = document.createElement("style");
-      style.id = `stylesheet-${name}`;
-      style.setAttribute("data-name", name);
-      document.head.appendChild(style);
-    }
-    style.innerHTML = content;
-  }
+export const isWeb = (): boolean => {
+  return Platform.OS === "web" || isBrowser();
+};
+
+export const isBrowser = (): boolean => {
+  return typeof document !== "undefined";
+};
+
+export const isNative = (): boolean => {
+  return !isWeb();
 };
 
 export const flatAndRemoveFalsy = <T>(array: RecursiveArray<T | Falsy>): Array<T> => {
@@ -85,4 +82,12 @@ export const shallowEqual = (a: Record<string, any>, b: Record<string, any>, cus
   }
 
   return true;
+};
+
+export const isEmptyOrFalsy = (array: Array<any> | Falsy): boolean => {
+  return !array || array.length === 0;
+};
+
+export const arrayify = <T>(arrayOrItem: T | Array<T>): Array<T> => {
+  return Array.isArray(arrayOrItem) ? arrayOrItem : [arrayOrItem];
 };

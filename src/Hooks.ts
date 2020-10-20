@@ -1,8 +1,9 @@
 import {DependencyList, useCallback, useContext, useEffect, useMemo, useRef, useState} from "react";
 import {
-  registerRuleCallback,
-  unregisterRuleCallback,
-}                                                                                      from "./rule/StyleRule";
+  registerSelectorCallback,
+  StyleSelector,
+  unregisterSelectorCallback,
+}                                                                                      from "./selector/StyleSelector";
 import {
   Classes,
   classesId,
@@ -11,16 +12,12 @@ import {
 }                                                                                      from "./class/StyleClass";
 import * as Utils                                                                      from "./Utils";
 import {Falsy}                                                                         from "./Utils";
-import {ThemeValues, useTheming}                                                       from "./theme";
-import {
-  Dimensions,
-  StyleSheet,
-}                                                                                      from "react-native";
+import {Theme, useTheming}                                                       from "./theme";
+import {StyleSheet}                                                                    from "react-native";
 import {
   computeClasses,
   ComputedStyleList,
   computeStyling,
-  createSession,
   extractCascadingStyle,
   resolveStyling,
   StyleObject,
@@ -29,7 +26,7 @@ import {
   StylingSession,
 }                                                                                      from "./Styling";
 import {StylableProps}                                                                 from "./component/Styler";
-import CascadingStyleContext, {CascadingStyleContextState}                             from "./CascadingStyleContext";
+import CascadingValuesContext, {CascadingValuesContextState}                           from "./CascadingValuesContext";
 import {
   addFontLoadListener,
   getFontFamily,
@@ -37,6 +34,9 @@ import {
   isStyleComposerFont,
   removeFontLoadListener,
 }                                                                                      from "./font/FontFamily";
+import child, {ChildQuery}                                                             from "./selector/ChildSelector";
+import {setupFontPreProcessor}                                                         from "./font/FontPreProcessor";
+import StyleEnvironment                                                                from "./StyleEnvironment";
 
 export const useForceUpdate = (): [number, () => void] => {
   const [state, setState] = useState(0);
@@ -45,7 +45,7 @@ export const useForceUpdate = (): [number, () => void] => {
 };
 
 export interface StylingInternals {
-  theme: ThemeValues,
+  theme: Theme,
   key: string,
   classId: string | null,
   classArray: StyleClass[] | undefined,
@@ -53,32 +53,45 @@ export interface StylingInternals {
 }
 
 export interface ComposedStyleResult {
-  cascadingStyle: CascadingStyleContextState | null;
+  cascadingContextValue: CascadingValuesContextState | null;
   computedStyle: ComputedStyleList;
   flatPseudoClasses: string[],
   classNames: string[];
+  appliedClasses: StyleClass[];
 }
 
 export const useComposedStyle = (props: StylableProps, options?: { disableCascade?: boolean }): ComposedStyleResult => {
-  const {classes, style, pseudoClasses}                             = props;
-  const fontListeners                                               = useRef<string[]>([]);
-  const {style: parentCascadingStyle, key: parentCascadingStyleKey} = useContext(CascadingStyleContext);
-  const [fontKey, forceUpdate]                                      = useForceUpdate();
+  const {classes, style, pseudoClasses} = props;
+  const fontListeners                   = useRef<string[]>([]);
+  const {
+          style         : parentCascadingStyle,
+          key           : parentCascadingValuesKey,
+          childSelectors: parentChildSelectors,
+        }                               = useContext(CascadingValuesContext);
+  const [fontKey, forceUpdate]          = useForceUpdate();
 
-  const flatPseudoClasses = Array.isArray(pseudoClasses) ? Utils.flatAndRemoveFalsy(pseudoClasses) : (pseudoClasses && [pseudoClasses]) || [];
-  const session           = createSession({
-    pseudoClasses: flatPseudoClasses || [],
-  });
+  const flatPseudoClasses       = (Array.isArray(pseudoClasses) ? Utils.flatAndRemoveFalsy(pseudoClasses) : (pseudoClasses && [pseudoClasses]) || [])
+    .map(selector => typeof selector === "string" ? selector : selector.type);
+  const session: StylingSession = {
+    pseudoClasses           : flatPseudoClasses || [],
+    applicableChildSelectors: [],
+  };
 
   const {theme, key, classArray} = useStylingInternals(classes, session);
+
+  session.applicableChildSelectors = classArray && parentChildSelectors && parentChildSelectors.filter((selector) => {
+    const options = Utils.arrayify(selector.options);
+    return classArray?.some(clazz => options.includes(clazz) || options.find(other => other.__meta.className === clazz.__meta.parent?.__meta.className));
+  });
 
   const needsCascade = !options?.disableCascade;
 
   const {
           computedStyle,
           cascadingStyle,
-          cascadingStyleKey,
+          cascadingValuesKey,
           classNames,
+          ownChildSelectors,
         } = useMemo(() => {
     const classResults = computeClasses(classArray, style, session);
 
@@ -88,7 +101,7 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
     if (ownStyleFlat?.fontWeight) {
       const currentFontFamily = ownStyleFlat.fontFamily || parentCascadingStyle.fontFamily;
       if (currentFontFamily) {
-        const styleComposerFontFamily = getFontFamily(currentFontFamily.split("__")[0]);
+        const styleComposerFontFamily = getFontFamily(currentFontFamily.split(/(__|,)/g)[0]);
         if (styleComposerFontFamily) {
           const variant = styleComposerFontFamily.weight(ownStyleFlat?.fontWeight);
           if (variant && currentFontFamily !== variant) {
@@ -107,6 +120,8 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
     if (Utils.isNative() && computedStyleFlat.fontFamily) {
       const fontFamily = computedStyleFlat.fontFamily;
       if (isStyleComposerFont(fontFamily)) {
+        setupFontPreProcessor();
+
         if (!isFontLoaded(fontFamily)) {
           let callback: () => void;
           if (!fontListeners.current.includes(fontFamily)) {
@@ -123,26 +138,35 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
       }
     }
 
+    const ownChildSelectors  = classArray?.flatMap<StyleSelector<ChildQuery> | Falsy>((clazz) => {
+      return clazz.__meta.hasAnySelectors && Object.values(clazz.__meta.rootScope.selectors).filter(selector => selector.type.id === child.id);
+    }).filter(Boolean) as Array<StyleSelector<ChildQuery>> | undefined;
+    const childSelectorsKey  = ownChildSelectors?.map(selector => selector.key).join(",");
+    const cascadingValuesKey = [cascadingStyleKey || "null", childSelectorsKey || "null"].join("===");
 
     return {
-      classNames       : classResults.classNames,
-      computedStyle    : computedStyle,
-      computedStyleFlat: computedStyleFlat,
-      cascadingStyle   : cascadingStyle,
-      cascadingStyleKey: cascadingStyleKey,
+      classNames        : classResults.classNames,
+      computedStyle     : computedStyle,
+      computedStyleFlat : computedStyleFlat,
+      cascadingStyle    : cascadingStyle,
+      cascadingValuesKey: cascadingValuesKey,
+      ownChildSelectors : ownChildSelectors,
     };
-  }, [style, parentCascadingStyleKey, key, fontKey, theme]);
+  }, [style, parentCascadingValuesKey, key, fontKey, theme]);
 
-  const memoCascadingStyle = useMemo<CascadingStyleContextState | null>(() => cascadingStyle && {
-    style: cascadingStyle,
-    key  : cascadingStyleKey,
-  }, [cascadingStyleKey]);
+  const hasCascade            = Boolean(cascadingStyle || (ownChildSelectors && ownChildSelectors.length > 0));
+  const cascadingContextValue = useMemo<CascadingValuesContextState | null>(() => (hasCascade && {
+    style         : cascadingStyle || parentCascadingStyle,
+    key           : cascadingValuesKey,
+    childSelectors: ownChildSelectors && ownChildSelectors.length > 0 ? [...ownChildSelectors, ...parentChildSelectors] : parentChildSelectors,
+  }) || null, [cascadingValuesKey]);
 
   return {
-    computedStyle    : computedStyle as ComputedStyleList,
-    cascadingStyle   : memoCascadingStyle,
-    classNames       : classNames,
-    flatPseudoClasses: flatPseudoClasses,
+    computedStyle        : computedStyle as ComputedStyleList,
+    cascadingContextValue: cascadingContextValue,
+    classNames           : classNames,
+    flatPseudoClasses    : flatPseudoClasses,
+    appliedClasses       : classArray || [],
   };
 };
 
@@ -152,30 +176,29 @@ export const useStylingInternals = (classes: Classes | undefined, session: Styli
   const {classArray, classId, hasDynamicUnit} = useMemo(() => {
     const classArray: StyleClass[] | undefined = classes && flattenClasses(classes) || undefined;
     const classId                              = classesId(classArray);
-    const hasDynamicUnit                       = classArray?.some(clazz => clazz.__meta.hasDynamicUnit);
+    const hasDynamicUnit                       = classArray?.some(clazz => clazz.__meta.hasAnyDynamicProps);
 
     return {classArray, classId, hasDynamicUnit};
   }, [classes]);
 
-
-  const [forceUpdateKey, forceUpdate] = useRulesEffect(uidRef.current, classArray, session, classId);
+  const [forceUpdateKey, forceUpdate] = useSelectorsEffect(uidRef.current, classArray, session, classId);
   const theme                         = useTheming();
 
   useEffect(() => {
     if (hasDynamicUnit) {
-      Dimensions.addEventListener("change", forceUpdate);
+      StyleEnvironment.addScreenSizeChangeListener(forceUpdate);
       return () => {
-        Dimensions.removeEventListener("change", forceUpdate);
+        StyleEnvironment.removeScreenSizeChangeListener(forceUpdate);
       };
     }
   }, [hasDynamicUnit]);
 
-  const key = forceUpdateKey + "_" + classId + "_" + (session.context.pseudoClasses ? session.context.pseudoClasses.sort().join(",") : "");
+  const key = forceUpdateKey + "_" + classId + "_" + (session.pseudoClasses ? session.pseudoClasses.sort().join(",") : "");
 
   return {theme, key, classId, classArray, uid: uidRef.current};
 };
 
-const useRulesEffect = (id: string, classes: StyleClass[] | Falsy, session: StylingSession, classesId: string | null): [number, () => void] => {
+const useSelectorsEffect = (id: string, classes: StyleClass[] | Falsy, session: StylingSession, classesId: string | null): [number, () => void] => {
   const [key, forceUpdate] = useForceUpdate();
 
   const prevState        = useRef("");
@@ -186,8 +209,8 @@ const useRulesEffect = (id: string, classes: StyleClass[] | Falsy, session: Styl
     let state = "";
     if (currentClasses.current) {
       for (const clazz of currentClasses.current) {
-        for (const ruleInstance of Object.values(clazz.__meta.rules)) {
-          state += ruleInstance.rule.check(ruleInstance.options, session) ? "1" : "0";
+        for (const selector of Object.values(clazz.__meta.rootScope.selectors)) {
+          state += selector.type.check(selector, session) ? "1" : "0";
         }
         state += "-";
       }
@@ -200,22 +223,22 @@ const useRulesEffect = (id: string, classes: StyleClass[] | Falsy, session: Styl
 
   useEffect(() => {
     if (classes) {
-      const hasRules = classes.some(clazz => clazz.__meta.hasRules);
-      if (hasRules) {
+      const hasSelectors = classes.some(clazz => clazz.__meta.hasAnySelectors);
+      if (hasSelectors) {
         for (const clazz of classes) {
-          if (clazz.__meta.hasRules) {
-            for (const id of Object.keys(clazz.__meta.rules)) {
-              const ruleInstance = clazz.__meta.rules[id as any];
-              registerRuleCallback(ruleInstance.rule, checkForUpdates);
+          if (clazz.__meta.hasAnySelectors) {
+            for (const id of Object.keys(clazz.__meta.rootScope.selectors)) {
+              const selector = clazz.__meta.rootScope.selectors[id as any];
+              registerSelectorCallback(selector.type, checkForUpdates);
             }
           }
         }
         return () => {
           for (const clazz of classes) {
-            if (clazz.__meta.hasRules) {
-              for (const id of Object.keys(clazz.__meta.rules)) {
-                const ruleInstance = clazz.__meta.rules[id as any];
-                unregisterRuleCallback(ruleInstance.rule, checkForUpdates);
+            if (clazz.__meta.hasAnySelectors) {
+              for (const id of Object.keys(clazz.__meta.rootScope.selectors)) {
+                const selector = clazz.__meta.rootScope.selectors[id as any];
+                unregisterSelectorCallback(selector.type, checkForUpdates);
               }
             }
           }
@@ -226,22 +249,23 @@ const useRulesEffect = (id: string, classes: StyleClass[] | Falsy, session: Styl
   return [key, forceUpdate];
 };
 
+let composedId = 0;
+
 export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: DependencyList): S => {
   const [key, forceUpdate] = useForceUpdate();
 
-  const prevState           = useRef("");
-  const currentResolution   = useRef<StylingResolution>();
-  const resolution          = useMemo(() => resolveStyling(styling), depList);
-  currentResolution.current = resolution;
-  const {hasDynamicUnit}    = resolution;
-
-  const session = createSession();
+  const prevState            = useRef("");
+  const currentResolution    = useRef<StylingResolution>();
+  const id                   = useRef((composedId++).toString());
+  const resolution           = useMemo(() => resolveStyling(`__composed_${id}`, styling), depList);
+  currentResolution.current  = resolution;
+  const {hasAnyDynamicProps} = resolution;
 
   const checkForUpdates = useCallback(() => {
     let state = "";
     if (currentResolution.current) {
-      for (const ruleInstance of Object.values(currentResolution.current.rules)) {
-        state += ruleInstance.rule.check(ruleInstance.options, session) ? "1" : "0";
+      for (const selector of Object.values(currentResolution.current.rootScope.selectors)) {
+        state += selector.type.check(selector, {}) ? "1" : "0";
       }
     }
     if (prevState.current !== state) {
@@ -251,24 +275,24 @@ export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: Depend
   }, []);
 
   useEffect(() => {
-    if (hasDynamicUnit) {
-      Dimensions.addEventListener("change", forceUpdate);
+    if (hasAnyDynamicProps) {
+      StyleEnvironment.addScreenSizeChangeListener(forceUpdate);
       return () => {
-        Dimensions.removeEventListener("change", forceUpdate);
+        StyleEnvironment.removeScreenSizeChangeListener(forceUpdate);
       };
     }
-  }, [hasDynamicUnit]);
+  }, [hasAnyDynamicProps]);
 
   useEffect(() => {
-    if (resolution.hasRules) {
-      for (const id of Object.keys(resolution.rules)) {
-        const ruleInstance = resolution.rules[id as any];
-        registerRuleCallback(ruleInstance.rule, checkForUpdates);
+    if (resolution.hasAnySelectors) {
+      for (const id of Object.keys(resolution.rootScope.selectors)) {
+        const selector = resolution.rootScope.selectors[id as any];
+        registerSelectorCallback(selector.type, checkForUpdates);
       }
       return () => {
-        for (const id of Object.keys(resolution.rules)) {
-          const ruleInstance = resolution.rules[id as any];
-          unregisterRuleCallback(ruleInstance.rule, checkForUpdates);
+        for (const id of Object.keys(resolution.rootScope.selectors)) {
+          const selector = resolution.rootScope.selectors[id as any];
+          unregisterSelectorCallback(selector.type, checkForUpdates);
         }
       };
     }

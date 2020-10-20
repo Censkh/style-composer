@@ -16,6 +16,10 @@ const ClassManager = new (class {
     this.classes[styleClass.__meta.className] = styleClass;
   }
 
+  hasClass(name: string): boolean {
+    return Boolean(this.classes[name]);
+  }
+
 });
 
 export default ClassManager;
