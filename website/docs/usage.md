@@ -4,7 +4,13 @@ title: Usage
 slug: /
 ---
 
-## Usage
+The inbuilt styling system for React Native isn't powerful enough to allow for universal styling without the need to add component level logic to adapt to platform or screen size changes.
+
+For example, currently with RN's inbuilt StyleSheets it is not possible to have media queries or themes without component logic.
+
+To solve this style-composer builds on-top of this system to provide many features it can't.
+
+## Styling
 
 In a styling file you define your classes, which hold 'scopes' of style rules that can be applied to components:
 
