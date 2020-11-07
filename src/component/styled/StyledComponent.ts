@@ -1,9 +1,9 @@
-import React                   from "react";
-import Styler, {StylableProps} from "../Styler";
-import {shallowEqual}          from "../../Utils";
+import React                 from "react";
+import Styler, {StyledProps} from "../Styler";
+import {shallowEqual}        from "../../Utils";
 import {classesId}             from "../..";
 
-export type StyledComponent<P> = React.ComponentType<(keyof P extends "style" ? Omit<P, "style"> : P) & StylableProps>;
+export type StyledComponent<P> = React.ComponentType<(keyof P extends "style" ? Omit<P, "style"> : P) & StyledProps>;
 
 export interface StyledOptions {
   autoFlattens?: boolean;

@@ -196,13 +196,15 @@ const computeScopeStyle = (scope: StyleScope, outStyle: ComputedStyleList, outIm
   delete (resolvedStyling as any)[0];
 };
 
-export const sanitizeStyleList = (node: React.ReactNode, style: RecursiveArray<Style | Falsy>): Style[] => {
+export const removePropTypes = (node: React.ReactNode) => {
   if (process.env.NODE_ENV === "development") {
     if (node && typeof node === "object" && "type" in node && (node.type as any).propTypes) {
       delete (node.type as any).propTypes.style;
     }
   }
+};
 
+export const sanitizeStyleList = (style: RecursiveArray<Style | Falsy>): Style[] => {
   if (style) {
     return Utils.flatAndRemoveFalsy(style);
   }

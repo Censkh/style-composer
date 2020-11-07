@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0
+
+### Breaking
+
+- make the `useComposedStyles` hook more usable to make custom styled components
+
 ## 0.4.0
 
 ### Breaking

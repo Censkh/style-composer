@@ -11,22 +11,23 @@ import {
   StyleClass,
 }                                                                                      from "./class/StyleClass";
 import * as Utils                                                                      from "./Utils";
-import {Falsy}                                                                         from "./Utils";
-import {Theme, useTheming}                                                       from "./theme";
-import {StyleSheet}                                                                    from "react-native";
+import {Falsy, isNative}                                                               from "./Utils";
+import {Theme, useTheming}     from "./theme";
+import {StyleProp, StyleSheet} from "react-native";
 import {
   computeClasses,
   ComputedStyleList,
   computeStyling,
   extractCascadingStyle,
   resolveStyling,
+  sanitizeStyleList, Style,
   StyleObject,
   StylingBuilder,
   StylingResolution,
   StylingSession,
-}                                                                                      from "./Styling";
-import {StylableProps}                                                                 from "./component/Styler";
-import CascadingValuesContext, {CascadingValuesContextState}                           from "./CascadingValuesContext";
+}                                                            from "./Styling";
+import {StyledProps}                                         from "./component/Styler";
+import CascadingValuesContext, {CascadingValuesContextState} from "./CascadingValuesContext";
 import {
   addFontLoadListener,
   getFontFamily,
@@ -37,6 +38,7 @@ import {
 import child, {ChildQuery}                                                             from "./selector/ChildSelector";
 import {setupFontPreProcessor}                                                         from "./font/FontPreProcessor";
 import StyleEnvironment                                                                from "./StyleEnvironment";
+import {StyledOptions}                                                                 from "./component";
 
 export const useForceUpdate = (): [number, () => void] => {
   const [state, setState] = useState(0);
@@ -58,9 +60,24 @@ export interface ComposedStyleResult {
   flatPseudoClasses: string[],
   classNames: string[];
   appliedClasses: StyleClass[];
+  computedProps: ComposedStyleResultProps
 }
 
-export const useComposedStyle = (props: StylableProps, options?: { disableCascade?: boolean }): ComposedStyleResult => {
+export interface ComposedStyleResultProps {
+  style?: StyleProp<any>,
+  "data-class"?: string,
+  "data-pseudo-class"?: string,
+  dataSet?: {
+    "class"?: string,
+    "pseudo-class"?: string
+  },
+}
+
+export interface ComposedStyleOptions extends StyledOptions {
+  disableCascade?: boolean;
+}
+
+export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOptions): ComposedStyleResult => {
   const {classes, style, pseudoClasses} = props;
   const fontListeners                   = useRef<string[]>([]);
   const {
@@ -161,12 +178,30 @@ export const useComposedStyle = (props: StylableProps, options?: { disableCascad
     childSelectors: ownChildSelectors && ownChildSelectors.length > 0 ? [...ownChildSelectors, ...parentChildSelectors] : parentChildSelectors,
   }) || null, [cascadingValuesKey]);
 
+  const computedProps = useMemo<ComposedStyleResultProps>(() => {
+    const sanitizedStyleList = sanitizeStyleList(computedStyle as any);
+    const flatStyle          = isNative() || options?.autoFlattens ? sanitizedStyleList : StyleSheet.flatten(sanitizedStyleList);
+
+    const dataSet = process.env.NODE_ENV === "development" ? {
+      "class"       : classNames?.join(" "),
+      "pseudo-class": flatPseudoClasses.join(" "),
+    } : {};
+
+    return {
+      style              : flatStyle,
+      "data-class"       : dataSet["class"],
+      "data-pseudo-class": dataSet["pseudo-class"],
+      dataSet            : dataSet,
+    };
+  }, [computedStyle, options?.autoFlattens, classNames, flatPseudoClasses]);
+
   return {
     computedStyle        : computedStyle as ComputedStyleList,
     cascadingContextValue: cascadingContextValue,
     classNames           : classNames,
     flatPseudoClasses    : flatPseudoClasses,
     appliedClasses       : classArray || [],
+    computedProps        : computedProps,
   };
 };
 
