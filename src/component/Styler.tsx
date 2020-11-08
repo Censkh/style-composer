@@ -1,13 +1,12 @@
-import React, {useCallback, useRef}       from "react";
-import {RecursiveArray, StyleSheet, Text} from "react-native";
+import React, {useCallback, useRef} from "react";
+import {RecursiveArray, Text, View}       from "react-native";
 
-import {removePropTypes, sanitizeStyleList, Style} from "../Styling";
-import {Classes, PseudoClasses}                    from "../class/StyleClass";
-import {useComposedStyle}         from "../Hooks";
-import {CascadingValuesProvider}  from "../CascadingValuesContext";
-import {isNative}                 from "../Utils";
-import {StyledOptions}            from "./styled/StyledComponent";
-import PolyText                   from "./poly/native/PolyText";
+import {removePropTypes, Style}  from "../Styling";
+import {Classes, PseudoClasses}  from "../class/StyleClass";
+import {useComposedStyle}        from "../Hooks";
+import {CascadingValuesProvider} from "../CascadingValuesContext";
+import {StyledOptions}           from "./styled/StyledComponent";
+import PolyText                  from "./poly/native/PolyText";
 
 export type StyleProp = RecursiveArray<Style | undefined | null | false> | Style | undefined | null | false;
 
@@ -26,10 +25,11 @@ export interface StylerProps extends StyledProps {
   _baseComponent: React.ElementType;
   ref?: React.Ref<any>;
   options?: StyledOptions;
+  otherProps: any;
 }
 
 const Styler = (props: StylerProps) => {
-  const {children, _baseComponent, ref, options} = props;
+  const {children, _baseComponent, ref, options, otherProps} = props;
 
   const {cascadingContextValue, computedProps} = useComposedStyle(props, {
     disableCascade: _baseComponent !== Text && _baseComponent !== PolyText,
@@ -51,15 +51,16 @@ const Styler = (props: StylerProps) => {
 
   removePropTypes(children);
 
-  const content = !children || typeof children === "string" ? children : React.cloneElement(children, {
+  const content = React.createElement(_baseComponent, {
+    ...otherProps,
     ...computedProps,
-    ref                : handleRef,
-  } as any);
+    ref: handleRef,
+  }, children);
 
   return cascadingContextValue ?
     <CascadingValuesProvider value={cascadingContextValue}>
       {content}
-    </CascadingValuesProvider> : content as any;
+    </CascadingValuesProvider> : content;
 };
 
 export default Object.assign(Styler, {displayName: "Styler"});

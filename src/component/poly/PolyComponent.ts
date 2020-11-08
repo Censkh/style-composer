@@ -6,6 +6,8 @@ export type PolyProps<P> = P & {
   tag?: keyof JSX.IntrinsicElements;
 };
 
+const extraSupportedProps = ["draggable"];
+
 const renderPoly = (props: PolyProps<any>, element: React.ReactElement): React.ReactElement => {
   if (!props.tag) {
     return element;
@@ -13,8 +15,15 @@ const renderPoly = (props: PolyProps<any>, element: React.ReactElement): React.R
   if (element.type === View) {
     return React.createElement(BasePolyView as any, element.props);
   }
+
   return {
     ...element,
+    props: Object.assign({}, Object.keys(props).reduce((extraProps, key) => {
+      if (extraSupportedProps.includes(key)) {
+        extraProps[key] = props[key];
+      }
+      return extraProps;
+    }, {} as any), element.props),
     type: props.tag,
   };
 };

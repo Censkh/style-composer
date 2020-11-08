@@ -81,9 +81,7 @@ class StyleEnvironment {
         document.head.appendChild(element);
       }
 
-      if (content) {
-        (element as any).innerText = content;
-      }
+      (element as any).innerText = content || "";
       for (const propName in props) {
         element.setAttribute(propName, (props as any)[propName]);
       }

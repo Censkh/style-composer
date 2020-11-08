@@ -23,8 +23,9 @@ export const styled = <P>(baseComponent: React.ComponentType<P>, options?: Style
       pseudoClasses,
       ref,
       _baseComponent: baseComponent,
-      children      : React.createElement(baseComponent, otherProps as any, children),
+      children      : children,
       options,
+      otherProps,
     } as any);
   }), {displayName: `Styler${baseComponent.displayName ? `[${baseComponent.displayName}]` : ""}`}), styledArePropsEqual);
 };

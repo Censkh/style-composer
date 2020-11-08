@@ -6,6 +6,10 @@
 
 - make the `useComposedStyles` hook more usable to make custom styled components
 
+### Features / Changes
+
+- add optimized web values
+
 ## 0.4.0
 
 ### Breaking

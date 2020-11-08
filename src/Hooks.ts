@@ -179,7 +179,7 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
   }) || null, [cascadingValuesKey]);
 
   const computedProps = useMemo<ComposedStyleResultProps>(() => {
-    const sanitizedStyleList = sanitizeStyleList(computedStyle as any);
+    const sanitizedStyleList = sanitizeStyleList(computedStyle as any, true);
     const flatStyle          = isNative() || options?.autoFlattens ? sanitizedStyleList : StyleSheet.flatten(sanitizedStyleList);
 
     const dataSet = process.env.NODE_ENV === "development" ? {

@@ -15,6 +15,7 @@ import {
 import {finishImportantSession, isImportantValue, startImportantSession}                      from "./Important";
 import {StyleProp}                                                                            from "./component/Styler";
 import {ChildQuery}                                                                           from "./selector/ChildSelector";
+import {isOptimisable}                                                                        from "./Optimisable";
 
 export const CASCADING_STYLES = ["fontSize", "fontFamily", "fontWeight", "color", "letterSpacing", "textAlign"];
 
@@ -115,7 +116,7 @@ export const computeStyling = (resolution: StylingResolution): StyleObject => {
   const style: ComputedStyleList          = [];
   const importantStyle: ComputedStyleList = [];
   internalComputedStyling(resolution, session, importantStyle, style);
-  return StyleSheet.flatten([style, importantStyle]);
+  return sanitizeStyleObject(StyleSheet.flatten([style, importantStyle]));
 };
 
 const internalComputedStyling = (resolution: StylingResolution, session: StylingSession, outStyle: ComputedStyleList, outImportantStyle: ComputedStyleList, outClassNames?: string[]): void => {
@@ -178,7 +179,7 @@ const computeScopeStyle = (scope: StyleScope, outStyle: ComputedStyleList, outIm
   if (hasImportant) {
     const importantStyle: Style = {};
     for (const importantProp of importantProps) {
-      (importantStyle as any)[importantProp] = sanitizeStyleValue((resolvedStyling as any)[importantProp]);
+      (importantStyle as any)[importantProp] = (resolvedStyling as any)[importantProp];
     }
     outImportantStyle.push(importantStyle);
   }
@@ -204,14 +205,36 @@ export const removePropTypes = (node: React.ReactNode) => {
   }
 };
 
-export const sanitizeStyleList = (style: RecursiveArray<Style | Falsy>): Style[] => {
-  if (style) {
-    return Utils.flatAndRemoveFalsy(style);
+export const sanitizeStyleObject = (style: StyleObject, optimise?: boolean) => {
+  const keys = Object.keys(style);
+  for (const key of keys) {
+    const value = (style as any)[key];
+    (style as any)[key] = sanitizeStyleValue(value, optimise);
   }
   return style;
 };
 
-export function sanitizeStyleValue<T extends string | number>(value: T): T {
+export const sanitizeStyleList = (style: RecursiveArray<Style | Falsy>, optimise?: boolean): Style[] => {
+  if (style) {
+    return Utils.flatAndRemoveFalsy(style).map((style) => {
+      if (typeof style === "object") {
+        return sanitizeStyleObject(style as any, optimise);
+      }
+      return style;
+    });
+  }
+  return style;
+};
+
+export function sanitizeStyleValue<T extends string | number>(value: T, optimise?: boolean): string | number {
+  if (value === undefined || value === null) {
+    return value;
+  }
+
+  if (optimise && isOptimisable(value)) {
+    return value.optimise(value);
+  }
+
   if (typeof value === "number" || value instanceof Number) {
     return Number(value) as T;
   }
