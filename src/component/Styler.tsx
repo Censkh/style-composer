@@ -10,8 +10,8 @@ import PolyText                  from "./poly/native/PolyText";
 
 export type StyleProp = RecursiveArray<Style | undefined | null | false> | Style | undefined | null | false;
 
-export interface StyledProps {
-  style?: StyleProp;
+export interface StyledProps<S = StyleProp> {
+  style?: S;
   classes?: Classes,
   pseudoClasses?: PseudoClasses;
 }

@@ -8,7 +8,9 @@
 
 ### Features / Changes
 
+- add proper typings to Animated components
 - add optimized web values
+- allow modules that export `default` to be used as font assets
 
 ## 0.4.0
 

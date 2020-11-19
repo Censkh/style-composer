@@ -1,9 +1,12 @@
-import React                 from "react";
-import Styler, {StyledProps} from "../Styler";
-import {shallowEqual}        from "../../Utils";
-import {classesId}             from "../..";
+import React                            from "react";
+import Styler, {StyledProps, StyleProp} from "../Styler";
+import {shallowEqual}                   from "../../Utils";
+import {classesId}           from "../..";
+import {Animated}            from "react-native";
+import WithAnimatedValue = Animated.WithAnimatedValue;
 
 export type StyledComponent<P> = React.ComponentType<(keyof P extends "style" ? Omit<P, "style"> : P) & StyledProps>;
+export type AnimatedStyledComponent<P> = React.ComponentType<(keyof P extends "style" ? Omit<P, "style"> : P) & StyledProps<WithAnimatedValue<StyleProp>>>;
 
 export interface StyledOptions {
   autoFlattens?: boolean;

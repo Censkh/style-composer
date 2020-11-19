@@ -38,6 +38,36 @@ export const getFontFamily = (name: string): FontFamily | undefined => {
   return fontFamilyMap[name];
 };
 
+export interface FontAsset {
+ type: string; location: string
+}
+
+const getAsset = (obj: any) :string | null => {
+  if (typeof obj === "string") {
+    return obj;
+  }
+  if (obj && typeof obj === "object" && typeof obj.default === "string") {
+    return obj.default;
+  }
+  return obj;
+}
+
+const resourceToAssets = (resource: any): FontAsset[] => {
+  const assets: FontAsset[] = [];
+  const baseAsset = getAsset(resource);
+  if (baseAsset) {
+    const fileType = baseAsset.split(".")[1];
+    assets.push({type: fileType, location: baseAsset});
+  } else {
+    for (const key of ["woff2", "woff", "ttf", "eot"]) {
+      const value = getAsset((resource as any)[key]);
+      if (value) {
+        assets.push({type: key, location: value});
+      }
+    }
+  }
+  return assets;
+};
 
 export const createFontFamily = (
   name: string,
@@ -66,20 +96,10 @@ export const createFontFamily = (
       if (!isFontLoading(fontName)) {
         const resource = config[type] as FontWeightConfig;
         if (resource) {
-          const files: { type: string; location: string }[] = [];
-          if (typeof resource === "string") {
-            const fileType = resource.split(".")[1];
-            files.push({type: fileType, location: resource});
-          } else {
-            for (const key of ["woff2", "woff", "ttf", "eot"]) {
-              const value = (resource as any)[key];
-              if (value) {
-                files.push({type: key, location: value});
-              }
-            }
-          }
+          const assets = resourceToAssets(resource);
 
-          const css = `@font-face{font-family: '${name}';font-style: ${type.includes("Italic") ? "italic" : "normal"};font-display: swap;font-weight:${FONT_WEIGHT_NAME_TO_VALUE[type]};src: local('${name}'),${files.map(file => `url('${file.location}') format('${FONT_FORMAT_NAMES[file.type]}')`).join(",")};}`;
+
+          const css = `@font-face{font-family: '${name}';font-style: ${type.includes("Italic") ? "italic" : "normal"};font-display: swap;font-weight:${FONT_WEIGHT_NAME_TO_VALUE[type]};src: local('${name}'),${assets.map(asset => `url('${asset.location}') format('${FONT_FORMAT_NAMES[asset.type]}')`).join(",")};}`;
           StyleEnvironment.updateHeadElement(`font-family-style(${fontName})`, "style", {
             "data-font-family": name,
             "data-font-weight": type,

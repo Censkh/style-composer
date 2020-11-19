@@ -1,5 +1,5 @@
-import React                                                                           from "react";
-import {ImageStyle, RecursiveArray, RegisteredStyle, StyleSheet, TextStyle, ViewStyle} from "react-native";
+import React                                                                                     from "react";
+import {Animated, ImageStyle, RecursiveArray, RegisteredStyle, StyleSheet, TextStyle, ViewStyle} from "react-native";
 
 import {registerStyleSheets, StyleClass}                                                      from "./class/StyleClass";
 import * as Utils                                                                             from "./Utils";
@@ -16,6 +16,7 @@ import {finishImportantSession, isImportantValue, startImportantSession}        
 import {StyleProp}                                                                            from "./component/Styler";
 import {ChildQuery}                                                                           from "./selector/ChildSelector";
 import {isOptimisable}                                                                        from "./Optimisable";
+import WithAnimatedValue = Animated.WithAnimatedValue;
 
 export const CASCADING_STYLES = ["fontSize", "fontFamily", "fontWeight", "color", "letterSpacing", "textAlign"];
 
