@@ -225,7 +225,6 @@ export const sanitizeStyleObject = (style: StyleObject, optimise?: boolean) => {
   for (const key of keys) {
     const value         = (style as any)[key];
     sanitizedStyle[key] = sanitizeStyleValue(value, optimise);
-    console.log(key, value, sanitizedStyle[key]);
   }
   return sanitizedStyle;
 };

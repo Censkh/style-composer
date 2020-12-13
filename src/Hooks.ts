@@ -194,7 +194,6 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
       dataSet            : dataSet,
     };
   }, [sanitizedStyleList, options?.autoFlattens, classNames, flatPseudoClasses]);
-  console.log("qwep4", classNames.join(","), sanitizedStyleList);
 
   return {
     computedStyle        : sanitizedStyleList as ComputedStyleList,
