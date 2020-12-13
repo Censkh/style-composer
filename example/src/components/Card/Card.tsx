@@ -1,9 +1,9 @@
 import React from "react";
 
-import {StylableProps, StyledView} from "style-composer";
+import {StyledProps, StyledView} from "style-composer";
 import {$Card}                     from "./Card.style";
 
-export interface CardProps extends StylableProps {
+export interface CardProps extends StyledProps {
   children?: React.ReactNode;
 }
 

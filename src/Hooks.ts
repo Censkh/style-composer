@@ -10,9 +10,9 @@ import {
   flattenClasses,
   StyleClass,
 }                                                                                      from "./class/StyleClass";
-import * as Utils                                                                      from "./Utils";
-import {Falsy, isNative}                                                               from "./Utils";
-import {Theme, useTheming}     from "./theme";
+import * as Utils               from "./Utils";
+import {Falsy, isNative, isWeb} from "./Utils";
+import {Theme, useTheming}      from "./theme";
 import {StyleProp, StyleSheet} from "react-native";
 import {
   computeClasses,
@@ -104,7 +104,7 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
   const needsCascade = !options?.disableCascade;
 
   const {
-          computedStyle,
+          sanitizedStyleList,
           cascadingStyle,
           cascadingValuesKey,
           classNames,
@@ -160,10 +160,11 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
     }).filter(Boolean) as Array<StyleSelector<ChildQuery>> | undefined;
     const childSelectorsKey  = ownChildSelectors?.map(selector => selector.key).join(",");
     const cascadingValuesKey = [cascadingStyleKey || "null", childSelectorsKey || "null"].join("===");
+    const sanitizedStyleList = sanitizeStyleList(computedStyle as any, true);
 
     return {
       classNames        : classResults.classNames,
-      computedStyle     : computedStyle,
+      sanitizedStyleList     : sanitizedStyleList,
       computedStyleFlat : computedStyleFlat,
       cascadingStyle    : cascadingStyle,
       cascadingValuesKey: cascadingValuesKey,
@@ -179,7 +180,6 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
   }) || null, [cascadingValuesKey]);
 
   const computedProps = useMemo<ComposedStyleResultProps>(() => {
-    const sanitizedStyleList = sanitizeStyleList(computedStyle as any, true);
     const flatStyle          = isNative() || options?.autoFlattens ? sanitizedStyleList : StyleSheet.flatten(sanitizedStyleList);
 
     const dataSet = process.env.NODE_ENV === "development" ? {
@@ -193,10 +193,11 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
       "data-pseudo-class": dataSet["pseudo-class"],
       dataSet            : dataSet,
     };
-  }, [computedStyle, options?.autoFlattens, classNames, flatPseudoClasses]);
+  }, [sanitizedStyleList, options?.autoFlattens, classNames, flatPseudoClasses]);
+  console.log("qwep4", classNames.join(","), sanitizedStyleList);
 
   return {
-    computedStyle        : computedStyle as ComputedStyleList,
+    computedStyle        : sanitizedStyleList as ComputedStyleList,
     cascadingContextValue: cascadingContextValue,
     classNames           : classNames,
     flatPseudoClasses    : flatPseudoClasses,
@@ -292,7 +293,7 @@ export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: Depend
   const prevState            = useRef("");
   const currentResolution    = useRef<StylingResolution>();
   const id                   = useRef((composedId++).toString());
-  const resolution           = useMemo(() => resolveStyling(`__composed_${id}`, styling), depList);
+  const resolution           = useMemo(() => resolveStyling(`__composed_${id.current}`, styling), depList);
   currentResolution.current  = resolution;
   const {hasAnyDynamicProps} = resolution;
 

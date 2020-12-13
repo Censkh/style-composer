@@ -1,7 +1,7 @@
 import React, {useCallback, useRef, useState}  from "react";
 // eslint-disable-next-line no-restricted-imports
 import {ButtonProps as BaseButtonProps}        from "react-native";
-import {StylableProps, StyledTouchableOpacity} from "style-composer";
+import {StyledProps, StyledTouchableOpacity} from "style-composer";
 
 
 import {
@@ -14,7 +14,7 @@ import {
 import Text                 from "../Text/Text";
 import {useFocus, useHover} from "react-native-web-hooks";
 
-export interface ButtonProps extends BaseButtonProps, StylableProps {
+export interface ButtonProps extends BaseButtonProps, StyledProps {
   loading?: boolean;
   disabled?: boolean;
 }

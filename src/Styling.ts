@@ -1,5 +1,5 @@
-import React                                                                                     from "react";
-import {Animated, ImageStyle, RecursiveArray, RegisteredStyle, StyleSheet, TextStyle, ViewStyle} from "react-native";
+import React                                                                           from "react";
+import {ImageStyle, RecursiveArray, RegisteredStyle, StyleSheet, TextStyle, ViewStyle} from "react-native";
 
 import {registerStyleSheets, StyleClass}                                                      from "./class/StyleClass";
 import * as Utils                                                                             from "./Utils";
@@ -16,7 +16,6 @@ import {finishImportantSession, isImportantValue, startImportantSession}        
 import {StyleProp}                                                                            from "./component/Styler";
 import {ChildQuery}                                                                           from "./selector/ChildSelector";
 import {isOptimisable}                                                                        from "./Optimisable";
-import WithAnimatedValue = Animated.WithAnimatedValue;
 
 export const CASCADING_STYLES = ["fontSize", "fontFamily", "fontWeight", "color", "letterSpacing", "textAlign"];
 
@@ -158,7 +157,20 @@ const internalComputedStyling = (resolution: StylingResolution, session: Styling
 };
 
 const computeScopeStyle = (scope: StyleScope, outStyle: ComputedStyleList, outImportantStyle: ComputedStyleList, outClassNames?: string[]): void => {
-  const {sheetId, resolvedStyling, isSimple, className, staticStyle, staticImportantStyle, selectors, hasDynamicProps, hasImportant, hasSelectors, importantProps, dynamicProps} = scope;
+  const {
+          sheetId,
+          resolvedStyling,
+          isSimple,
+          className,
+          staticStyle,
+          staticImportantStyle,
+          selectors,
+          hasDynamicProps,
+          hasImportant,
+          hasSelectors,
+          importantProps,
+          dynamicProps,
+        } = scope;
   if (outClassNames) {
     outClassNames.push(className);
   }
@@ -208,11 +220,14 @@ export const removePropTypes = (node: React.ReactNode) => {
 
 export const sanitizeStyleObject = (style: StyleObject, optimise?: boolean) => {
   const keys = Object.keys(style);
+  const sanitizedStyle: any = {};
+
   for (const key of keys) {
-    const value = (style as any)[key];
-    (style as any)[key] = sanitizeStyleValue(value, optimise);
+    const value         = (style as any)[key];
+    sanitizedStyle[key] = sanitizeStyleValue(value, optimise);
+    console.log(key, value, sanitizedStyle[key]);
   }
-  return style;
+  return sanitizedStyle;
 };
 
 export const sanitizeStyleList = (style: RecursiveArray<Style | Falsy>, optimise?: boolean): Style[] => {
@@ -227,23 +242,25 @@ export const sanitizeStyleList = (style: RecursiveArray<Style | Falsy>, optimise
   return style;
 };
 
-export function sanitizeStyleValue<T extends string | number>(value: T, optimise?: boolean): string | number {
+export const sanitizeStyleValue = <T extends string | number>(value: T, optimise?: boolean): string | number => {
   if (value === undefined || value === null) {
     return value;
   }
 
+  let sanitizedValue: any = value;
+
   if (optimise && isOptimisable(value)) {
-    return value.optimise(value);
+    sanitizedValue = value.optimise(value);
   }
 
   if (typeof value === "number" || value instanceof Number) {
-    return Number(value) as T;
+    sanitizedValue = Number(value) as T;
   }
   if (typeof value === "string" || value instanceof String) {
-    return String(value) as T;
+    sanitizedValue = String(value) as T;
   }
-  return value;
-}
+  return sanitizedValue;
+};
 
 /**
  * Removes any theme or query selectors from the styling object, leaving only actual style selectors

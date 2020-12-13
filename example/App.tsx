@@ -41,6 +41,9 @@ const App = React.memo((props: AppInternalProps) => {
 
   const [themeToggle, setThemeToggle] = useState(false);
 
+  const themedDynamic = useComposedValues(() => ({
+    color: THEMING.textColor(),
+  }), []);
 
   return (
     <ThemeProvider schema={THEMING} value={themeToggle ? DARK_THEME : LIGHT_THEME}>
@@ -55,7 +58,7 @@ const App = React.memo((props: AppInternalProps) => {
           </Card>)}
         </ScrollView>
         <Card classes={$ChildSelectorTest}>
-          <Text style={{fontSize: 8}}>asda</Text>
+          <Text style={[{fontSize: 8}, themedDynamic]}>asda</Text>
         </Card>
         <Button title={"hi"} disabled={true} style={{backgroundColor: "yellow"}} classes={[$BigMargin]} onPress={() => {
           console.log("hi");

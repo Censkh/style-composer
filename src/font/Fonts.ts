@@ -3,7 +3,7 @@ export interface FontFamilyOptions {
 }
 
 export type FontWeightConfig = string | {
-  eof?: string;
+  eot?: string;
   ttf?: string;
   woff?: string;
   woff2?: string;

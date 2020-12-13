@@ -39,22 +39,23 @@ export const getFontFamily = (name: string): FontFamily | undefined => {
 };
 
 export interface FontAsset {
- type: string; location: string
+  type: string;
+  location: string
 }
 
-const getAsset = (obj: any) :string | null => {
+const getAsset = (obj: any): string | null => {
   if (typeof obj === "string") {
     return obj;
   }
   if (obj && typeof obj === "object" && typeof obj.default === "string") {
     return obj.default;
   }
-  return obj;
-}
+  return null;
+};
 
-const resourceToAssets = (resource: any): FontAsset[] => {
+const resourceToAssets = (resource: FontWeightConfig): FontAsset[] => {
   const assets: FontAsset[] = [];
-  const baseAsset = getAsset(resource);
+  const baseAsset           = getAsset(resource);
   if (baseAsset) {
     const fileType = baseAsset.split(".")[1];
     assets.push({type: fileType, location: baseAsset});
