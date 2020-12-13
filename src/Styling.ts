@@ -85,9 +85,9 @@ export function computeClasses(styleClass: StyleClass[] | Falsy, styleProp?: Sty
 
   for (const clazz of styleClass) {
     if (clazz.__meta.parent) {
-      internalComputedStyling(clazz.__meta.parent.__meta, computedSession, style, importantStyle, classNames);
+      internalComputedStyling(true, clazz.__meta.parent.__meta, computedSession, style, importantStyle, classNames);
     }
-    internalComputedStyling(clazz.__meta, computedSession, style, importantStyle, classNames);
+    internalComputedStyling(true, clazz.__meta, computedSession, style, importantStyle, classNames);
   }
 
   if (styleProp) {
@@ -115,12 +115,14 @@ export const computeStyling = (resolution: StylingResolution): StyleObject => {
   const session                           = {};
   const style: ComputedStyleList          = [];
   const importantStyle: ComputedStyleList = [];
-  internalComputedStyling(resolution, session, importantStyle, style);
+  internalComputedStyling(false, resolution, session, importantStyle, style);
   return sanitizeStyleObject(StyleSheet.flatten([style, importantStyle]));
 };
 
-const internalComputedStyling = (resolution: StylingResolution, session: StylingSession, outStyle: ComputedStyleList, outImportantStyle: ComputedStyleList, outClassNames?: string[]): void => {
-  registerStyleSheets((resolution as any).rootScope);
+const internalComputedStyling = (registerSheets: boolean, resolution: StylingResolution, session: StylingSession, outStyle: ComputedStyleList, outImportantStyle: ComputedStyleList, outClassNames?: string[]): void => {
+  if (registerSheets) {
+    registerStyleSheets((resolution as any).rootScope);
+  }
 
   const {
           rootScope,
@@ -219,12 +221,14 @@ export const removePropTypes = (node: React.ReactNode) => {
 };
 
 export const sanitizeStyleObject = (style: StyleObject, optimise?: boolean) => {
-  const keys = Object.keys(style);
+  const keys                = Object.keys(style);
   const sanitizedStyle: any = {};
 
   for (const key of keys) {
     const value         = (style as any)[key];
-    sanitizedStyle[key] = sanitizeStyleValue(value, optimise);
+    if (isNaN(key as any)) {
+      sanitizedStyle[key] = sanitizeStyleValue(value, optimise);
+    }
   }
   return sanitizedStyle;
 };
@@ -269,7 +273,7 @@ export const sanitizeStylingToStaticStyle = (styling: Styling | StyleObject): { 
 
   const style = Object.keys(styling).reduce((style: any, key: any) => {
     const value = (styling as any)[key];
-    if (isNaN(key) && (!isDynamicValue(value) || isImportantValue(value))) {
+    if (isNaN(key) && !isDynamicValue(value)) {
       const sanitizedValue = sanitizeStyleValue(value);
       if (isImportantValue(value)) {
         if (!importantStyle) {

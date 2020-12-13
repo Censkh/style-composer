@@ -1,5 +1,5 @@
 import React, {useState}                                                   from "react";
-import {media, StyledText, ThemeFor, ThemeProvider, useComposedValues, vw} from "style-composer";
+import {media, StyledText, ThemeFor, important, ThemeProvider, useComposedValues, vw} from "style-composer";
 import {CheckBox, ScrollView}                                              from "react-native";
 
 import Card                        from "../example/src/components/Card/Card";
@@ -42,7 +42,7 @@ const App = React.memo((props: AppInternalProps) => {
   const [themeToggle, setThemeToggle] = useState(false);
 
   const themedDynamic = useComposedValues(() => ({
-    color: THEMING.textColor(),
+    color: important(THEMING.textColor()),
   }), []);
 
   return (

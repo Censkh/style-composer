@@ -57,7 +57,8 @@ const resourceToAssets = (resource: FontWeightConfig): FontAsset[] => {
   const assets: FontAsset[] = [];
   const baseAsset           = getAsset(resource);
   if (baseAsset) {
-    const fileType = baseAsset.split(".")[1];
+    const fileParts = baseAsset.split(".");
+    const fileType = fileParts[fileParts.length - 1];
     assets.push({type: fileType, location: baseAsset});
   } else {
     for (const key of ["woff2", "woff", "ttf", "eot"]) {
@@ -98,7 +99,6 @@ export const createFontFamily = (
         const resource = config[type] as FontWeightConfig;
         if (resource) {
           const assets = resourceToAssets(resource);
-
 
           const css = `@font-face{font-family: '${name}';font-style: ${type.includes("Italic") ? "italic" : "normal"};font-display: swap;font-weight:${FONT_WEIGHT_NAME_TO_VALUE[type]};src: local('${name}'),${assets.map(asset => `url('${asset.location}') format('${FONT_FORMAT_NAMES[asset.type]}')`).join(",")};}`;
           StyleEnvironment.updateHeadElement(`font-family-style(${fontName})`, "style", {

@@ -12,6 +12,10 @@
 - add optimized web values
 - allow modules that export `default` to be used as font assets
 
+### Fixes
+
+- fix app support for fonts
+
 ## 0.4.0
 
 ### Breaking

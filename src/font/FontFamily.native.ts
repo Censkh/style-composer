@@ -56,13 +56,15 @@ export const createFontFamily = (
     fontFamily[type] = () => {
       if (!isFontLoading(fontName) && !isFontLoaded(fontName)) {
         const resource = config[type];
-        const location = typeof resource === "string" ? resource : (resource as any)[Object.keys(resource as any)[0]];
+        const location = typeof resource === "object" ? (resource as any)[Object.keys(resource as any)[0]]: resource;
+
         if (location) {
           fontVariantMap[fontName] = {
             weight    : parseInt(Object.keys(FONT_WEIGHT_VALUE_TO_NAME).find(weight => FONT_WEIGHT_VALUE_TO_NAME[weight as any] === type) as string),
             fontFamily: fontFamily,
             resource  : location,
           };
+
 
           Font.loadAsync({
             [fontName]: location,
