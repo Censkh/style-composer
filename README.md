@@ -8,6 +8,23 @@ Straightforward and powerful cross platform styling for React Native supporting 
 
 - [Documentation](https://censkh.github.io/style-composer)
 
+```tsx
+import {StyledView, StyledText, composeClass, media} from "style-composer";
+
+const $Card = composeClass("card", () => ({
+  padding: 10,
+  fontSize: 12,
+
+  [media({minWidth: 500})]: {
+      fontSize: 14,
+  }
+}));
+
+<StyledView classes={$Card}>
+  <StyledText>It just works!</StyledText>
+</StyledView>
+```
+
 ## Features
 
 - [Cascading Styles](https://censkh.github.io/style-composer/cascading)

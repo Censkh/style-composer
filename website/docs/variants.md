@@ -20,7 +20,7 @@ export const $Row = composeClass("row", () => ({
 
 You can then use those classes with:
 
-```typescript jsx
+```tsx
 <StyledView classes={$Row.center}>I am a centered row!</StyledView>
 ```
 
