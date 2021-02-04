@@ -19,6 +19,13 @@ const SSR_DIMENSIONS: Record<DeviceType, ScaledSize> = {
   },
 };
 
+const CSS_MINIFY_REGEX_FIRST = /\s*([,>+;:}{]{1})\s*/gm;
+const CSS_MINIFY_REGEX_BRACKETS = /;}/gm;
+
+const minifyCss = (css: string): string => {
+  return css.replaceAll(CSS_MINIFY_REGEX_FIRST, "$1").replaceAll(CSS_MINIFY_REGEX_BRACKETS, "}").trim();
+}
+
 const HEAD_ELEMENT_DATA_ATTRIBUTE_NAME = "data-sc-element-key";
 
 export type ScreenSizeChangeListener = () => void;
@@ -67,21 +74,24 @@ class StyleEnvironment {
 
     const computedProps = Object.assign({}, props, {[HEAD_ELEMENT_DATA_ATTRIBUTE_NAME]: key, key});
 
+    const parsedContent = content ? minifyCss(content) : "";
+
     if (isSsr()) {
       const element = this.serverSideHeadElements[key];
       if (!element) {
-        this.serverSideHeadElements[key] = React.createElement(type, computedProps, content);
+        this.serverSideHeadElements[key] = React.createElement(type, computedProps, parsedContent);
       } else {
-        this.serverSideHeadElements[key] = React.cloneElement(element, computedProps, content);
+        this.serverSideHeadElements[key] = React.cloneElement(element, computedProps, parsedContent);
       }
     } else {
       let element = document.head.querySelector(`[${HEAD_ELEMENT_DATA_ATTRIBUTE_NAME}*="${key}"]`);
       if (!element) {
         element = document.createElement(type);
+        element.setAttribute(HEAD_ELEMENT_DATA_ATTRIBUTE_NAME, key);
         document.head.appendChild(element);
       }
 
-      (element as any).innerText = content || "";
+      (element as any).textContent = parsedContent;
       for (const propName in props) {
         element.setAttribute(propName, (props as any)[propName]);
       }

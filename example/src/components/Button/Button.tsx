@@ -13,6 +13,7 @@ import {
 }                           from "./Button.style";
 import Text                 from "../Text/Text";
 import {useFocus, useHover} from "react-native-web-hooks";
+import {CssGlobalStyling}   from "../../../../src";
 
 export interface ButtonProps extends BaseButtonProps, StyledProps {
   loading?: boolean;
@@ -46,6 +47,11 @@ const Button = (props: ButtonProps) => {
                                  pseudoClasses={ownPseudoClasses}
                                  style={style}
                                  {...otherProps}>
+    <CssGlobalStyling name={"button"}>
+      {`button:focus {
+        color: red;
+      }`}
+    </CssGlobalStyling>
     <Text>{title}</Text>
   </StyledTouchableOpacity>;
 };

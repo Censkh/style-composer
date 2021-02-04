@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.1
+
+### Fixes
+
+- make sure head elements are created only once
+- optimize CSS in \<CssGlobalStyling> component
+
 ## 0.5.0
 
 ### Breaking

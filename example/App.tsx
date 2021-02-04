@@ -2,8 +2,8 @@ import React, {useState}                                                   from 
 import {media, StyledText, ThemeFor, important, ThemeProvider, useComposedValues, vw} from "style-composer";
 import {CheckBox, ScrollView}                                              from "react-native";
 
-import Card                        from "../example/src/components/Card/Card";
-import {$Card, $ChildSelectorTest} from "../example/src/components/Card/Card.style";
+import Card                        from "./src/components/Card/Card";
+import {$Card, $ChildSelectorTest} from "./src/components/Card/Card.style";
 import Container                   from "./src/components/Container/Container";
 import Text                        from "./src/components/Text/Text";
 import Button                      from "./src/components/Button/Button";
