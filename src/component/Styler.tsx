@@ -14,6 +14,7 @@ export interface StyledProps<S = StyleProp> {
   style?: S;
   classes?: Classes,
   pseudoClasses?: PseudoClasses;
+  dataSet?: Record<string, any>;
 }
 
 export type StylerChildren =

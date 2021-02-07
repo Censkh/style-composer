@@ -18,7 +18,7 @@ export const styled = <P>(baseComponent: React.ComponentType<P>, options?: Style
   }
 
   return React.memo(Object.assign(React.forwardRef((props: any, ref) => {
-    const {children, style, pseudoClasses, classes, ...otherProps} = props;
+    const {children, style, pseudoClasses, classes, dataSet, ...otherProps} = props;
 
     return Styler({
       classes,
@@ -28,6 +28,7 @@ export const styled = <P>(baseComponent: React.ComponentType<P>, options?: Style
       _baseComponent: baseComponent,
       children      : children,
       options,
+      dataSet,
       otherProps,
     } as any);
   }), {displayName: `Styler${baseComponent.displayName ? `[${baseComponent.displayName}]` : ""}`}), styledArePropsEqual);
