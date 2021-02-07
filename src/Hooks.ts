@@ -179,8 +179,6 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
     childSelectors: ownChildSelectors && ownChildSelectors.length > 0 ? [...ownChildSelectors, ...parentChildSelectors] : parentChildSelectors,
   }) || null, [cascadingValuesKey]);
 
-  console.log(propsDataSet)
-
   const computedProps = useMemo<ComposedStyleResultProps>(() => {
     const flatStyle          = isNative() || options?.autoFlattens ? sanitizedStyleList : StyleSheet.flatten(sanitizedStyleList);
 
