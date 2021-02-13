@@ -10,24 +10,27 @@ import {
   flattenClasses,
   StyleClass,
 }                                                                                      from "./class/StyleClass";
-import * as Utils               from "./Utils";
-import {Falsy, isNative, isWeb} from "./Utils";
-import {Theme, useTheming}      from "./theme";
-import {StyleProp, StyleSheet} from "react-native";
+import * as Utils                                                                      from "./Utils";
+import {Falsy, isNative}                                                               from "./Utils";
+import {Theme, useTheming}                                                             from "./theme";
+import {
+  StyleProp,
+  StyleSheet,
+}                                                                                      from "react-native";
 import {
   computeClasses,
   ComputedStyleList,
   computeStyling,
   extractCascadingStyle,
   resolveStyling,
-  sanitizeStyleList, Style,
+  sanitizeStyleList,
+  StyledProps,
   StyleObject,
   StylingBuilder,
   StylingResolution,
   StylingSession,
-}                                                            from "./Styling";
-import {StyledProps}                                         from "./component/Styler";
-import CascadingValuesContext, {CascadingValuesContextState} from "./CascadingValuesContext";
+}                                                                                      from "./Styling";
+import CascadingValuesContext, {CascadingValuesContextState}                           from "./CascadingValuesContext";
 import {
   addFontLoadListener,
   getFontFamily,
@@ -79,13 +82,13 @@ export interface ComposedStyleOptions extends StyledOptions {
 
 export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOptions): ComposedStyleResult => {
   const {classes, style, pseudoClasses, dataSet: propsDataSet} = props;
-  const fontListeners                   = useRef<string[]>([]);
+  const fontListeners                                          = useRef<string[]>([]);
   const {
           style         : parentCascadingStyle,
           key           : parentCascadingValuesKey,
           childSelectors: parentChildSelectors,
-        }                               = useContext(CascadingValuesContext);
-  const [fontKey, forceUpdate]          = useForceUpdate();
+        }                                                      = useContext(CascadingValuesContext);
+  const [fontKey, forceUpdate]                                 = useForceUpdate();
 
   const flatPseudoClasses       = (Array.isArray(pseudoClasses) ? Utils.flatAndRemoveFalsy(pseudoClasses) : (pseudoClasses && [pseudoClasses]) || [])
     .map(selector => typeof selector === "string" ? selector : selector.type);
@@ -164,7 +167,7 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
 
     return {
       classNames        : classResults.classNames,
-      sanitizedStyleList     : sanitizedStyleList,
+      sanitizedStyleList: sanitizedStyleList,
       computedStyleFlat : computedStyleFlat,
       cascadingStyle    : cascadingStyle,
       cascadingValuesKey: cascadingValuesKey,
@@ -179,13 +182,17 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
     childSelectors: ownChildSelectors && ownChildSelectors.length > 0 ? [...ownChildSelectors, ...parentChildSelectors] : parentChildSelectors,
   }) || null, [cascadingValuesKey]);
 
-  const computedProps = useMemo<ComposedStyleResultProps>(() => {
-    const flatStyle          = isNative() || options?.autoFlattens ? sanitizedStyleList : StyleSheet.flatten(sanitizedStyleList);
-
+  const dataSet = useMemo(() => {
     const dataSet: any = Object.assign(process.env.NODE_ENV === "development" ? {
       "class"       : classNames?.join(" "),
       "pseudo-class": flatPseudoClasses.join(" "),
     } : {}, propsDataSet);
+
+    return dataSet;
+  }, [propsDataSet, key]);
+
+  const computedProps = useMemo<ComposedStyleResultProps>(() => {
+    const flatStyle = isNative() || options?.autoFlattens ? sanitizedStyleList : StyleSheet.flatten(sanitizedStyleList);
 
     return {
       style              : flatStyle,
@@ -193,7 +200,7 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
       "data-pseudo-class": dataSet["pseudo-class"],
       dataSet            : dataSet,
     };
-  }, [sanitizedStyleList, options?.autoFlattens, classNames, flatPseudoClasses, propsDataSet]);
+  }, [key]);
 
   return {
     computedStyle        : sanitizedStyleList as ComputedStyleList,

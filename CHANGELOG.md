@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.4
+
+- update styled components type
+
 ## 0.5.3
 
 - pass through `dataSet` prop

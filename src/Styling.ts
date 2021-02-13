@@ -1,8 +1,8 @@
 import React                                                                           from "react";
 import {ImageStyle, RecursiveArray, RegisteredStyle, StyleSheet, TextStyle, ViewStyle} from "react-native";
 
-import {registerStyleSheets, StyleClass}                                                      from "./class/StyleClass";
-import * as Utils                                                                             from "./Utils";
+import {Classes, PseudoClasses, registerStyleSheets, StyleClass} from "./class/StyleClass";
+import * as Utils                                                from "./Utils";
 import {Falsy}                                                                                from "./Utils";
 import {DYNAMIC_UNIT_REGISTER_CHECK_VALUE, finishDynamicUnitSession, startDynamicUnitSession} from "./unit/DynamicUnit";
 import {finishThemeSession, startThemedSession}                                               from "./theme/Theming";
@@ -13,7 +13,6 @@ import {
   StyleSelectors,
 }                                                                                             from "./selector/StyleSelector";
 import {finishImportantSession, isImportantValue, startImportantSession}                      from "./Important";
-import {StyleProp}                                                                            from "./component/Styler";
 import {ChildQuery}                                                                           from "./selector/ChildSelector";
 import {isOptimisable}                                                                        from "./Optimisable";
 
@@ -54,6 +53,16 @@ export type Style = StyleObject | RegisteredStyle<any>;
 export type StylingBuilder<S = StyleObject> = () => Styling<S>;
 
 export type Styling<S = StyleObject> = Record<number, S> & S;
+
+export type StyleProp = RecursiveArray<Style | undefined | null | false> | Style | undefined | null | false;
+
+export interface StyledProps<S = StyleProp> {
+  style?: S;
+  classes?: Classes,
+  pseudoClasses?: PseudoClasses;
+  dataSet?: Record<string, any>;
+}
+
 
 export interface StylingSession {
   pseudoClasses?: string[];
@@ -256,11 +265,11 @@ export const sanitizeStyleValue = <T extends string | number>(value: T, optimise
     sanitizedValue = value.optimise(value);
   }
 
-  if (typeof value === "number" || value instanceof Number) {
-    sanitizedValue = Number(value) as T;
+  if (typeof sanitizedValue === "number" || sanitizedValue instanceof Number) {
+    sanitizedValue = Number(sanitizedValue) as T;
   }
-  if (typeof value === "string" || value instanceof String) {
-    sanitizedValue = String(value) as T;
+  if (typeof sanitizedValue === "string" || sanitizedValue instanceof String) {
+    sanitizedValue = String(sanitizedValue) as T;
   }
   return sanitizedValue;
 };
