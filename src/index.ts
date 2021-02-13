@@ -1,3 +1,5 @@
+import "./StyleSheetPropTypeFixer";
+
 export *                                                            from "./Styling";
 export {useComposedValues, useComposedStyle}                        from "./Hooks";
 export {default as CascadingValuesContext, CascadingValuesProvider} from "./CascadingValuesContext";

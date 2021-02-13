@@ -16,7 +16,7 @@ import {finishImportantSession, isImportantValue, startImportantSession}        
 import {ChildQuery}                                                                           from "./selector/ChildSelector";
 import {isOptimisable}                                                                        from "./Optimisable";
 
-export const CASCADING_STYLES = ["fontSize", "fontFamily", "fontWeight", "color", "letterSpacing", "textAlign"];
+export const CASCADING_STYLES = ["fontSize", "fontFamily", "fontWeight", "color", "letterSpacing", "textAlign", "lineHeight"];
 
 export interface StyleScope {
   id: number;

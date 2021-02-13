@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.5
+
+- add `lineHeight` as a cascading property
+- add `propType` fixer to allow for web styles in native style objects
+
 ## 0.5.4
 
 - update styled components type
