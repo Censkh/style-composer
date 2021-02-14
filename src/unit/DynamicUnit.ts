@@ -1,4 +1,4 @@
-export const DYNAMIC_UNIT_REGISTER_CHECK_VALUE = -Infinity;
+import {DYNAMIC_UNIT_REGISTER_CHECK_VALUE} from "../StyleConstants";
 
 const dynamicUnitSession: DynamicUnitSession = {
   running: false,

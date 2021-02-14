@@ -1,11 +1,11 @@
 import React, {useCallback, useRef}                         from "react";
 import {ComponentType, getReactComponentName, shallowEqual} from "../../Utils";
 import {Animated, Text}                                     from "react-native";
-import {useComposedStyle}                        from "../../Hooks";
-import {PolyText}                                from "../poly/native";
-import {removePropTypes, StyledProps, StyleProp} from "../../Styling";
-import {CascadingValuesProvider}                 from "../../CascadingValuesContext";
-import {classesId}                               from "../../class/StyleClass";
+import {useComposedStyle}                                   from "../../StyleHooks";
+import {PolyText}                                           from "../poly/native";
+import {removePropTypes, StyledProps, StyleProp}            from "../../Styling";
+import {CascadingValuesProvider}                            from "../../CascadingValuesContext";
+import {classesId}                                          from "../../class/StyleClass";
 
 type WithAnimatedValue<T> = Animated.WithAnimatedValue<T>;
 

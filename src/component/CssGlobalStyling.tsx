@@ -10,7 +10,7 @@ export interface CssGlobalStylingProps {
 const CssGlobalStyling = (props: CssGlobalStylingProps): null => {
   const {name, children} = props;
 
-  const updateHead       = useCallback(() => {
+  const updateHead = useCallback(() => {
     if (typeof children !== "string") {
       throw new Error("[style-composer] child prop of CssGlobalStyling must be a string");
     }

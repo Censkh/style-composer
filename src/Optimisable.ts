@@ -1,4 +1,4 @@
-import {isWeb}    from "./Utils";
+import {isWeb} from "./Utils";
 
 export type Optimisable<T extends string | number> = T & { optimise(value: T): string | number };
 

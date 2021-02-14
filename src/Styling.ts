@@ -1,22 +1,16 @@
 import React                                                                           from "react";
 import {ImageStyle, RecursiveArray, RegisteredStyle, StyleSheet, TextStyle, ViewStyle} from "react-native";
 
-import {Classes, PseudoClasses, registerStyleSheets, StyleClass} from "./class/StyleClass";
-import * as Utils                                                from "./Utils";
-import {Falsy}                                                                                from "./Utils";
-import {DYNAMIC_UNIT_REGISTER_CHECK_VALUE, finishDynamicUnitSession, startDynamicUnitSession} from "./unit/DynamicUnit";
-import {finishThemeSession, startThemedSession}                                               from "./theme/Theming";
-import {
-  finishSelectorSession,
-  startSelectorSession,
-  StyleSelector,
-  StyleSelectors,
-}                                                                                             from "./selector/StyleSelector";
-import {finishImportantSession, isImportantValue, startImportantSession}                      from "./Important";
-import {ChildQuery}                                                                           from "./selector/ChildSelector";
-import {isOptimisable}                                                                        from "./Optimisable";
-
-export const CASCADING_STYLES = ["fontSize", "fontFamily", "fontWeight", "color", "letterSpacing", "textAlign", "lineHeight"];
+import {Classes, PseudoClasses, registerStyleSheets, StyleClass}                     from "./class/StyleClass";
+import * as Utils                                                                    from "./Utils";
+import {Falsy}                                                                       from "./Utils";
+import {finishDynamicUnitSession, startDynamicUnitSession}                           from "./unit/DynamicUnit";
+import {finishThemeSession, startThemedSession}                                      from "./theme/Theming";
+import {finishSelectorSession, startSelectorSession, StyleSelector, StyleSelectors} from "./selector/StyleSelector";
+import {finishImportantSession, isImportantValue, startImportantSession}             from "./Important";
+import {ChildQuery}                                                                  from "./selector/ChildSelector";
+import {isOptimisable}                                                               from "./Optimisable";
+import {CASCADING_STYLES, DYNAMIC_UNIT_REGISTER_CHECK_VALUE}                         from "./StyleConstants";
 
 export interface StyleScope {
   id: number;
@@ -234,7 +228,7 @@ export const sanitizeStyleObject = (style: StyleObject, optimise?: boolean) => {
   const sanitizedStyle: any = {};
 
   for (const key of keys) {
-    const value         = (style as any)[key];
+    const value = (style as any)[key];
     if (isNaN(key as any)) {
       sanitizedStyle[key] = sanitizeStyleValue(value, optimise);
     }

@@ -19,12 +19,12 @@ const SSR_DIMENSIONS: Record<DeviceType, ScaledSize> = {
   },
 };
 
-const CSS_MINIFY_REGEX_FIRST = /\s*([,>+;:}{]{1})\s*/gm;
+const CSS_MINIFY_REGEX_FIRST    = /\s*([,>+;:}{]{1})\s*/gm;
 const CSS_MINIFY_REGEX_BRACKETS = /;}/gm;
 
 const minifyCss = (css: string): string => {
   return css.replaceAll(CSS_MINIFY_REGEX_FIRST, "$1").replaceAll(CSS_MINIFY_REGEX_BRACKETS, "}").trim();
-}
+};
 
 const HEAD_ELEMENT_DATA_ATTRIBUTE_NAME = "data-sc-element-key";
 

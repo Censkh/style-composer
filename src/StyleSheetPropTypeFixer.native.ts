@@ -2,13 +2,12 @@
 // @ts-ignore
 import StyleSheetValidation from "react-native/Libraries/StyleSheet/StyleSheetValidation";
 
-import propTypes from "prop-types";
+import propTypes              from "prop-types";
+import {SUPPORTED_WEB_STYLES} from "./StyleConstants";
 
 export const fixStylePropTypes = (): void => {
-  StyleSheetValidation.addValidStylePropTypes({
-    "cursor"         : propTypes.string,
-    "pointerEvents"  : propTypes.string,
-    "userSelect"     : propTypes.string,
-    "transformOrigin": propTypes.string,
-  });
+  StyleSheetValidation.addValidStylePropTypes(SUPPORTED_WEB_STYLES.reduce((props, key) => {
+    props[key] = propTypes.string;
+    return props;
+  }, {} as any));
 };

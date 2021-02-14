@@ -37,12 +37,12 @@ import {
   isFontLoaded,
   isStyleComposerFont,
   removeFontLoadListener,
-}                              from "./font/FontFamily";
-import child, {ChildQuery}     from "./selector/ChildSelector";
-import {setupFontPreProcessor} from "./font/FontPreProcessor";
-import StyleEnvironment        from "./StyleEnvironment";
-import {StyledOptions}         from "./component";
-import {fixStylePropTypes}     from "./StyleSheetPropTypeFixer";
+}                                                                                      from "./font/FontFamily";
+import child, {ChildQuery}                                                             from "./selector/ChildSelector";
+import {setupFontPreProcessor}                                                         from "./font/FontPreProcessor";
+import StyleEnvironment                                                                from "./StyleEnvironment";
+import {StyledOptions}                                                                 from "./component";
+import {fixStylePropTypes}                                                             from "./StyleSheetPropTypeFixer";
 
 export const useForceUpdate = (): [number, () => void] => {
   const [state, setState] = useState(0);

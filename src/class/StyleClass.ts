@@ -31,7 +31,7 @@ let globalClassIdCounter = 0;
 
 export const composeClass = <V extends string = never>(name: string, stylingBuilder: StylingBuilder, options?: ComposeClassOptions<V>): StyleClass<Record<V, StyleClass>> => {
   const parentName = options?.parent?.__meta.name;
-  const className = (parentName ? `${parentName}(${name})` : name);
+  const className  = (parentName ? `${parentName}(${name})` : name);
 
   if (process.env.NODE_ENV === "production" && ClassManager.hasClass(className)) {
     console.error(`[style-composer] Re-declaring class '${className}', this will cause performance issues`);

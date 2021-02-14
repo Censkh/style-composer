@@ -58,7 +58,7 @@ const resourceToAssets = (resource: FontWeightConfig): FontAsset[] => {
   const baseAsset           = getAsset(resource);
   if (baseAsset) {
     const fileParts = baseAsset.split(".");
-    const fileType = fileParts[fileParts.length - 1];
+    const fileType  = fileParts[fileParts.length - 1];
     assets.push({type: fileType, location: baseAsset});
   } else {
     for (const key of ["woff2", "woff", "ttf", "eot"]) {

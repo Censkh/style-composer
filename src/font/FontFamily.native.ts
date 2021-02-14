@@ -56,7 +56,7 @@ export const createFontFamily = (
     fontFamily[type] = () => {
       if (!isFontLoading(fontName) && !isFontLoaded(fontName)) {
         const resource = config[type];
-        const location = typeof resource === "object" ? (resource as any)[Object.keys(resource as any)[0]]: resource;
+        const location = typeof resource === "object" ? (resource as any)[Object.keys(resource as any)[0]] : resource;
 
         if (location) {
           fontVariantMap[fontName] = {

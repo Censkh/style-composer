@@ -9,6 +9,8 @@ export type PropsOf<C extends React.ComponentType<any> | keyof JSX.IntrinsicElem
   C extends keyof JSX.IntrinsicElements ? JSX.IntrinsicElements[C] : {}
   );
 
+export type EnumOf<T extends Record<string, any>> = T[keyof T];
+
 export type Falsy = false | null | undefined | "" | 0;
 
 export const getGlobal = (): any => {
@@ -100,14 +102,14 @@ export const arrayify = <T>(arrayOrItem: T | Array<T>): Array<T> => {
 
 export const getReactComponentName = (component: ComponentType<any>): string => {
   if ((component as any).displayName) {
-  return (component as any).displayName;
+    return (component as any).displayName;
   }
   if (typeof component === "string" && (component as string).length > 0) {
     return component;
   }
 
   if (typeof (component as any).$$typeof === "symbol") {
-    const type: Symbol = ((component ) as any).$$typeof;
+    const type: Symbol = ((component) as any).$$typeof;
     if (type.description === "react.forward_ref") {
       return getReactComponentName((component as any).render);
     }

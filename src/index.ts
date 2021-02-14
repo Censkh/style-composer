@@ -1,5 +1,5 @@
 export *                                                            from "./Styling";
-export {useComposedValues, useComposedStyle}                        from "./Hooks";
+export {useComposedValues, useComposedStyle}                        from "./StyleHooks";
 export {default as CascadingValuesContext, CascadingValuesProvider} from "./CascadingValuesContext";
 export {default as important}                                       from "./Important";
 

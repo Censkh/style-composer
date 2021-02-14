@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.7
+
+- make text decorations cascade
+
 ## 0.5.6
 
 - add `pointerEvents` to support web styles

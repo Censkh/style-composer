@@ -25,7 +25,7 @@ const renderPoly = (props: PolyProps<any>, element: React.ReactElement): React.R
       }
       return extraProps;
     }, {} as any), element.props),
-    type: props.tag,
+    type : props.tag,
   };
 };
 
@@ -58,7 +58,7 @@ const extendClassComponent = (baseComponent: any) => {
 };
 
 const extendFunctionComponent = (baseComponent: any) => {
-  const result = {...baseComponent};
+  const result                             = {...baseComponent};
   const renderFunc                         = result.render;
   let isProviderBased: boolean | undefined = undefined;
 
@@ -96,8 +96,8 @@ export const poly = <P>(baseComponent: React.ComponentType<P> & { isPoly?: boole
     return baseComponent;
   }
 
-  const polyClass       = baseComponent.prototype ? extendClassComponent(baseComponent) : extendFunctionComponent(baseComponent);
-  polyClass.isPoly = true;
+  const polyClass         = baseComponent.prototype ? extendClassComponent(baseComponent) : extendFunctionComponent(baseComponent);
+  polyClass.isPoly        = true;
   const baseComponentName = getReactComponentName(baseComponent);
   Object.defineProperty(polyClass, "displayName", {value: `Poly[${baseComponentName}]`});
 
