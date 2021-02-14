@@ -91,7 +91,7 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
           key           : parentCascadingValuesKey,
           childSelectors: parentChildSelectors,
         }                                                      = useContext(CascadingValuesContext);
-  const [fontKey, forceUpdate]                                 = useForceUpdate();
+  const [forceKey, forceUpdate]                                 = useForceUpdate();
 
   const flatPseudoClasses       = (Array.isArray(pseudoClasses) ? Utils.flatAndRemoveFalsy(pseudoClasses) : (pseudoClasses && [pseudoClasses]) || [])
     .map(selector => typeof selector === "string" ? selector : selector.type);
@@ -101,6 +101,8 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
   };
 
   const {theme, key, classArray} = useStylingInternals(classes, session);
+
+  const computedKey = `${key}--${parentCascadingValuesKey}--${forceKey}`;
 
   session.applicableChildSelectors = classArray && parentChildSelectors && parentChildSelectors.filter((selector) => {
     const options = Utils.arrayify(selector.options);
@@ -176,7 +178,7 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
       cascadingValuesKey: cascadingValuesKey,
       ownChildSelectors : ownChildSelectors,
     };
-  }, [style, parentCascadingValuesKey, key, fontKey, theme]);
+  }, [style, computedKey, theme]);
 
   const hasCascade            = Boolean(cascadingStyle || (ownChildSelectors && ownChildSelectors.length > 0));
   const cascadingContextValue = useMemo<CascadingValuesContextState | null>(() => (hasCascade && {
@@ -192,7 +194,7 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
     } : {}, propsDataSet);
 
     return dataSet;
-  }, [propsDataSet, key]);
+  }, [propsDataSet, computedKey]);
 
   const computedProps = useMemo<ComposedStyleResultProps>(() => {
     const flatStyle = isNative() || options?.autoFlattens ? sanitizedStyleList : StyleSheet.flatten(sanitizedStyleList);
@@ -203,7 +205,7 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
       "data-pseudo-class": dataSet["pseudo-class"],
       dataSet            : dataSet,
     };
-  }, [key]);
+  }, [computedKey]);
 
   return {
     computedStyle        : sanitizedStyleList as ComputedStyleList,
