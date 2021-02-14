@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.6
+
+- add `pointerEvents` to support web styles
+- better component name
+- fix issue with name acquisition of styled components
+
 ## 0.5.5
 
 - add `lineHeight` as a cascading property

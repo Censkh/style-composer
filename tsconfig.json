@@ -13,7 +13,8 @@
     "declaration": true,
     "jsx": "react",
     "skipLibCheck": true,
-    "allowJs": true
+    "allowJs": true,
+    "removeComments": true
   },
   "include": [
     "src"

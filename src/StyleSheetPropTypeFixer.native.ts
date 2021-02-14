@@ -4,8 +4,11 @@ import StyleSheetValidation from "react-native/Libraries/StyleSheet/StyleSheetVa
 
 import propTypes from "prop-types";
 
-StyleSheetValidation.addValidStylePropTypes({
-  "cursor": propTypes.string,
-  "userSelect": propTypes.string,
-  "transformOrigin": propTypes.string,
-});
+export const fixStylePropTypes = (): void => {
+  StyleSheetValidation.addValidStylePropTypes({
+    "cursor"         : propTypes.string,
+    "pointerEvents"  : propTypes.string,
+    "userSelect"     : propTypes.string,
+    "transformOrigin": propTypes.string,
+  });
+};

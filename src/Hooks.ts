@@ -37,11 +37,12 @@ import {
   isFontLoaded,
   isStyleComposerFont,
   removeFontLoadListener,
-}                                                                                      from "./font/FontFamily";
-import child, {ChildQuery}                                                             from "./selector/ChildSelector";
-import {setupFontPreProcessor}                                                         from "./font/FontPreProcessor";
-import StyleEnvironment                                                                from "./StyleEnvironment";
-import {StyledOptions}                                                                 from "./component";
+}                              from "./font/FontFamily";
+import child, {ChildQuery}     from "./selector/ChildSelector";
+import {setupFontPreProcessor} from "./font/FontPreProcessor";
+import StyleEnvironment        from "./StyleEnvironment";
+import {StyledOptions}         from "./component";
+import {fixStylePropTypes}     from "./StyleSheetPropTypeFixer";
 
 export const useForceUpdate = (): [number, () => void] => {
   const [state, setState] = useState(0);
@@ -79,6 +80,8 @@ export interface ComposedStyleResultProps {
 export interface ComposedStyleOptions extends StyledOptions {
   disableCascade?: boolean;
 }
+
+fixStylePropTypes();
 
 export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOptions): ComposedStyleResult => {
   const {classes, style, pseudoClasses, dataSet: propsDataSet} = props;

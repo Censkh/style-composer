@@ -1,6 +1,7 @@
-import React      from "react";
-import {View}     from "react-native";
-import * as Utils from "../../Utils";
+import React                   from "react";
+import {View}                  from "react-native";
+import * as Utils              from "../../Utils";
+import {getReactComponentName} from "../../Utils";
 
 export type PolyProps<P> = P & {
   tag?: keyof JSX.IntrinsicElements;
@@ -57,10 +58,11 @@ const extendClassComponent = (baseComponent: any) => {
 };
 
 const extendFunctionComponent = (baseComponent: any) => {
-  const renderFunc                         = baseComponent.render;
+  const result = {...baseComponent};
+  const renderFunc                         = result.render;
   let isProviderBased: boolean | undefined = undefined;
 
-  baseComponent.render = (props: any, ref: any) => {
+  result.render = (props: any, ref: any) => {
     const children = renderFunc(props, ref);
     if (isProviderBased === undefined) {
       isProviderBased = Boolean(children.type.$$typeof?.toString().includes("react.provider"));
@@ -78,7 +80,7 @@ const extendFunctionComponent = (baseComponent: any) => {
 
     return renderPoly(props, children);
   };
-  return baseComponent;
+  return result;
 };
 
 
@@ -93,10 +95,11 @@ export const poly = <P>(baseComponent: React.ComponentType<P> & { isPoly?: boole
   if (Utils.isNative() || baseComponent.isPoly) {
     return baseComponent;
   }
-  baseComponent.isPoly = true;
 
   const polyClass       = baseComponent.prototype ? extendClassComponent(baseComponent) : extendFunctionComponent(baseComponent);
-  polyClass.displayName = `Poly[${baseComponent.displayName}]`;
+  polyClass.isPoly = true;
+  const baseComponentName = getReactComponentName(baseComponent);
+  Object.defineProperty(polyClass, "displayName", {value: `Poly[${baseComponentName}]`});
 
   return polyClass as any;
 };

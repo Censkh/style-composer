@@ -1,6 +1,6 @@
-import React, {useCallback, useRef}              from "react";
-import {shallowEqual}                            from "../../Utils";
-import {Animated, Text}                          from "react-native";
+import React, {useCallback, useRef}                         from "react";
+import {ComponentType, getReactComponentName, shallowEqual} from "../../Utils";
+import {Animated, Text}                                     from "react-native";
 import {useComposedStyle}                        from "../../Hooks";
 import {PolyText}                                from "../poly/native";
 import {removePropTypes, StyledProps, StyleProp} from "../../Styling";
@@ -8,8 +8,6 @@ import {CascadingValuesProvider}                 from "../../CascadingValuesCont
 import {classesId}                               from "../../class/StyleClass";
 
 type WithAnimatedValue<T> = Animated.WithAnimatedValue<T>;
-
-type ComponentType<P> = React.ComponentType<P> | ((props: P) => JSX.Element);
 
 export type StyledComponent<P> = ComponentType<(keyof P extends "style" ? Omit<P, "style"> : P) & StyledProps>;
 export type AnimatedStyledComponent<P> = ComponentType<(keyof P extends "style" ? Omit<P, "style"> : P) & StyledProps<WithAnimatedValue<StyleProp>>>;
@@ -23,7 +21,7 @@ export function styled<P>(baseComponent: ComponentType<P>, options?: StyledOptio
     return baseComponent;
   }
 
-  const baseComponentName = ("displayName" in baseComponent ? baseComponent.displayName : baseComponent.name) || "Component";
+  const baseComponentName = getReactComponentName(baseComponent);
 
   return React.memo(Object.assign(React.forwardRef((props: any, ref) => {
     const {children, ...otherProps} = props;
@@ -60,7 +58,7 @@ export function styled<P>(baseComponent: ComponentType<P>, options?: StyledOptio
         {content}
       </CascadingValuesProvider> : content;
 
-  }), {displayName: `Styled${baseComponentName}`}), styledArePropsEqual);
+  }), {displayName: `Styler[${baseComponentName}]`}), styledArePropsEqual);
 }
 
 export function styledArePropsEqual<T>(prevProps: T, nextProps: T): boolean {
