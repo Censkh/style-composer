@@ -205,7 +205,7 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
       "data-pseudo-class": dataSet["pseudo-class"],
       dataSet            : dataSet,
     };
-  }, [computedKey]);
+  }, [computedKey, style]);
 
   return {
     computedStyle        : sanitizedStyleList as ComputedStyleList,

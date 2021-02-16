@@ -3,6 +3,7 @@
 ## 0.5.7
 
 - make text decorations cascade
+- fix issues with styles not updating
 
 ## 0.5.6
 
