@@ -83,6 +83,10 @@ export interface ComposedStyleOptions extends StyledOptions {
 
 fixStylePropTypes();
 
+const findChildSelectors = (clazz: StyleClass): StyleSelector<any>[] | Falsy => {
+  return clazz.__meta.hasAnySelectors && Object.values(clazz.__meta.rootScope.selectors).filter(selector => selector.type.id === child.id);
+};
+
 export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOptions): ComposedStyleResult => {
   const {classes, style, pseudoClasses, dataSet: propsDataSet} = props;
   const fontListeners                                          = useRef<string[]>([]);
@@ -91,7 +95,7 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
           key           : parentCascadingValuesKey,
           childSelectors: parentChildSelectors,
         }                                                      = useContext(CascadingValuesContext);
-  const [forceKey, forceUpdate]                                 = useForceUpdate();
+  const [forceKey, forceUpdate]                                = useForceUpdate();
 
   const flatPseudoClasses       = (Array.isArray(pseudoClasses) ? Utils.flatAndRemoveFalsy(pseudoClasses) : (pseudoClasses && [pseudoClasses]) || [])
     .map(selector => typeof selector === "string" ? selector : selector.type);
@@ -164,7 +168,7 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
     }
 
     const ownChildSelectors  = classArray?.flatMap<StyleSelector<ChildQuery> | Falsy>((clazz) => {
-      return clazz.__meta.hasAnySelectors && Object.values(clazz.__meta.rootScope.selectors).filter(selector => selector.type.id === child.id);
+      return [...(findChildSelectors(clazz) || []), ...(clazz.__meta.parent && findChildSelectors(clazz.__meta.parent) || [])];
     }).filter(Boolean) as Array<StyleSelector<ChildQuery>> | undefined;
     const childSelectorsKey  = ownChildSelectors?.map(selector => selector.key).join(",");
     const cascadingValuesKey = [cascadingStyleKey || "null", childSelectorsKey || "null"].join("===");

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.9
+
+- fix variants for child selectors
+
+## 0.5.8
+
+- add `StyledImageBackground`
+
 ## 0.5.7
 
 - make text decorations cascade

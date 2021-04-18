@@ -9,6 +9,7 @@ export * from "./StyledTouchableWithoutFeedback";
 export * from "./StyledTouchableHighlight";
 export * from "./StyledScrollView";
 export * from "./StyledImage";
+export * from "./StyledImageBackground";
 export * from "./StyledPressable";
 
 export * from "./StyledAnimated";
