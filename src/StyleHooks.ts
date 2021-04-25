@@ -233,7 +233,7 @@ export const useStylingInternals = (classes: Classes | undefined, session: Styli
   }, [classes]);
 
   const [forceUpdateKey, forceUpdate] = useSelectorsEffect(uidRef.current, classArray, session, classId);
-  const theme                         = useTheming();
+  const theming                       = useTheming();
 
   useEffect(() => {
     if (hasDynamicUnit) {
@@ -244,9 +244,9 @@ export const useStylingInternals = (classes: Classes | undefined, session: Styli
     }
   }, [hasDynamicUnit]);
 
-  const key = forceUpdateKey + "_" + classId + "_" + (session.pseudoClasses ? session.pseudoClasses.sort().join(",") : "");
+  const key = forceUpdateKey + "_" + classId + "_" + (session.pseudoClasses ? session.pseudoClasses.sort().join(",") : "") + "_" + theming.key;
 
-  return {theme, key, classId, classArray, uid: uidRef.current};
+  return {theme: theming.theme, key, classId, classArray, uid: uidRef.current};
 };
 
 const useSelectorsEffect = (id: string, classes: StyleClass[] | Falsy, session: StylingSession, classesId: string | null): [number, () => void] => {

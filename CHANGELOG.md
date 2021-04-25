@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.10
+
+- fix for themes changing not updating styles
+
 ## 0.5.9
 
 - fix variants for child selectors
