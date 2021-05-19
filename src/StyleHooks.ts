@@ -41,7 +41,6 @@ import {
 import child, {ChildQuery}                                                             from "./selector/ChildSelector";
 import {setupFontPreProcessor}                                                         from "./font/FontPreProcessor";
 import StyleEnvironment                                                                from "./StyleEnvironment";
-import {StyledOptions}                                                                 from "./component";
 import {fixStylePropTypes}                                                             from "./StyleSheetPropTypeFixer";
 
 export const useForceUpdate = (): [number, () => void] => {
@@ -77,8 +76,9 @@ export interface ComposedStyleResultProps {
   },
 }
 
-export interface ComposedStyleOptions extends StyledOptions {
-  disableCascade?: boolean;
+export interface ComposedStyleOptions {
+  needsCascade?: boolean;
+  autoFlattens?: boolean;
 }
 
 fixStylePropTypes();
@@ -113,7 +113,7 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
     return classArray?.some(clazz => options.includes(clazz) || options.find(other => other.__meta.className === clazz.__meta.parent?.__meta.className));
   });
 
-  const needsCascade = !options?.disableCascade;
+  const needsCascade = Boolean(options?.needsCascade);
 
   const {
           sanitizedStyleList,

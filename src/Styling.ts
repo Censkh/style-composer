@@ -1,16 +1,16 @@
 import React                                                                           from "react";
 import {ImageStyle, RecursiveArray, RegisteredStyle, StyleSheet, TextStyle, ViewStyle} from "react-native";
 
-import {Classes, PseudoClasses, registerStyleSheets, StyleClass}                     from "./class/StyleClass";
-import * as Utils                                                                    from "./Utils";
-import {Falsy}                                                                       from "./Utils";
-import {finishDynamicUnitSession, startDynamicUnitSession}                           from "./unit/DynamicUnit";
-import {finishThemeSession, startThemedSession}                                      from "./theme/Theming";
+import {Classes, PseudoClasses, registerStyleSheets, StyleClass}                    from "./class/StyleClass";
+import * as Utils                                                                   from "./Utils";
+import {Falsy}                                                                      from "./Utils";
+import {finishDynamicUnitSession, startDynamicUnitSession}                          from "./unit/DynamicUnit";
+import {finishThemeSession, startThemedSession}                                     from "./theme/Theming";
 import {finishSelectorSession, startSelectorSession, StyleSelector, StyleSelectors} from "./selector/StyleSelector";
-import {finishImportantSession, isImportantValue, startImportantSession}             from "./Important";
-import {ChildQuery}                                                                  from "./selector/ChildSelector";
-import {isOptimisable}                                                               from "./Optimisable";
-import {CASCADING_STYLES, DYNAMIC_UNIT_REGISTER_CHECK_VALUE}                         from "./StyleConstants";
+import {finishImportantSession, isImportantValue, startImportantSession}            from "./Important";
+import {ChildQuery}                                                                 from "./selector/ChildSelector";
+import {isOptimisable}                                                              from "./Optimisable";
+import {CASCADING_STYLES, DYNAMIC_UNIT_REGISTER_CHECK_VALUE}                        from "./StyleConstants";
 
 export interface StyleScope {
   id: number;
@@ -215,7 +215,7 @@ const computeScopeStyle = (scope: StyleScope, outStyle: ComputedStyleList, outIm
   delete (resolvedStyling as any)[0];
 };
 
-export const removePropTypes = (node: React.ReactNode) => {
+export const removePropTypes = (node: React.ReactNode): void => {
   if (process.env.NODE_ENV === "development") {
     if (node && typeof node === "object" && "type" in node && (node.type as any).propTypes) {
       delete (node.type as any).propTypes.style;

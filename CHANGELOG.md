@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.11
+
+- properly cascade colors to TextInput and clean-up options to allow custom components to do the same
+
 ## 0.5.10
 
 - fix for themes changing not updating styles
