@@ -7,5 +7,5 @@ export {
   ThemeFor,
   ThemeProvider,
   ThemeProviderProps,
-  useTheming,
 } from "./Theming";
+export * from "./ThemingHooks";

@@ -37,11 +37,12 @@ import {
   isFontLoaded,
   isStyleComposerFont,
   removeFontLoadListener,
-}                                                                                      from "./font/FontFamily";
-import child, {ChildQuery}                                                             from "./selector/ChildSelector";
-import {setupFontPreProcessor}                                                         from "./font/FontPreProcessor";
-import StyleEnvironment                                                                from "./StyleEnvironment";
-import {fixStylePropTypes}                                                             from "./StyleSheetPropTypeFixer";
+}                              from "./font/FontFamily";
+import child, {ChildQuery}     from "./selector/ChildSelector";
+import {setupFontPreProcessor} from "./font/FontPreProcessor";
+import StyleEnvironment        from "./StyleEnvironment";
+import {fixStylePropTypes} from "./StyleSheetPropTypeFixer";
+import {ThemingContext}    from "./theme/Theming";
 
 export const useForceUpdate = (): [number, () => void] => {
   const [state, setState] = useState(0);
@@ -233,7 +234,7 @@ export const useStylingInternals = (classes: Classes | undefined, session: Styli
   }, [classes]);
 
   const [forceUpdateKey, forceUpdate] = useSelectorsEffect(uidRef.current, classArray, session, classId);
-  const theming                       = useTheming();
+  const theming                       = useContext(ThemingContext);
 
   useEffect(() => {
     if (hasDynamicUnit) {

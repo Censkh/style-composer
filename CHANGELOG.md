@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.0
+
+- change `useTheming` hook, now gives theme values based on a supplied schema
+
 ## 0.5.11
 
 - properly cascade colors to TextInput and clean-up options to allow custom components to do the same

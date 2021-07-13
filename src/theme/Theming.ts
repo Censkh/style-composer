@@ -21,16 +21,16 @@ export const finishThemeSession = (): boolean => {
   return themedSession.called;
 };
 
-let currentTheme: any = {};
-
 export type Theme = Record<string, string | number>;
 
-interface ThemeContextState {
-  theme: Theme;
+export interface ThemingContextState<T extends Theme> {
+  theme: T;
   key: string | null;
 }
 
-const ThemeContext = React.createContext<ThemeContextState>({
+let currentTheme: any = {};
+
+export const ThemingContext = React.createContext<ThemingContextState<any>>({
   theme: currentTheme,
   key  : null,
 });
@@ -43,11 +43,12 @@ export interface ThemeProviderProps<T extends Theme> {
 
 export function ThemeProvider<T extends Theme>(props: ThemeProviderProps<T>): JSX.Element {
   const {children, value} = props;
-  const currentValue      = useMemo<ThemeContextState>(() => ({
+  const currentValue      = useMemo<ThemingContextState<T>>(() => ({
     theme: value as any,
     key  : Date.now().toString(),
   }), [value]);
-  return React.createElement(ThemeContext.Provider, {value: currentValue}, children);
+  currentTheme = currentValue.theme;
+  return React.createElement(ThemingContext.Provider, {value: currentValue}, children);
 }
 
 export interface ThemeProperty<T = any> {
@@ -57,12 +58,6 @@ export interface ThemeProperty<T = any> {
   defaultValue: T;
   toString: () => string;
 }
-
-export const useTheming = (): ThemeContextState => {
-  const state  = useContext(ThemeContext);
-  currentTheme = state.theme;
-  return state;
-};
 
 export type ThemeFor<T extends ThemeSchema<any>> = T extends ThemeSchema<infer P> ? Partial<P> : never;
 
