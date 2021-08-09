@@ -3,6 +3,7 @@
 ## 0.6.0
 
 - change `useTheming` hook, now gives theme values based on a supplied schema
+- use `String.replace` instead of `String.replaceAll` for node 14 support
 
 ## 0.5.11
 

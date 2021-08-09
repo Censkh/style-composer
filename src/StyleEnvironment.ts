@@ -23,7 +23,7 @@ const CSS_MINIFY_REGEX_FIRST    = /\s*([,>+;:}{]{1})\s*/gm;
 const CSS_MINIFY_REGEX_BRACKETS = /;}/gm;
 
 const minifyCss = (css: string): string => {
-  return css.replaceAll(CSS_MINIFY_REGEX_FIRST, "$1").replaceAll(CSS_MINIFY_REGEX_BRACKETS, "}").trim();
+  return css.replace(CSS_MINIFY_REGEX_FIRST, "$1").replace(CSS_MINIFY_REGEX_BRACKETS, "}").trim();
 };
 
 const HEAD_ELEMENT_DATA_ATTRIBUTE_NAME = "data-sc-element-key";
@@ -74,6 +74,7 @@ class StyleEnvironment {
 
     const computedProps = Object.assign({}, props, {[HEAD_ELEMENT_DATA_ATTRIBUTE_NAME]: key, key});
 
+    console.log(content);
     const parsedContent = content ? minifyCss(content) : "";
 
     if (isSsr()) {
