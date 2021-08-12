@@ -1,4 +1,4 @@
-import React, {useContext, useMemo} from "react";
+import React, {useMemo} from "react";
 
 const themedSession: ThemedSession = {
   running: false,
@@ -38,7 +38,7 @@ export const ThemingContext = React.createContext<ThemingContextState<any>>({
 export interface ThemeProviderProps<T extends Theme> {
   children: React.ReactNode;
   value: Partial<T>;
-  schema: ThemeSchema<T>
+  schema: ThemeSchema<T>;
 }
 
 export function ThemeProvider<T extends Theme>(props: ThemeProviderProps<T>): JSX.Element {
@@ -47,7 +47,7 @@ export function ThemeProvider<T extends Theme>(props: ThemeProviderProps<T>): JS
     theme: value as any,
     key  : Date.now().toString(),
   }), [value]);
-  currentTheme = currentValue.theme;
+  currentTheme            = currentValue.theme;
   return React.createElement(ThemingContext.Provider, {value: currentValue}, children);
 }
 

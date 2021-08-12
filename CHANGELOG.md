@@ -2,8 +2,18 @@
 
 ## 0.6.0
 
+### Breaking
+
+- `FontFamily` is now `FontFace`
+- `createFontFamily` is now `createFontFace`
+
+### Changes
+
 - change `useTheming` hook, now gives theme values based on a supplied schema
 - use `String.replace` instead of `String.replaceAll` for node 14 support
+- fonts now require you to explicitly set a backend on native environments
+  - `ExpoFontBackend` for `expo`
+  - `WebFontBackend` for web
 
 ## 0.5.11
 

@@ -20,7 +20,7 @@ export function styled<P>(baseComponent: ComponentType<P>, options?: StyledOptio
 
   const baseComponentName = getReactComponentName(baseComponent);
 
-  return React.memo(Object.assign(React.forwardRef((props: any, ref) => {
+  const styledComponent = React.forwardRef((props: any, ref) => {
     const {children, ...otherProps} = props;
 
     const {cascadingContextValue, computedProps} = useComposedStyle(props, options);
@@ -51,7 +51,8 @@ export function styled<P>(baseComponent: ComponentType<P>, options?: StyledOptio
         {content}
       </CascadingValuesProvider> : content;
 
-  }), {displayName: `Styler[${baseComponentName}]`}), styledArePropsEqual);
+  });
+  return React.memo(Object.assign(styledComponent, {displayName: `Styler[${baseComponentName}]`}), styledArePropsEqual);
 }
 
 export function styledArePropsEqual<T>(prevProps: T, nextProps: T): boolean {

@@ -72,9 +72,10 @@ class StyleEnvironment {
   updateHeadElement<T extends keyof JSX.IntrinsicElements>(key: string, type: T, props: any, content?: string): void {
     if (isNative()) return undefined;
 
-    const computedProps = Object.assign({}, props, {[HEAD_ELEMENT_DATA_ATTRIBUTE_NAME]: key, key});
+    const computedProps = Object.assign({}, props, {
+      [HEAD_ELEMENT_DATA_ATTRIBUTE_NAME]: key, key,
+    });
 
-    console.log(content);
     const parsedContent = content ? minifyCss(content) : "";
 
     if (isSsr()) {

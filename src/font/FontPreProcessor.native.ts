@@ -1,13 +1,10 @@
-import {isLoaded, isLoading}                       from "expo-font";
-import {fontFamilyNeedsScoping, getNativeFontName} from "expo-font/build/FontLoader";
-import {StyleSheet}                                from "react-native";
-import {isStyleComposerFont}                       from "./FontFamily";
+import {StyleSheet} from "react-native";
 
 /**
  * This overrides expo-font/build/Font in order to disable the warnings when we are loading the font and know what
  * we are doing
  */
-const processFontFamily = (fontFamily: string): string => {
+/*const processFontFamily = (fontFamily: string): string => {
   if (!fontFamily || !fontFamilyNeedsScoping(fontFamily)) {
     return fontFamily;
   }
@@ -30,7 +27,7 @@ const processFontFamily = (fontFamily: string): string => {
     return "System";
   }
   return `ExpoFont-${getNativeFontName(fontFamily)}`;
-};
+};*/
 
 let initialised = false;
 
@@ -40,6 +37,7 @@ export const setupFontPreProcessor = (): void => {
   }
   initialised = true;
 
+  // @ts-ignore
   if (StyleSheet.setStyleAttributePreprocessor) {
     const warn: any = console.warn;
     // if we are native, kill the warning for overriding the font pre-processor
@@ -50,7 +48,8 @@ export const setupFontPreProcessor = (): void => {
       return warn.apply(null, args);
     };
 
-    StyleSheet.setStyleAttributePreprocessor("fontFamily", processFontFamily);
+    console.log(StyleSheet);
+    //StyleSheet.setStyleAttributePreprocessor("fontFamily", processFontFamily);
 
     console.warn = warn;
   }

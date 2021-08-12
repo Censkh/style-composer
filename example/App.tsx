@@ -1,6 +1,7 @@
-import React, {useState}                                                   from "react";
-import {media, StyledText, ThemeFor, important, ThemeProvider, useComposedValues, vw} from "style-composer";
-import {CheckBox, ScrollView}                                              from "react-native";
+import React, {useState}                                                              from "react";
+import {important, media, StyledText, ThemeFor, ThemeProvider, useComposedValues, vw, ExpoFontBackend, setFontBackendForNative} from "style-composer";
+import {CheckBox, ScrollView}                                                         from "react-native";
+import * as Fonts from "expo-font";
 
 import Card                        from "./src/components/Card/Card";
 import {$Card, $ChildSelectorTest} from "./src/components/Card/Card.style";
@@ -9,14 +10,15 @@ import Text                        from "./src/components/Text/Text";
 import Button                      from "./src/components/Button/Button";
 import {$BigMargin}                from "./src/components/Button/Button.style";
 import {THEMING}                   from "./src/ThemeConsts";
-import {$Heading}                  from "./src/components/Text/Text.style";
+import {$Heading}                        from "./src/components/Text/Text.style";
+
+setFontBackendForNative(() => new ExpoFontBackend(Fonts));
 
 const LIGHT_THEME: ThemeFor<typeof THEMING> = {};
 const DARK_THEME: ThemeFor<typeof THEMING>  = {
   textColor      : "rgba(255,255,255,0.98)",
   backgroundColor: "#333",
 };
-
 
 interface AppInternalProps {
   onProfilePress: () => void;

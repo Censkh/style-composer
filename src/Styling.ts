@@ -1,7 +1,7 @@
 import React                                                                           from "react";
 import {ImageStyle, RecursiveArray, RegisteredStyle, StyleSheet, TextStyle, ViewStyle} from "react-native";
 
-import {Classes, PseudoClasses, registerStyleSheets, StyleClass}                    from "./class/StyleClass";
+import type {Classes, PseudoClasses, StyleClass}                                    from "./class/StyleClass";
 import * as Utils                                                                   from "./Utils";
 import {Falsy}                                                                      from "./Utils";
 import {finishDynamicUnitSession, startDynamicUnitSession}                          from "./unit/DynamicUnit";
@@ -69,6 +69,19 @@ export interface ComputeResults {
 }
 
 const DEFAULT_SESSION: StylingSession = {};
+
+const createStyleSheet = (name: string, style: StyleObject): number => {
+  return StyleSheet.create({[name]: style})[name] as number;
+};
+
+export const registerStyleSheets = (scope: StyleScope): void => {
+  if (scope.sheetId) return;
+  scope.sheetId = createStyleSheet(scope.className, scope.staticStyle);
+  for (const key in scope.scopes) {
+    const childScope = scope.scopes[key];
+    registerStyleSheets(childScope);
+  }
+};
 
 export function computeClasses(styleClass: StyleClass[] | Falsy, styleProp?: StyleProp, session?: StylingSession): ComputeResults {
   if (!styleClass || styleClass.length === 0) {
@@ -234,18 +247,6 @@ export const sanitizeStyleObject = (style: StyleObject, optimise?: boolean) => {
     }
   }
   return sanitizedStyle;
-};
-
-export const sanitizeStyleList = (style: RecursiveArray<Style | Falsy>, optimise?: boolean): Style[] => {
-  if (style) {
-    return Utils.flatAndRemoveFalsy(style).map((style) => {
-      if (typeof style === "object") {
-        return sanitizeStyleObject(style as any, optimise);
-      }
-      return style;
-    });
-  }
-  return style;
 };
 
 export const sanitizeStyleValue = <T extends string | number>(value: T, optimise?: boolean): string | number => {

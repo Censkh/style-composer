@@ -1,48 +1,32 @@
-import {DependencyList, useCallback, useContext, useEffect, useMemo, useRef, useState} from "react";
+import {DependencyList, useCallback, useContext, useEffect, useMemo, useRef, useState}     from "react";
 import {
   registerSelectorCallback,
   StyleSelector,
   unregisterSelectorCallback,
-}                                                                                      from "./selector/StyleSelector";
-import {
-  Classes,
-  classesId,
-  flattenClasses,
-  StyleClass,
-}                                                                                      from "./class/StyleClass";
-import * as Utils                                                                      from "./Utils";
-import {Falsy, isNative}                                                               from "./Utils";
-import {Theme, useTheming}                                                             from "./theme";
-import {
-  StyleProp,
-  StyleSheet,
-}                                                                                      from "react-native";
+}                                                                                          from "./selector/StyleSelector";
+import {Classes, classesId, flattenClasses, StyleClass}                                   from "./class/StyleClass";
+import * as Utils                                                                          from "./Utils";
+import {Falsy, isNative}                                                                   from "./Utils";
+import {Theme}                                                                             from "./theme";
+import {StyleProp, StyleSheet}                                                            from "react-native";
 import {
   computeClasses,
   ComputedStyleList,
   computeStyling,
   extractCascadingStyle,
   resolveStyling,
-  sanitizeStyleList,
+  sanitizeStyleObject,
   StyledProps,
   StyleObject,
   StylingBuilder,
   StylingResolution,
   StylingSession,
-}                                                                                      from "./Styling";
-import CascadingValuesContext, {CascadingValuesContextState}                           from "./CascadingValuesContext";
-import {
-  addFontLoadListener,
-  getFontFamily,
-  isFontLoaded,
-  isStyleComposerFont,
-  removeFontLoadListener,
-}                              from "./font/FontFamily";
-import child, {ChildQuery}     from "./selector/ChildSelector";
-import {setupFontPreProcessor} from "./font/FontPreProcessor";
-import StyleEnvironment        from "./StyleEnvironment";
-import {fixStylePropTypes} from "./StyleSheetPropTypeFixer";
-import {ThemingContext}    from "./theme/Theming";
+} from "./Styling";
+import CascadingValuesContext, {CascadingValuesContextState}                               from "./CascadingValuesContext";
+import {addFontLoadListener, getFontFace, isFontLoaded, loadFont, removeFontLoadListener} from "./font/FontFace";
+import child, {ChildQuery}                                                                 from "./selector/ChildSelector";
+import StyleEnvironment                                                                    from "./StyleEnvironment";
+import {ThemingContext}                                                                    from "./theme/Theming";
 
 export const useForceUpdate = (): [number, () => void] => {
   const [state, setState] = useState(0);
@@ -81,8 +65,6 @@ export interface ComposedStyleOptions {
   needsCascade?: boolean;
   autoFlattens?: boolean;
 }
-
-fixStylePropTypes();
 
 const findChildSelectors = (clazz: StyleClass): StyleSelector<any>[] | Falsy => {
   return clazz.__meta.hasAnySelectors && Object.values(clazz.__meta.rootScope.selectors).filter(selector => selector.type.id === child.id);
@@ -128,10 +110,10 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
     const ownStyle     = classResults.style;
     const ownStyleFlat = StyleSheet.flatten(ownStyle) as StyleObject;
 
-    if (ownStyleFlat?.fontWeight) {
+    if (Utils.isNative() && ownStyleFlat?.fontWeight) {
       const currentFontFamily = ownStyleFlat.fontFamily || parentCascadingStyle.fontFamily;
       if (currentFontFamily) {
-        const styleComposerFontFamily = getFontFamily(currentFontFamily.split(/(__|,)/g)[0]);
+        const styleComposerFontFamily = getFontFace(currentFontFamily);
         if (styleComposerFontFamily) {
           const variant = styleComposerFontFamily.weight(ownStyleFlat?.fontWeight);
           if (variant && currentFontFamily !== variant) {
@@ -144,26 +126,29 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
 
     const computedStyle     = needsCascade ? [parentCascadingStyle, ownStyle] : [ownStyle];
     const computedStyleFlat = StyleSheet.flatten(computedStyle) as StyleObject;
+    const fontWeight        = computedStyleFlat.fontWeight;
 
     const [cascadingStyle, cascadingStyleKey] = extractCascadingStyle(ownStyleFlat, parentCascadingStyle);
 
-    if (Utils.isNative() && computedStyleFlat.fontFamily) {
+    if (computedStyleFlat.fontFamily) {
       const fontFamily = computedStyleFlat.fontFamily;
-      if (isStyleComposerFont(fontFamily)) {
-        setupFontPreProcessor();
-
-        if (!isFontLoaded(fontFamily)) {
-          let callback: () => void;
-          if (!fontListeners.current.includes(fontFamily)) {
-            fontListeners.current.push(fontFamily);
-            addFontLoadListener(fontFamily, callback = () => {
-              forceUpdate();
-              removeFontLoadListener(fontFamily, callback);
-            });
+      const fontFace   = getFontFace(fontFamily);
+      if (fontFace) {
+        loadFont(fontFace, fontWeight as any);
+        if (Utils.isNative()) {
+          if (!isFontLoaded(fontFamily)) {
+            let callback: () => void;
+            if (!fontListeners.current.includes(fontFamily)) {
+              fontListeners.current.push(fontFamily);
+              addFontLoadListener(fontFamily, callback = () => {
+                forceUpdate();
+                removeFontLoadListener(fontFamily, callback);
+              });
+            }
+            computedStyleFlat.fontFamily = "System";
+          } else {
+            computedStyleFlat.fontWeight = "normal";
           }
-          computedStyle.push({fontFamily: "System"});
-        } else {
-          computedStyle.push({fontWeight: "normal"});
         }
       }
     }
@@ -173,7 +158,7 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
     }).filter(Boolean) as Array<StyleSelector<ChildQuery>> | undefined;
     const childSelectorsKey  = ownChildSelectors?.map(selector => selector.key).join(",");
     const cascadingValuesKey = [cascadingStyleKey || "null", childSelectorsKey || "null"].join("===");
-    const sanitizedStyleList = sanitizeStyleList(computedStyle as any, true);
+    const sanitizedStyleList = sanitizeStyleObject(computedStyleFlat, true);
 
     return {
       classNames        : classResults.classNames,

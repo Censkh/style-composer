@@ -52,22 +52,22 @@ const $Bold = composeClass("bold", () => ({
 You can provide multiple formats so when rendering on web it can pick the best format for the browser:
 
 ```jsx
-export const openSans = createFontFamily("Open Sans", {
-      bold            : require("./Raleway-Bold.ttf"),
-      regular         : {
-        ttf:    require("./Raleway-Regular.ttf"),
-        eof:    require("./Raleway-Regular.eof"),
-        woff2:  require("./Raleway-Regular.woff2"),
-      }
+export const openSans = createFontFace("Open Sans", {
+  bold   : require("./Raleway-Bold.ttf"),
+  regular: {
+    ttf  : require("./Raleway-Regular.ttf"),
+    eof  : require("./Raleway-Regular.eof"),
+    woff2: require("./Raleway-Regular.woff2"),
+  }
 });
 ```
 
 ## Web Fallbacks
 
 ```jsx
-export const openSans = createFontFamily("Open Sans", {
-    //...
+export const openSans = createFontFace("Open Sans", {
+  //...
 }, {
-    fallbacks: ["sans-serif"]
+  fallbacks: ["sans-serif"]
 });
 ```
