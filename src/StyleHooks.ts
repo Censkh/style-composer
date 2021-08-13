@@ -26,6 +26,7 @@ import CascadingValuesContext, {CascadingValuesContextState}                    
 import {addFontLoadListener, getFontFace, isFontLoaded, loadFont, removeFontLoadListener} from "./font/FontFace";
 import child, {ChildQuery}                                                                 from "./selector/ChildSelector";
 import StyleEnvironment                                                                    from "./StyleEnvironment";
+import {fixStylePropTypes}                                                                 from "./StyleSheetPropTypeFixer";
 import {ThemingContext}                                                                    from "./theme/Theming";
 
 export const useForceUpdate = (): [number, () => void] => {
@@ -65,6 +66,8 @@ export interface ComposedStyleOptions {
   needsCascade?: boolean;
   autoFlattens?: boolean;
 }
+
+fixStylePropTypes();
 
 const findChildSelectors = (clazz: StyleClass): StyleSelector<any>[] | Falsy => {
   return clazz.__meta.hasAnySelectors && Object.values(clazz.__meta.rootScope.selectors).filter(selector => selector.type.id === child.id);

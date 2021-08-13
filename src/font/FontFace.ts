@@ -10,7 +10,6 @@ import {
 import WebFontBackend          from "./backend/WebFontBackend";
 import FontBackend             from "./backend/FontBackend";
 import {Platform}              from "react-native";
-import {setupFontPreProcessor} from "./FontPreProcessor";
 import {isNative}              from "../Utils";
 
 export const fontFamilyMap: Record<string, FontFace> = {};
@@ -65,7 +64,6 @@ export const normaliseWeight = (weight: any): FontWeight => {
 };
 
 export const loadFont = (fontFace: FontFace, weight?: FontWeight): FontLoadResult => {
-  setupFontPreProcessor();
   return getFontBackend().loadFont(fontFace, normaliseWeight(weight || "regular"));
 };
 
@@ -97,7 +95,6 @@ export const createFontFace = (
   Object.defineProperty(fontFace, "name", {
     value: name,
   });
-
   for (const weight of Object.values(FontWeight)) {
     const styleValue = isNative() ? `${name}__${weight}` : [name, ...fontFace.options?.fallbacks || []].join(",");
     fontFace[weight] = () => {
