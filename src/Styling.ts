@@ -127,12 +127,12 @@ const extractDynamicPropsToStyle = (styling: Styling<any>, dynamicProps: string[
 
 export type ComputedStyleList = Array<Style>;
 
-export const computeStyling = (resolution: StylingResolution): StyleObject => {
+export const computeComposedValues = (resolution: StylingResolution, optimize: boolean): StyleObject => {
   const session                           = {};
   const style: ComputedStyleList          = [];
   const importantStyle: ComputedStyleList = [];
   internalComputedStyling(false, resolution, session, importantStyle, style);
-  return sanitizeStyleObject(StyleSheet.flatten([style, importantStyle]));
+  return sanitizeStyleObject(StyleSheet.flatten([style, importantStyle]), optimize);
 };
 
 const internalComputedStyling = (registerSheets: boolean, resolution: StylingResolution, session: StylingSession, outStyle: ComputedStyleList, outImportantStyle: ComputedStyleList, outClassNames?: string[]): void => {
@@ -234,6 +234,18 @@ export const removePropTypes = (node: React.ReactNode): void => {
       delete (node.type as any).propTypes.style;
     }
   }
+};
+
+export const sanitizeStyleList = (style: RecursiveArray<Style | Falsy>, optimise?: boolean): Style[] => {
+  if (style) {
+    return Utils.flatAndRemoveFalsy(style).map((style) => {
+      if (typeof style === "object") {
+        return sanitizeStyleObject(style as any, optimise);
+      }
+      return style;
+    });
+  }
+  return style;
 };
 
 export const sanitizeStyleObject = (style: StyleObject, optimise?: boolean) => {

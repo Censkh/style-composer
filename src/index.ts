@@ -9,10 +9,17 @@ export * from "./component";
 
 export * from "./class/StyleClass";
 
-export {createFontFace, setFontBackend, setFontBackendForNative} from "./font/FontFace";
-export {default as WebFontBackend}                               from "./font/backend/WebFontBackend";
-export {default as ExpoFontBackend}                              from "./font/backend/ExpoFontBackend";
-export {default as FontBackend}                                  from "./font/backend/FontBackend";
+export {normaliseWeight} from "./font/Fonts";
+export {createFontFace} from "./font/FontFace";
+export {
+  default as WebFontBackend,
+}                       from "./font/backend/WebFontBackend";
+export {
+  default as ExpoFontBackend,
+}                       from "./font/backend/ExpoFontBackend";
+export {
+  default as FontBackend, getFontBackend, setFontBackend, setFontBackendForNative,
+}                       from "./font/backend/FontBackend";
 
 export * from "./theme";
 export * from "./unit";

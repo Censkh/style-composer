@@ -4,6 +4,7 @@
 
 ### Breaking
 
+- lots of breaking changes with fonts
 - `FontFamily` is now `FontFace`
 - `createFontFamily` is now `createFontFace`
 

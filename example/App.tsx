@@ -1,5 +1,5 @@
 import React, {useState}                                                              from "react";
-import {important, media, StyledText, ThemeFor, ThemeProvider, useComposedValues, vw, ExpoFontBackend, setFontBackendForNative} from "style-composer";
+import {important, media, StyledText, ThemeFor, ThemeProvider, useComposedValues, vw, ExpoFontBackend, setFontBackendForNative, StyledView} from "style-composer";
 import {CheckBox, ScrollView}                                                         from "react-native";
 import * as Fonts from "expo-font";
 
@@ -45,6 +45,7 @@ const App = React.memo((props: AppInternalProps) => {
 
   const themedDynamic = useComposedValues(() => ({
     color: important(THEMING.textColor()),
+    size: vw(50),
   }), []);
 
   return (
@@ -60,12 +61,15 @@ const App = React.memo((props: AppInternalProps) => {
           </Card>)}
         </ScrollView>
         <Card classes={$ChildSelectorTest}>
-          <Text style={[{fontSize: 8}, themedDynamic]}>asda</Text>
+          <Text style={[{fontSize: 8, color: themedDynamic.color}]}>asda</Text>
         </Card>
         <Button title={"hi"} disabled={true} style={{backgroundColor: "yellow"}} classes={[$BigMargin]} onPress={() => {
           console.log("hi");
         }}/>
         <Text>Open up App.tsx to start working on your app!</Text>
+        <StyledView style={{width: themedDynamic.size, backgroundColor: "purple"}}>
+          <Text>hello</Text>
+        </StyledView>
       </Container>
     </ThemeProvider>
   );

@@ -1,5 +1,5 @@
-import FontBackend                                                      from "./FontBackend";
-import {FontFace, FontLoadListenerCallback, FontLoadResult, FontWeight} from "../Fonts";
+import type FontBackend                                                      from "./FontBackend";
+import {FontFace, FontLoadListenerCallback, FontLoadResult, FontWeightName} from "../Fonts";
 
 export default class ExpoFontBackend implements FontBackend {
 
@@ -29,7 +29,7 @@ export default class ExpoFontBackend implements FontBackend {
     this.getFontCallbackList(name).delete(callback);
   }
 
-  loadFont(fontFace: FontFace, weight: FontWeight): FontLoadResult {
+  loadFont(fontFace: FontFace, weight: FontWeightName): FontLoadResult {
     const {name, config} = fontFace;
 
     const fontName = `${name}__${weight}`;

@@ -1,33 +1,33 @@
-import {DependencyList, useCallback, useContext, useEffect, useMemo, useRef, useState}     from "react";
+import {DependencyList, useCallback, useContext, useEffect, useMemo, useRef, useState}    from "react";
 import {
   registerSelectorCallback,
   StyleSelector,
   unregisterSelectorCallback,
-}                                                                                          from "./selector/StyleSelector";
+}                                                                                         from "./selector/StyleSelector";
 import {Classes, classesId, flattenClasses, StyleClass}                                   from "./class/StyleClass";
-import * as Utils                                                                          from "./Utils";
-import {Falsy, isNative}                                                                   from "./Utils";
-import {Theme}                                                                             from "./theme";
+import * as Utils                                                                         from "./Utils";
+import {Falsy, isNative}                                                                  from "./Utils";
+import {Theme}                                                                            from "./theme";
 import {StyleProp, StyleSheet}                                                            from "react-native";
 import {
   computeClasses,
+  computeComposedValues,
   ComputedStyleList,
-  computeStyling,
   extractCascadingStyle,
   resolveStyling,
-  sanitizeStyleObject,
+  sanitizeStyleList,
   StyledProps,
   StyleObject,
   StylingBuilder,
   StylingResolution,
   StylingSession,
-} from "./Styling";
-import CascadingValuesContext, {CascadingValuesContextState}                               from "./CascadingValuesContext";
+}                                                                                         from "./Styling";
+import CascadingValuesContext, {CascadingValuesContextState}                              from "./CascadingValuesContext";
 import {addFontLoadListener, getFontFace, isFontLoaded, loadFont, removeFontLoadListener} from "./font/FontFace";
-import child, {ChildQuery}                                                                 from "./selector/ChildSelector";
-import StyleEnvironment                                                                    from "./StyleEnvironment";
-import {fixStylePropTypes}                                                                 from "./StyleSheetPropTypeFixer";
-import {ThemingContext}                                                                    from "./theme/Theming";
+import child, {ChildQuery}                                                                from "./selector/ChildSelector";
+import StyleEnvironment                                                                   from "./StyleEnvironment";
+import {ThemingContext}                                                                   from "./theme/Theming";
+import {fixWarnings}                                                                      from "./WarningFixer";
 
 export const useForceUpdate = (): [number, () => void] => {
   const [state, setState] = useState(0);
@@ -67,7 +67,7 @@ export interface ComposedStyleOptions {
   autoFlattens?: boolean;
 }
 
-fixStylePropTypes();
+fixWarnings();
 
 const findChildSelectors = (clazz: StyleClass): StyleSelector<any>[] | Falsy => {
   return clazz.__meta.hasAnySelectors && Object.values(clazz.__meta.rootScope.selectors).filter(selector => selector.type.id === child.id);
@@ -116,12 +116,12 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
     if (Utils.isNative() && ownStyleFlat?.fontWeight) {
       const currentFontFamily = ownStyleFlat.fontFamily || parentCascadingStyle.fontFamily;
       if (currentFontFamily) {
-        const styleComposerFontFamily = getFontFace(currentFontFamily);
-        if (styleComposerFontFamily) {
-          const variant = styleComposerFontFamily.weight(ownStyleFlat?.fontWeight);
-          if (variant && currentFontFamily !== variant) {
-            ownStyleFlat.fontFamily = variant;
-            ownStyle.push({fontFamily: variant});
+        const fontFace = getFontFace(currentFontFamily);
+        if (fontFace) {
+          const weightInfo = fontFace.getWeightInfo(ownStyleFlat?.fontWeight);
+          if (weightInfo && currentFontFamily !== weightInfo.styleValue) {
+            ownStyleFlat.fontFamily = weightInfo.styleValue;
+            ownStyle.push({fontFamily: weightInfo.styleValue});
           }
         }
       }
@@ -148,9 +148,9 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
                 removeFontLoadListener(fontFamily, callback);
               });
             }
-            computedStyleFlat.fontFamily = "System";
+            computedStyle.push({fontFamily: "System"});
           } else {
-            computedStyleFlat.fontWeight = "normal";
+            computedStyle.push({fontWeight: "normal"});
           }
         }
       }
@@ -161,7 +161,7 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
     }).filter(Boolean) as Array<StyleSelector<ChildQuery>> | undefined;
     const childSelectorsKey  = ownChildSelectors?.map(selector => selector.key).join(",");
     const cascadingValuesKey = [cascadingStyleKey || "null", childSelectorsKey || "null"].join("===");
-    const sanitizedStyleList = sanitizeStyleObject(computedStyleFlat, true);
+    const sanitizedStyleList = sanitizeStyleList(computedStyle, true);
 
     return {
       classNames        : classResults.classNames,
@@ -291,7 +291,7 @@ const useSelectorsEffect = (id: string, classes: StyleClass[] | Falsy, session: 
 
 let composedId = 0;
 
-export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: DependencyList): S => {
+export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: DependencyList, options?: { optimize: boolean }): S => {
   const [key, forceUpdate] = useForceUpdate();
 
   const prevState            = useRef("");
@@ -338,7 +338,7 @@ export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: Depend
     }
   }, [resolution]);
 
-  return useMemo(() => computeStyling(resolution), [resolution, key]) as S;
+  return useMemo(() => computeComposedValues(resolution, options?.optimize ?? true), [resolution, key]) as S;
 };
 
 export const useCallableEffect = <F extends (...args: any[]) => any>(effect: F, depList: DependencyList): F => {

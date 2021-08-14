@@ -1,14 +1,14 @@
-import FontBackend      from "./FontBackend";
+import type FontBackend from "./FontBackend";
 import {
   FONT_FORMAT_NAMES,
   FONT_WEIGHT_NAME_TO_VALUE,
-  FONT_WEIGHT_VALUE_TO_NAME,
   FontFace,
   FontFormat,
   FontLoadListenerCallback,
   FontLoadResult,
-  FontWeight,
   FontWeightConfig,
+  FontWeightName,
+  normaliseWeight,
 }                       from "../Fonts";
 import StyleEnvironment from "../../StyleEnvironment";
 import {isSsr}          from "../../Utils";
@@ -59,7 +59,7 @@ export default class WebFontBackend implements FontBackend {
       this.initedFontListener               = true;
       (document as any).fonts.onloadingdone = (fontFaceSetEvent: any) => {
         for (const font of fontFaceSetEvent.fontfaces) {
-          const fontName  = `${font.family}__${FONT_WEIGHT_VALUE_TO_NAME[font.weight]}`;
+          const fontName  = `${font.family}__${normaliseWeight(font.weight)}`;
           const listeners = this.fontLoadListeners[fontName];
           if (listeners) {
             for (const listener of listeners) {
@@ -89,7 +89,7 @@ export default class WebFontBackend implements FontBackend {
   }
 
 
-  loadFont(fontFace: FontFace, weight: FontWeight): FontLoadResult {
+  loadFont(fontFace: FontFace, weight: FontWeightName): FontLoadResult {
     const {name, config} = fontFace;
 
     const fontName = `${name}__${weight}`;
