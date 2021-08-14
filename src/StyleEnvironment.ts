@@ -40,6 +40,12 @@ class StyleEnvironment {
 
   setDeviceType(deviceType: DeviceType): void {
     this.deviceType = deviceType;
+    if (isSsr()) {
+      Dimensions.set({
+        "window": SSR_DIMENSIONS[deviceType],
+        "screen": SSR_DIMENSIONS[deviceType],
+      });
+    }
   }
 
   getDeviceType(): DeviceType {
@@ -47,9 +53,6 @@ class StyleEnvironment {
   }
 
   getScreenSize(): ScaledSize {
-    if (isSsr()) {
-      return SSR_DIMENSIONS[this.getDeviceType()];
-    }
     return Dimensions.get("window");
   }
 
