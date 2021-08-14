@@ -3,7 +3,13 @@ import {isWeb} from "./Utils";
 export type Optimisable<T extends string | number> = T & { optimise(value: T): string | number };
 
 export const createOptimisable = <T extends string | number>(value: T, optimise: (value: T) => string | number): Optimisable<T> => {
-  return Object.assign(value, {optimise});
+  return Object.assign(value, {
+    optimise: optimise,
+    // we add an iterator so that if this is rendered in React it is handled correctly
+    "@@iterator": function* () {
+      yield value;
+    },
+  });
 };
 
 export const createWebOptimisable = <T extends string | number>(value: T, optimise: (value: T) => string | number): Optimisable<T> => {

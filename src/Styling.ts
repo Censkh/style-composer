@@ -127,12 +127,12 @@ const extractDynamicPropsToStyle = (styling: Styling<any>, dynamicProps: string[
 
 export type ComputedStyleList = Array<Style>;
 
-export const computeComposedValues = (resolution: StylingResolution, optimize: boolean): StyleObject => {
+export const computeComposedValues = (resolution: StylingResolution): StyleObject => {
   const session                           = {};
   const style: ComputedStyleList          = [];
   const importantStyle: ComputedStyleList = [];
   internalComputedStyling(false, resolution, session, importantStyle, style);
-  return sanitizeStyleObject(StyleSheet.flatten([style, importantStyle]), optimize);
+  return sanitizeStyleObject(StyleSheet.flatten([style, importantStyle]), {optimise: "keep"});
 };
 
 const internalComputedStyling = (registerSheets: boolean, resolution: StylingResolution, session: StylingSession, outStyle: ComputedStyleList, outImportantStyle: ComputedStyleList, outClassNames?: string[]): void => {
@@ -236,11 +236,11 @@ export const removePropTypes = (node: React.ReactNode): void => {
   }
 };
 
-export const sanitizeStyleList = (style: RecursiveArray<Style | Falsy>, optimise?: boolean): Style[] => {
+export const sanitizeStyleList = (style: RecursiveArray<Style | Falsy>, options?: SanitizeStyleOptions): Style[] => {
   if (style) {
     return Utils.flatAndRemoveFalsy(style).map((style) => {
       if (typeof style === "object") {
-        return sanitizeStyleObject(style as any, optimise);
+        return sanitizeStyleObject(style as any, options);
       }
       return style;
     });
@@ -248,28 +248,36 @@ export const sanitizeStyleList = (style: RecursiveArray<Style | Falsy>, optimise
   return style;
 };
 
-export const sanitizeStyleObject = (style: StyleObject, optimise?: boolean) => {
+export interface SanitizeStyleOptions {optimise?: "keep" | "resolve"}
+
+export const sanitizeStyleObject = (style: StyleObject, options?: SanitizeStyleOptions): StyleObject => {
   const keys                = Object.keys(style);
   const sanitizedStyle: any = {};
 
   for (const key of keys) {
     const value = (style as any)[key];
     if (isNaN(key as any)) {
-      sanitizedStyle[key] = sanitizeStyleValue(value, optimise);
+      sanitizedStyle[key] = sanitizeStyleValue(value, options);
     }
   }
   return sanitizedStyle;
 };
 
-export const sanitizeStyleValue = <T extends string | number>(value: T, optimise?: boolean): string | number => {
+export const sanitizeStyleValue = <T extends string | number>(value: T, options?: SanitizeStyleOptions): string | number => {
   if (value === undefined || value === null) {
     return value;
   }
 
   let sanitizedValue: any = value;
 
-  if (optimise && isOptimisable(value)) {
-    sanitizedValue = value.optimise(value);
+  if (isOptimisable(value)) {
+    if (options?.optimise === "resolve") {
+      sanitizedValue = value.optimise(value);
+    }
+
+    if (options?.optimise === "keep") {
+      return sanitizedValue;
+    }
   }
 
   if (typeof sanitizedValue === "number" || sanitizedValue instanceof Number) {

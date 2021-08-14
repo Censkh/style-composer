@@ -161,7 +161,7 @@ export const useComposedStyle = (props: StyledProps, options?: ComposedStyleOpti
     }).filter(Boolean) as Array<StyleSelector<ChildQuery>> | undefined;
     const childSelectorsKey  = ownChildSelectors?.map(selector => selector.key).join(",");
     const cascadingValuesKey = [cascadingStyleKey || "null", childSelectorsKey || "null"].join("===");
-    const sanitizedStyleList = sanitizeStyleList(computedStyle, true);
+    const sanitizedStyleList = sanitizeStyleList(computedStyle, {optimise: "resolve"});
 
     return {
       classNames        : classResults.classNames,
@@ -291,7 +291,7 @@ const useSelectorsEffect = (id: string, classes: StyleClass[] | Falsy, session: 
 
 let composedId = 0;
 
-export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: DependencyList, options?: { optimize: boolean }): S => {
+export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: DependencyList): S => {
   const [key, forceUpdate] = useForceUpdate();
 
   const prevState            = useRef("");
@@ -338,7 +338,7 @@ export const useComposedValues = <S>(styling: StylingBuilder<S>, depList: Depend
     }
   }, [resolution]);
 
-  return useMemo(() => computeComposedValues(resolution, options?.optimize ?? true), [resolution, key]) as S;
+  return useMemo(() => computeComposedValues(resolution), [resolution, key]) as S;
 };
 
 export const useCallableEffect = <F extends (...args: any[]) => any>(effect: F, depList: DependencyList): F => {
