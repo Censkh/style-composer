@@ -15,7 +15,7 @@
     "clsx": "^1.1.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-native": "^0.63.2",
+    "react-native": "^0.64.1",
     "react-native-web": "^0.14.0",
     "style-composer": "file:..",
     "use-onclickoutside": "^0.3.1"
