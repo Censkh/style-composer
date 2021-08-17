@@ -1,6 +1,6 @@
 import {isWeb} from "./Utils";
 
-export type Optimisable<T extends string | number> = T & { optimise(value: T): string | number };
+export type Optimisable<T extends string | number> = T & { optimise(value: T): string | number; viewportSizeDependant?: boolean; };
 
 export const createOptimisable = <T extends string | number>(value: T, optimise: (value: T) => string | number): Optimisable<T> => {
   return Object.assign(value, {

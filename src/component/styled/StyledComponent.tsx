@@ -25,25 +25,12 @@ export function styled<P>(baseComponent: ComponentType<P>, options?: StyledOptio
 
     const {cascadingContextValue, computedProps} = useComposedStyle(props, options);
 
-    const internalRef = useRef<any>();
-
-    const handleRef = useCallback((element: any) => {
-      internalRef.current = element;
-      if (ref) {
-        if (typeof ref === "function") {
-          ref(element);
-        } else {
-          (ref as any).current = element;
-        }
-      }
-    }, [ref]);
-
     removePropTypes(children);
 
     const content = React.createElement(baseComponent, {
       ...otherProps,
       ...computedProps,
-      ref: handleRef,
+      ref: ref,
     }, children);
 
     return cascadingContextValue ?

@@ -1,6 +1,6 @@
 {
   "name": "style-composer",
-  "version": "0.6.0-alpha9",
+  "version": "0.6.0-alpha12",
   "main": "./cjs/index.js",
   "types": "./esm/index.d.ts",
   "module": "./esm/index.js",

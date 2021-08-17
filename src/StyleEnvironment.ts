@@ -84,9 +84,9 @@ class StyleEnvironment {
     if (isSsr()) {
       const element = this.serverSideHeadElements[key];
       if (!element) {
-        this.serverSideHeadElements[key] = React.createElement(type, computedProps, parsedContent);
+        this.serverSideHeadElements[key] = React.createElement(type, {...computedProps, dangerouslySetInnerHTML: {__html: parsedContent}});
       } else {
-        this.serverSideHeadElements[key] = React.cloneElement(element, computedProps, parsedContent);
+        this.serverSideHeadElements[key] = React.cloneElement(element, {...computedProps, dangerouslySetInnerHTML: {__html: parsedContent}});
       }
     } else {
       let element = document.head.querySelector(`[${HEAD_ELEMENT_DATA_ATTRIBUTE_NAME}*="${key}"]`);

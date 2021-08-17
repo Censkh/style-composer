@@ -14,7 +14,10 @@ const renderPoly = (props: PolyProps<any>, element: React.ReactElement): React.R
     return element;
   }
   if (element.type === View) {
-    return React.createElement(BasePolyView as any, element.props);
+    return {
+      ...element,
+      type: BasePolyView,
+    };
   }
 
   return {
@@ -58,29 +61,33 @@ const extendClassComponent = (baseComponent: any) => {
 };
 
 const extendFunctionComponent = (baseComponent: any) => {
-  const result                             = {...baseComponent};
-  const renderFunc                         = result.render;
+  const isMemo = Boolean(baseComponent.type);
+  let target   = baseComponent.type ?? baseComponent;
+
+  const renderFunc                         = target.render;
   let isProviderBased: boolean | undefined = undefined;
 
-  result.render = (props: any, ref: any) => {
-    const children = renderFunc(props, ref);
-    if (isProviderBased === undefined) {
-      isProviderBased = Boolean(children.type.$$typeof?.toString().includes("react.provider"));
-    }
+  target = {
+    ...target,
+    render: (props: any, ref: any) => {
+      const children = renderFunc(props, ref);
+      if (isProviderBased === undefined) {
+        isProviderBased = Boolean(children.type.$$typeof?.toString().includes("react.provider"));
+      }
 
-    if (isProviderBased) {
-      return {
-        ...children,
-        props: {
-          ...children.props,
-          children: renderPoly(props, children.props.children),
-        },
-      };
-    }
+      if (isProviderBased) {
+        return {
+          ...children,
+          props: {
+            ...children.props,
+            children: renderPoly(props, children.props.children),
+          },
+        };
+      }
 
-    return renderPoly(props, children);
-  };
-  return result;
+      return renderPoly(props, children);
+  }};
+  return isMemo ? React.memo(target, baseComponent.compare) : target;
 };
 
 

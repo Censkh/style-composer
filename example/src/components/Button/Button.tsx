@@ -45,6 +45,7 @@ const Button = (props: ButtonProps) => {
                                  classes={ownClasses}
                                  pseudoClasses={ownPseudoClasses}
                                  style={style}
+                                 disabled={disabled}
                                  {...otherProps}>
     <CssGlobalStyling name={"button"}>
       {`button:focus {
